@@ -1,12 +1,8 @@
 using Avalonia.Controls;
 
-namespace VaultKeeper.AvaloniaApplication.Views
+namespace VaultKeeper.AvaloniaApplication.Views;
+
+public partial class MainWindow : Window
 {
-    public partial class MainWindow : Window
-    {
-        public MainWindow()
-        {
-            InitializeComponent();
-        }
-    }
+    public MainWindow() => InitializeComponent();
 }

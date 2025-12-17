@@ -2,11 +2,15 @@ using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Data.Core.Plugins;
 using Avalonia.Markup.Xaml;
+using Microsoft.Extensions.DependencyInjection;
 using System.Linq;
 using System.Threading.Tasks;
 using VaultKeeper.AvaloniaApplication.Services;
 using VaultKeeper.AvaloniaApplication.ViewModels;
 using VaultKeeper.AvaloniaApplication.Views;
+using VaultKeeper.Models;
+using VaultKeeper.Models.VaultItems;
+using VaultKeeper.Repositories.Extensions.DependencyInjection;
 
 namespace VaultKeeper.AvaloniaApplication;
 
@@ -14,14 +18,17 @@ public partial class App : Application
 {
     // This is a reference to our MainViewModel which we use to save the list on shutdown. You can also use Dependency Injection
     // in your App.
-    private readonly MainWindowViewModel _mainViewModel = new();
+    private readonly MainWindowViewModel _mainViewModel;
 
     private bool _canClose = false;
 
-    public override void Initialize()
+    public App()
     {
-        AvaloniaXamlLoader.Load(this);
+        ServiceProvider serviceProvider = ConfigureServices();
+        _mainViewModel = serviceProvider.GetRequiredService<MainWindowViewModel>();
     }
+
+    public override void Initialize() => AvaloniaXamlLoader.Load(this);
 
     public override async void OnFrameworkInitializationCompleted()
     {
@@ -32,7 +39,7 @@ public partial class App : Application
             DisableAvaloniaDataAnnotationValidation();
             desktop.MainWindow = new MainWindow
             {
-                DataContext = _mainViewModel,
+                DataContext = _mainViewModel
             };
 
             desktop.ShutdownRequested += Desktop_ShutdownRequestedAsync;
@@ -43,7 +50,7 @@ public partial class App : Application
         base.OnFrameworkInitializationCompleted();
     }
 
-    private void DisableAvaloniaDataAnnotationValidation()
+    private static void DisableAvaloniaDataAnnotationValidation()
     {
         // Get an array of plugins to remove
         var dataValidationPluginsToRemove =
@@ -54,6 +61,18 @@ public partial class App : Application
         {
             BindingPlugins.DataValidators.Remove(plugin);
         }
+    }
+
+    private static ServiceProvider ConfigureServices()
+    {
+        var services = new ServiceCollection();
+        return services
+            .AddInMemoryRepository<VaultItem>()
+            .AddInMemoryRepository<Group>()
+
+            .AddScoped<MainWindowViewModel>()
+
+            .BuildServiceProvider();
     }
 
     // Optional: Load data from disc

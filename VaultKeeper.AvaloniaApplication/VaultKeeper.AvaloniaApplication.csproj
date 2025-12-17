@@ -23,4 +23,10 @@
     </PackageReference>
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.1" />
   </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\VaultKeeper.Common\VaultKeeper.Common.csproj" />
+    <ProjectReference Include="..\VaultKeeper.Models\VaultKeeper.Models.csproj" />
+    <ProjectReference Include="..\VaultKeeper.Repositories\VaultKeeper.Repositories.csproj" />
+  </ItemGroup>
 </Project>

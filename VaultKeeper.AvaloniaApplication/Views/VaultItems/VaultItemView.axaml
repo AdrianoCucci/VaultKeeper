@@ -1,0 +1,81 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="using:VaultKeeper.AvaloniaApplication.ViewModels.VaultItems"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="VaultKeeper.AvaloniaApplication.Views.VaultItems.VaultItemView"
+             x:DataType="vm:VaultItemViewModel"
+             Classes.readonly="{Binding IsReadOnly}"
+             Classes.pointer-entered="{Binding IsPointerEntered}"
+             Classes.has-focus="{Binding HasFocus}">
+
+  <UserControl.Styles>
+    <Style Selector="TextBox">
+      <Setter Property="BorderThickness" Value="0 0 0 1"></Setter>
+      <Setter Property="CornerRadius" Value="0"></Setter>
+    </Style>
+
+    <Style Selector=".has-focus TextBox">
+      <Setter Property="BorderThickness" Value="1"></Setter>
+      <Setter Property="CornerRadius" Value="4"></Setter>
+    </Style>
+  </UserControl.Styles>
+
+  <Grid RowDefinitions="Auto, Auto" ColumnDefinitions="1*, 1*" ColumnSpacing="12">
+    <Label Name="LabelName"
+           Target="InputName"
+           Margin="6"
+           IsVisible="{Binding HasFocus}"
+           Grid.Row="0"
+           Grid.Column="0">
+      Name
+    </Label>
+
+    <TextBox Name="InputName"
+             Text="{Binding Name}"
+             GotFocus="AnyInput_GotFocus"
+             LostFocus="AnyInput_LostFocus"
+             IsReadOnly="{Binding IsReadOnly}"
+             Focusable="{Binding !IsReadOnly}"
+             Grid.Row="1"
+             Grid.Column="0">
+      <TextBox.InnerLeftContent>
+        <Button Click="ButtonCopyName_Click" Opacity="{Binding PointerEnteredContentOpacity}">
+          <PathIcon Data="{DynamicResource IconCopy}"></PathIcon>
+        </Button>
+      </TextBox.InnerLeftContent>
+    </TextBox>
+
+    <Label Name="LabelValue"
+           Target="InputValue"
+           Margin="6"
+           IsVisible="{Binding HasFocus}"
+           Grid.Row="0"
+           Grid.Column="1">
+      Value
+    </Label>
+
+    <TextBox Name="InputValue"
+             Text="{Binding Value}"
+             PasswordChar="*"
+             RevealPassword="{Binding ValueRevealed}"
+             IsReadOnly="true"
+             Focusable="{Binding !IsReadOnly}"
+             GotFocus="AnyInput_GotFocus"
+             LostFocus="AnyInput_LostFocus"
+             Grid.Row="1"
+             Grid.Column="1">
+      <TextBox.InnerRightContent>
+        <StackPanel Orientation="Horizontal" Opacity="{Binding PointerEnteredContentOpacity}">
+          <Button Click="ButtonCopyValue_Click">
+            <PathIcon Data="{DynamicResource IconCopy}"></PathIcon>
+          </Button>
+          <Button Click="ToggleRevealValue_Click">
+            <PathIcon Name="IconLock" Data="{DynamicResource IconLockClosed}"></PathIcon>
+          </Button>
+        </StackPanel>
+      </TextBox.InnerRightContent>
+    </TextBox>
+  </Grid>
+</UserControl>
