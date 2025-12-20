@@ -2,17 +2,18 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             xmlns:vm="using:VaultKeeper.AvaloniaApplication.ViewModels.VaultItems"
-             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
-             x:Class="VaultKeeper.AvaloniaApplication.Views.VaultItems.VaultItemListView"
-             x:DataType="vm:VaultItemListViewModel"
+             xmlns:vm="using:VaultKeeper.AvaloniaApplication.ViewModels"
              xmlns:uc="using:VaultKeeper.AvaloniaApplication.Views.VaultItems"
-             >
+             xmlns:vaultitems="using:VaultKeeper.AvaloniaApplication.ViewModels.VaultItems"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="VaultKeeper.AvaloniaApplication.Views.VaultPageView"
+             x:DataType="vm:VaultPageViewModel">
+
   <ScrollViewer>
     <ItemsControl ItemsSource="{Binding VaultItems}">
       <ItemsControl.ItemTemplate>
-        <DataTemplate DataType="vm:VaultItemViewModel">
-          <uc:VaultItemView Content="{Binding .}" Margin="12" RevealValueClick="VaultItemView_RevealValueClick"></uc:VaultItemView>
+        <DataTemplate>
+          <uc:VaultItemView Padding="12" ActionInvoked="VaultItemView_ActionInvoked"></uc:VaultItemView>
         </DataTemplate>
       </ItemsControl.ItemTemplate>
     </ItemsControl>

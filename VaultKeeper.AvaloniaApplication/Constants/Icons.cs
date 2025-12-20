@@ -2,9 +2,16 @@
 
 public static class Icons
 {
-    public const string Vault = "IconVault";
-    public const string Gear = "IconGear";
-    public const string LockClosed = "IconLockClosed";
-    public const string LockOpened = "IconLockOpened";
-    public const string Copy = "IconCopy";
+    public const string Vault = $"{_prefix}Vault";
+    public const string Gear = $"{_prefix}Gear";
+    public const string LockClosed = $"{_prefix}LockClosed";
+    public const string LockOpened = $"{_prefix}LockOpened";
+    public const string Copy = $"{_prefix}Copy";
+    public const string Pen = $"{_prefix}Pen";
+    public const string Trash = $"{_prefix}Pen";
+    public const string List = $"{_prefix}List";
+    public const string Check = $"{_prefix}Check";
+    public const string X = $"{_prefix}X";
+
+    private const string _prefix = "Icon";
 }

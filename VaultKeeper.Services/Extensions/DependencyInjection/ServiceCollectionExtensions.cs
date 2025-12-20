@@ -8,6 +8,7 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection AddVaultKeeperServices(this IServiceCollection services)
     {
         return services
+            .AddSingleton<ISecurityService, SecurityService>()
             .AddScoped<IVaultItemService, VaultItemService>();
     }
 }

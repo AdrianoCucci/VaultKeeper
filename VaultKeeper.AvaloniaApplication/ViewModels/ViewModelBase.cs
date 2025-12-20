@@ -10,7 +10,10 @@ public abstract class ViewModelBase : ObservableObject
     protected static T CreateControl<T>(Action<T> configAction) where T : Control, new() => ControlHelper.CreateControl(configAction);
 }
 
-public abstract class ViewModelBase<T>(T model) : ViewModelBase
+public abstract partial class ViewModelBase<T>(T model) : ViewModelBase
 {
-    public T Model { get; } = model;
+    [ObservableProperty]
+    private T _model = model;
+
+    public void UpdateModel(Func<T, T> updateAction) => Model = updateAction.Invoke(Model);
 }

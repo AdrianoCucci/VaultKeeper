@@ -1,0 +1,70 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vaultitems="using:VaultKeeper.AvaloniaApplication.ViewModels.VaultItems"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="VaultKeeper.AvaloniaApplication.Views.VaultItems.VaultItemEditView"
+             x:DataType="vaultitems:VaultItemEditViewModel">
+
+  <Grid RowDefinitions="Auto, Auto" ColumnDefinitions="*, *" ColumnSpacing="12">
+    <StackPanel Grid.Row="0" Grid.Column="0">
+      <Label Target="InputName">Name</Label>
+      <TextBox Name="InputName" Text="{Binding Form.Name}"></TextBox>
+
+      <ItemsControl ItemsSource="{Binding #InputName.(DataValidationErrors.Errors)}">
+        <ItemsControl.ItemTemplate>
+          <DataTemplate>
+            <TextBlock Text="{Binding}" Margin="0 6 0 0" Foreground="Red"></TextBlock>
+          </DataTemplate>
+        </ItemsControl.ItemTemplate>
+      </ItemsControl>
+    </StackPanel>
+
+    <StackPanel Grid.Row="0" Grid.Column="1">
+      <Label Target="InputValue">Value</Label>
+      <TextBox Name="InputValue"
+               Text="{Binding Form.Value}"
+               PasswordChar="{Binding PasswordChar}"
+               RevealPassword="{Binding ValueRevealed}"
+               IsReadOnly="{Binding !ValueRevealed}">
+
+        <TextBox.InnerRightContent>
+          <Button Click="ActionToggleRevealValue_Click">
+            <PathIcon Classes.unlocked="{Binding ValueRevealed}">
+              <PathIcon.Styles>
+                <Style Selector="PathIcon">
+                  <Setter Property="Data" Value="{StaticResource IconLockClosed}"></Setter>
+                </Style>
+                <Style Selector="PathIcon.unlocked">
+                  <Setter Property="Data" Value="{StaticResource IconLockOpened}"></Setter>
+                </Style>
+              </PathIcon.Styles>
+            </PathIcon>
+          </Button>
+        </TextBox.InnerRightContent>
+      </TextBox>
+    </StackPanel>
+
+    <StackPanel Orientation="Horizontal"
+                HorizontalAlignment="Right"
+                Margin="0 12 0 0"
+                Grid.Row="1"
+                Grid.Column="0"
+                Grid.ColumnSpan="2">
+      <Button Click="ActionEditCancel_Click">
+        <StackPanel Orientation="Horizontal" Spacing="12">
+          <PathIcon Data="{StaticResource IconX}" Width="14" Height="14"></PathIcon>
+          <TextBlock VerticalAlignment="Center">Cancel</TextBlock>
+        </StackPanel>
+      </Button>
+
+      <Button Click="ActionEditSave_Click" IsEnabled="{Binding !Form.HasErrors}">
+        <StackPanel Orientation="Horizontal" Spacing="12">
+          <PathIcon Data="{StaticResource IconCheck}" Width="14" Height="14"></PathIcon>
+          <TextBlock VerticalAlignment="Center">Save</TextBlock>
+        </StackPanel>
+      </Button>
+    </StackPanel>
+  </Grid>
+</UserControl>

@@ -37,40 +37,4 @@
     </Border>
   </Grid>
 
-  <!-- <Grid RowDefinitions="Auto, *, Auto">
-
-  <TextBlock Text="My Todo List" Classes="h1"></TextBlock>
-  <ScrollViewer Grid.Row="1">
-  <ItemsControl ItemsSource="{Binding TodoItems}">
-  <ItemsControl.ItemTemplate>
-  <DataTemplate DataType="vm:TodoItemViewModel">
-  <Grid ColumnDefinitions="*, Auto">
-  <CheckBox Content="{Binding Content}" IsChecked="{Binding IsChecked}"></CheckBox>
-  <Button Command="{Binding $parent[Window].DataContext.RemoveItemCommand}"
-  CommandParameter="{Binding .}"
-  Grid.Column="1">
-  <PathIcon Data="{DynamicResource IconTrash}" Foreground="Red"></PathIcon>
-  </Button>
-  </Grid>
-  </DataTemplate>
-  </ItemsControl.ItemTemplate>
-  </ItemsControl>
-  </ScrollViewer>
-
-  <TextBox Grid.Row="2"
-  Text="{Binding NewItemContent}"
-  Watermark="Add a new item">
-
-  <TextBox.InnerRightContent>
-  <Button Command="{Binding AddItemCommand}">
-  <PathIcon Data="{DynamicResource IconCheck}" Foreground="Green"></PathIcon>
-  </Button>
-  </TextBox.InnerRightContent>
-
-  <TextBox.KeyBindings>
-  <KeyBinding Gesture="Enter" Command="{Binding AddItemCommand}"></KeyBinding>
-  </TextBox.KeyBindings>
-  </TextBox>
-  </Grid> -->
-
 </Window>
