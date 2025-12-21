@@ -49,5 +49,6 @@ public enum ResultFailureType
 {
     Unknown,
     BadRequest,
+    NotFound,
     Conflict
 }

@@ -24,6 +24,14 @@ public class InMemoryRepository<T> : IRepository<T>
     public Task<bool> HasAnyAsync(ReadQuery<T>? query = null) =>
         Task.FromResult(_items.FromReadQuery(query).Any());
 
+    public Task<IEnumerable<T>> SetAllAsync(IEnumerable<T> items)
+    {
+        _items.Clear();
+        _items.UnionWith(items);
+
+        return Task.FromResult(_items as IEnumerable<T>);
+    }
+
     public Task<T> AddAsync(T item)
     {
         _items.Add(item);
@@ -33,7 +41,7 @@ public class InMemoryRepository<T> : IRepository<T>
     public Task<IEnumerable<T>> AddManyAsync(IEnumerable<T> items)
     {
         _items.UnionWith(items);
-        return Task.FromResult(items);
+        return Task.FromResult(items.ToArray() as IEnumerable<T>);
     }
 
     public Task<T?> UpdateAsync(T originalItem, T newItem)

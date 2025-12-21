@@ -52,21 +52,21 @@ public partial class App : Application
 
     private ServiceProvider ConfigureServices()
     {
-        var services = new ServiceCollection();
-        return services
+        var services = new ServiceCollection()
             .AddLogging()
 
             .AddInMemoryRepository<VaultItem>()
             .AddInMemoryRepository<Group>()
 
             .AddVaultKeeperServices()
-
-            .AddSingleton(ApplicationLifetime!)
             .AddSingleton<IPlatformService, PlatformService>()
 
             .AddScoped<MainWindowViewModel>()
-            .AddScoped<VaultPageViewModel>()
+            .AddScoped<VaultPageViewModel>();
 
-            .BuildServiceProvider();
+        if (ApplicationLifetime != null)
+            services.AddSingleton(ApplicationLifetime);
+
+        return services.BuildServiceProvider();
     }
 }

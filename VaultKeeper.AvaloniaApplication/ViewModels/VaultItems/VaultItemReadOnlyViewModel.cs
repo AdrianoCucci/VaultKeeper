@@ -1,4 +1,5 @@
-﻿using VaultKeeper.Models.VaultItems;
+﻿using VaultKeeper.AvaloniaApplication.ViewModels.VaultItems.Common;
+using VaultKeeper.Models.VaultItems;
 
 namespace VaultKeeper.AvaloniaApplication.ViewModels.VaultItems;
 

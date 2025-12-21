@@ -2,15 +2,22 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             xmlns:vaultitems="using:VaultKeeper.AvaloniaApplication.ViewModels.VaultItems"
+             xmlns:vm="using:VaultKeeper.AvaloniaApplication.ViewModels.VaultItems"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="VaultKeeper.AvaloniaApplication.Views.VaultItems.VaultItemEditView"
-             x:DataType="vaultitems:VaultItemEditViewModel">
+             x:DataType="vm:VaultItemEditViewModel">
+
+  <Design.DataContext>
+    <x:Static Member="vm:VaultItemEditViewModel.Design"/>
+  </Design.DataContext>
 
   <Grid RowDefinitions="Auto, Auto" ColumnDefinitions="*, *" ColumnSpacing="12">
     <StackPanel Grid.Row="0" Grid.Column="0">
       <Label Target="InputName">Name</Label>
-      <TextBox Name="InputName" Text="{Binding Form.Name}"></TextBox>
+      <TextBox Name="InputName"
+               Text="{Binding Form.Name}"
+               MinHeight="35"
+               VerticalContentAlignment="Center"></TextBox>
 
       <ItemsControl ItemsSource="{Binding #InputName.(DataValidationErrors.Errors)}">
         <ItemsControl.ItemTemplate>
@@ -25,24 +32,32 @@
       <Label Target="InputValue">Value</Label>
       <TextBox Name="InputValue"
                Text="{Binding Form.Value}"
+               VerticalContentAlignment="Center"
                PasswordChar="{Binding PasswordChar}"
                RevealPassword="{Binding ValueRevealed}"
                IsReadOnly="{Binding !ValueRevealed}">
 
-        <TextBox.InnerRightContent>
-          <Button Click="ActionToggleRevealValue_Click">
-            <PathIcon Classes.unlocked="{Binding ValueRevealed}">
-              <PathIcon.Styles>
-                <Style Selector="PathIcon">
-                  <Setter Property="Data" Value="{StaticResource IconLockClosed}"></Setter>
-                </Style>
-                <Style Selector="PathIcon.unlocked">
-                  <Setter Property="Data" Value="{StaticResource IconLockOpened}"></Setter>
-                </Style>
-              </PathIcon.Styles>
-            </PathIcon>
+        <TextBox.InnerLeftContent>
+          <Button Classes.unlocked="{Binding ValueRevealed}" Click="ActionToggleRevealValue_Click">
+            <Button.Styles>
+              <Style Selector="Button">
+                <Setter Property="ToolTip.Tip" Value="Show Value"></Setter>
+              </Style>
+              <Style Selector="PathIcon">
+                <Setter Property="Data" Value="{StaticResource IconLockClosed}"></Setter>
+              </Style>
+
+              <Style Selector="Button.unlocked">
+                <Setter Property="ToolTip.Tip" Value="Hide Value"></Setter>
+              </Style>
+              <Style Selector="Button.unlocked PathIcon">
+                <Setter Property="Data" Value="{StaticResource IconLockOpened}"></Setter>
+              </Style>
+            </Button.Styles>
+
+            <PathIcon/>
           </Button>
-        </TextBox.InnerRightContent>
+        </TextBox.InnerLeftContent>
       </TextBox>
     </StackPanel>
 

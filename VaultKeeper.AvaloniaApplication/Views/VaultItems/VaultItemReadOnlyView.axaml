@@ -5,43 +5,58 @@
              xmlns:vm="using:VaultKeeper.AvaloniaApplication.ViewModels.VaultItems"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="VaultKeeper.AvaloniaApplication.Views.VaultItems.VaultItemReadOnlyView"
-             x:DataType="vm:VaultItemReadOnlyViewModel"
-             >
-  <Grid RowDefinitions="*" ColumnDefinitions="*, Auto">
-    <TextBlock Text="{Binding Model.Name}" VerticalAlignment="Center" Grid.Column="0"></TextBlock>
-    <SplitButton Click="ActionCopyValue_Click" Grid.Column="1" ToolTip.Tip="Copy Value">
-      <PathIcon Data="{StaticResource IconCopy}"></PathIcon>
-      <SplitButton.Flyout>
-        <MenuFlyout Placement="BottomEdgeAlignedRight">
-          <MenuItem Header="Copy name" Click="ActionCopyName_Click">
-            <MenuItem.Icon>
-              <PathIcon Data="{StaticResource IconCopy}"></PathIcon>
-            </MenuItem.Icon>
-          </MenuItem>
-          <MenuItem Header="Copy value" Click="ActionCopyValue_Click">
-            <MenuItem.Icon>
-              <PathIcon Data="{StaticResource IconCopy}"></PathIcon>
-            </MenuItem.Icon>
-          </MenuItem>
-          <Separator/>
-          <MenuItem Header="Edit" Click="ActionEdit_Click">
-            <MenuItem.Icon>
-              <PathIcon Data="{StaticResource IconPen}"></PathIcon>
-            </MenuItem.Icon>
-          </MenuItem>
-          <MenuItem Header="Group" Click="ActionGroup_Click">
-            <MenuItem.Icon>
-              <PathIcon Data="{StaticResource IconList}"></PathIcon>
-            </MenuItem.Icon>
-          </MenuItem>
-          <Separator/>
-          <MenuItem Header="Delete" Click="ActionDelete_Click">
-            <MenuItem.Icon>
-              <PathIcon Data="{StaticResource IconTrash}"></PathIcon>
-            </MenuItem.Icon>
-          </MenuItem>
-        </MenuFlyout>
-      </SplitButton.Flyout>
-    </SplitButton>
-  </Grid>
+             x:DataType="vm:VaultItemReadOnlyViewModel">
+
+  <Design.DataContext>
+    <x:Static Member="vm:VaultItemReadOnlyViewModel.Design"/>
+  </Design.DataContext>
+
+  <UserControl.Styles>
+    <Style Selector="Border#GridBorder:not(:pointerover)">
+      <Setter Property="Background" Value="Transparent"></Setter>
+    </Style>
+    <Style Selector="Border#GridBorder:pointerover">
+      <Setter Property="Background" Value="#4FFF0000"></Setter>
+    </Style>
+  </UserControl.Styles>
+
+  <Border Name="GridBorder" BorderThickness="0 0 0 1" BorderBrush="{DynamicResource SystemAccentColor}">
+    <Grid RowDefinitions="Auto" ColumnDefinitions="*, Auto">
+      <TextBlock Text="{Binding Model.Name}" Padding="12,6" VerticalAlignment="Center" Grid.Column="0"></TextBlock>
+      <SplitButton Click="ActionCopyValue_Click" Grid.Column="1" ToolTip.Tip="Copy Value">
+        <PathIcon Data="{StaticResource IconCopy}"></PathIcon>
+        <SplitButton.Flyout>
+          <MenuFlyout Placement="BottomEdgeAlignedRight">
+            <MenuItem Header="Copy name" Click="ActionCopyName_Click">
+              <MenuItem.Icon>
+                <PathIcon Data="{StaticResource IconCopy}"></PathIcon>
+              </MenuItem.Icon>
+            </MenuItem>
+            <MenuItem Header="Copy value" Click="ActionCopyValue_Click">
+              <MenuItem.Icon>
+                <PathIcon Data="{StaticResource IconCopy}"></PathIcon>
+              </MenuItem.Icon>
+            </MenuItem>
+            <Separator/>
+            <MenuItem Header="Edit" Click="ActionEdit_Click">
+              <MenuItem.Icon>
+                <PathIcon Data="{StaticResource IconPen}"></PathIcon>
+              </MenuItem.Icon>
+            </MenuItem>
+            <MenuItem Header="Group" Click="ActionGroup_Click">
+              <MenuItem.Icon>
+                <PathIcon Data="{StaticResource IconList}"></PathIcon>
+              </MenuItem.Icon>
+            </MenuItem>
+            <Separator/>
+            <MenuItem Header="Delete" Click="ActionDelete_Click">
+              <MenuItem.Icon>
+                <PathIcon Data="{StaticResource IconTrash}"></PathIcon>
+              </MenuItem.Icon>
+            </MenuItem>
+          </MenuFlyout>
+        </SplitButton.Flyout>
+      </SplitButton>
+    </Grid>
+  </Border>
 </UserControl>

@@ -40,7 +40,7 @@ public partial class MainWindowViewModel : ViewModelBase
                     panel.Children.Add(CreateControl<PathIcon>(x =>
                     {
                         x.Margin = new(0, 0, 6, 0);
-                        x.Bind(PathIcon.DataProperty, x.Resources.GetResourceObservable(Icons.Gear));
+                        x.Bind(PathIcon.DataProperty, x.Resources.GetResourceObservable(Icons.Vault));
                     }));
                     panel.Children.Add(CreateControl<TextBlock>(x => x.Text = "Vault"));
                 }),

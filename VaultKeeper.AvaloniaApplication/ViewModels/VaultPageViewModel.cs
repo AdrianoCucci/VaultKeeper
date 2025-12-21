@@ -18,34 +18,23 @@ public partial class VaultPageViewModel(
     ISecurityService securityService,
     IPlatformService platformService) : ViewModelBase
 {
-    public ObservableCollection<VaultItemViewModel> VaultItems { get; } = [];
+    [ObservableProperty]
+    private ObservableCollection<VaultItemViewModel> _vaultItems = [];
 
     [ObservableProperty]
     public bool _isReadOnly = false;
 
     public async Task LoadVaultItemsAsync()
     {
-        await Task.Delay(1000);
-
-        var getResult = await vaultItemService.GetManyAsync();
-        //if (getResult.IsSuccessful)
-        //    SetVaultItems(getResult.Value!);
-
-        SetVaultItems(Enumerable.Range(1, 10).Select(x => new VaultItem
-        {
-            Name = $"{x}: My Account",
-            Value = securityService.Encrypt($"{x}: Password123").Value!
-        }));
+        var loadResult = await vaultItemService.LoadAllAsync();
+        if (loadResult.IsSuccessful)
+            SetVaultItems(loadResult.Value!);
     }
 
     public void SetVaultItems(IEnumerable<VaultItem> vaultItems)
     {
-        VaultItems.Clear();
-
-        foreach (var item in vaultItems)
-        {
-            VaultItems.Add(new(item));
-        }
+        var viewModels = vaultItems.Select(x => new VaultItemViewModel(x));
+        VaultItems = [.. viewModels];
     }
 
     public async Task HandleVaultItemEventActionAsync(VaultItemViewModel itemVM, VaultItemAction action)
@@ -68,35 +57,40 @@ public partial class VaultPageViewModel(
                 break;
             case VaultItemAction.ToggleRevealValue:
                 {
-                    if (itemVM.Content is VaultItemEditViewModel editVM)
+                    if (itemVM.Content is not VaultItemEditViewModel editVM) break;
+
+                    string? value = editVM.Form.Value;
+
+                    if (value != null)
                     {
-                        string? value = editVM.Form.Value;
-
-                        if (value != null)
-                        {
-                            editVM.Form.Value = editVM.ValueRevealed
-                                ? Encrypt(value)
-                                : Decrypt(value);
-                        }
-
-                        editVM.ValueRevealed = !editVM.ValueRevealed;
+                        editVM.Form.Value = editVM.ValueRevealed
+                            ? Encrypt(value)
+                            : Decrypt(value);
                     }
+
+                    editVM.ValueRevealed = !editVM.ValueRevealed;
+
+                    break;
                 }
-                break;
             case VaultItemAction.EditSave:
                 {
-                    if (itemVM.Content is VaultItemEditViewModel editVM)
-                    {
-                        string value = editVM.Form.Value ?? throw new NullReferenceException("This shouldn't happen."); // TODO: Handle properly.
-                        if (editVM.ValueRevealed)
-                            value = Encrypt(value);
+                    if (itemVM.Content is not VaultItemEditViewModel editVM) break;
 
-                        itemVM.Model = editVM.Form.GetModel() with { Value = value };
+                    string value = editVM.Form.Value ?? throw new NullReferenceException("This shouldn't happen."); // TODO: Handle properly.
+                    if (editVM.ValueRevealed)
+                        value = Encrypt(value);
+
+                    var updateModel = editVM.Form.GetModel() with { Value = value };
+
+                    var updateResult = await vaultItemService.UpdateAsync(updateModel);
+                    if (updateResult.IsSuccessful)
+                    {
+                        itemVM.Model = updateResult.Value!;
+                        itemVM.ViewMode = RecordViewMode.ReadOnly;
                     }
 
-                    itemVM.ViewMode = RecordViewMode.ReadOnly;
+                    break;
                 }
-                break;
         }
     }
 

@@ -8,6 +8,8 @@ namespace VaultKeeper.Services.Abstractions;
 
 public interface IVaultItemService
 {
+    Task<Result<IEnumerable<VaultItem>>> LoadAllAsync();
     Task<Result<IEnumerable<VaultItem>>> GetManyAsync(ReadQuery<VaultItem>? query = null);
     Task<Result<VaultItem>> AddAsync(NewVaultItem vaultItem);
+    Task<Result<VaultItem>> UpdateAsync(VaultItem vaultItem);
 }

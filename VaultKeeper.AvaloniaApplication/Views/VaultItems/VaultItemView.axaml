@@ -9,7 +9,11 @@
              x:Class="VaultKeeper.AvaloniaApplication.Views.VaultItems.VaultItemView"
              x:DataType="vm:VaultItemViewModel">
 
-  <ContentControl Content="{Binding Content}">
+  <Design.DataContext>
+    <x:Static Member="vm:VaultItemViewModel.Design"/>
+  </Design.DataContext>
+
+  <TransitioningContentControl Content="{Binding Content}">
     <ContentControl.DataTemplates>
       <DataTemplate DataType="vm:VaultItemReadOnlyViewModel">
         <local:VaultItemReadOnlyView ActionInvoked="VaultItem_ActionInvoked"></local:VaultItemReadOnlyView>
@@ -18,5 +22,5 @@
         <local:VaultItemEditView ActionInvoked="VaultItem_ActionInvoked"></local:VaultItemEditView>
       </DataTemplate>
     </ContentControl.DataTemplates>
-  </ContentControl>
+  </TransitioningContentControl>
 </UserControl>

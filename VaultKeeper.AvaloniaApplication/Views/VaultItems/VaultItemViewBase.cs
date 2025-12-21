@@ -1,6 +1,5 @@
 ﻿using Avalonia.Interactivity;
 using System;
-using VaultKeeper.AvaloniaApplication.ViewModels.VaultItems;
 using VaultKeeper.AvaloniaApplication.ViewModels.VaultItems.Common;
 
 namespace VaultKeeper.AvaloniaApplication.Views.VaultItems;

@@ -5,6 +5,8 @@ namespace VaultKeeper.Repositories.Abstractions;
 
 public interface IRepository<T> : IReadOnlyRepository<T>
 {
+    Task<IEnumerable<T>> SetAllAsync(IEnumerable<T> items);
+
     Task<T> AddAsync(T item);
 
     Task<IEnumerable<T>> AddManyAsync(IEnumerable<T> items);

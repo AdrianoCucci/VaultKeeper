@@ -1,11 +1,11 @@
 <Window xmlns="https://github.com/avaloniaui"
-        xmlns:vm.common="using:VaultKeeper.AvaloniaApplication.ViewModels.Common"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:vm="using:VaultKeeper.AvaloniaApplication.ViewModels"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:dataannotations="using:System.ComponentModel.DataAnnotations"
-        xmlns:local="using:VaultKeeper.AvaloniaApplication.Views"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:dataannotations="using:System.ComponentModel.DataAnnotations"
+        xmlns:vm="using:VaultKeeper.AvaloniaApplication.ViewModels"
+        xmlns:vm.common="using:VaultKeeper.AvaloniaApplication.ViewModels.Common"
+        xmlns:local="using:VaultKeeper.AvaloniaApplication.Views"
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
         x:Class="VaultKeeper.AvaloniaApplication.Views.MainWindow"
         x:DataType="vm:MainWindowViewModel"
@@ -14,6 +14,9 @@
         Title="VaultKeeper.AvaloniaApplication"
         Width="1920"
         Height="1080">
+  <Design.DataContext>
+    <x:Static Member="vm:MainWindowViewModel.Design"/>
+  </Design.DataContext>
 
   <Grid ColumnDefinitions="*" RowDefinitions="Auto, Auto, *, Auto" ShowGridLines="true">
     <Border BorderThickness="2" Height="25" BorderBrush="Red" Grid.Row="0">
