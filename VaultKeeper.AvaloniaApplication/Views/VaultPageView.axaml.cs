@@ -20,12 +20,12 @@ public partial class VaultPageView : ViewBase<VaultPageViewModel>
         if (e.Source is not VaultItemView itemView) return;
         if (itemView.Model is not VaultItemViewModel itemVM) return;
 
-        await Model.HandleVaultItemEventActionAsync(itemVM, e.Action);
+        await Model.HandleItemActionAsync(itemVM, e.Action);
     }
 
     private async void VaultItemFormView_FormActionInvoked(object? sender, VaultItemFormActionEventArgs e)
     {
         if (Model != null)
-            await Model.HandleFormEventAsync(e);
+            await Model.HandleItemFormEventAsync(e);
     }
 }

@@ -28,17 +28,31 @@ public partial class VaultPageViewModel(
     [ObservableProperty]
     public bool _isSidePaneOpen = false;
 
+    private bool _isLoading;
+    public bool IsLoading { get => _isLoading; private set => SetProperty(ref _isLoading, value); }
+
+    private bool _hasVaultItems;
+    public bool HasVaultItems { get => _hasVaultItems; private set => SetProperty(ref _hasVaultItems, value); }
+
     public async Task LoadVaultItemsAsync()
     {
+        IsLoading = true;
+
         var loadResult = await vaultItemService.LoadAllAsync();
-        if (loadResult.IsSuccessful)
-            SetVaultItems(loadResult.Value!);
+        if (!loadResult.IsSuccessful)
+        {
+            // TODO: Handle error.
+        }
+
+        SetVaultItems(loadResult.Value!);
+        IsLoading = false;
     }
 
     public void SetVaultItems(IEnumerable<VaultItem> vaultItems)
     {
-        var viewModels = vaultItems.Select(x => new VaultItemViewModel(x));
+        IEnumerable<VaultItemViewModel> viewModels = vaultItems.Select(x => new VaultItemViewModel(x));
         VaultItems = [.. viewModels];
+        HasVaultItems = VaultItems.Count > 0;
     }
 
     public void ShowVaultItemCreateForm()
@@ -72,7 +86,44 @@ public partial class VaultPageViewModel(
         VaultItems[index] = new VaultItemViewModel(vaultItem.Model);
     }
 
-    public async Task HandleFormEventAsync(VaultItemFormActionEventArgs formEvent)
+    public async Task DeleteVaultItemAsync(VaultItemViewModelBase vaultItem)
+    {
+        if (!VaultItems.Contains(vaultItem)) return;
+
+        Result deleteResult = await vaultItemService.DeleteAsync(vaultItem.Model);
+
+        if (!deleteResult.IsSuccessful)
+        {
+            // TODO: Handle error
+            return;
+        }
+
+        VaultItems.Remove(vaultItem);
+        HasVaultItems = VaultItems.Count > 0;
+    }
+
+    public async Task HandleItemActionAsync(VaultItemViewModel itemVM, VaultItemAction action)
+    {
+        VaultItem model = itemVM.Model;
+
+        switch (action)
+        {
+            case VaultItemAction.CopyName:
+                await platformService.GetClipboard().SetTextAsync(model.Name);
+                break;
+            case VaultItemAction.CopyValue:
+                await platformService.GetClipboard().SetTextAsync(Decrypt(model.Value));
+                break;
+            case VaultItemAction.Edit:
+                ShowVaultItemEditForm(itemVM);
+                break;
+            case VaultItemAction.Delete:
+                await DeleteVaultItemAsync(itemVM);
+                break;
+        }
+    }
+
+    public async Task HandleItemFormEventAsync(VaultItemFormActionEventArgs formEvent)
     {
         switch (formEvent.Action)
         {
@@ -143,87 +194,6 @@ public partial class VaultPageViewModel(
         }
 
         formVM.ValueRevealed = !formVM.ValueRevealed;
-    }
-
-    public async Task HandleVaultItemEventActionAsync(VaultItemViewModel itemVM, VaultItemAction action)
-    {
-        VaultItem model = itemVM.Model;
-
-        switch (action)
-        {
-            case VaultItemAction.CopyName:
-                await platformService.GetClipboard().SetTextAsync(model.Name);
-                break;
-            case VaultItemAction.CopyValue:
-                await platformService.GetClipboard().SetTextAsync(Decrypt(model.Value));
-                break;
-            case VaultItemAction.Edit:
-                ShowVaultItemEditForm(itemVM);
-                break;
-                //case VaultItemAction.EditCancel:
-                //    {
-                //        if (itemVM is VaultItemViewModel listVM)
-                //            listVM.ViewMode = RecordViewMode.ReadOnly;
-
-                //        HideVaultItemForm();
-                //        break;
-                //    }
-                //case VaultItemAction.ToggleRevealValue:
-                //    {
-                //        VaultItemFormViewModel? formVM = itemVM switch
-                //        {
-                //            VaultItemFormViewModel vm => vm,
-                //            VaultItemViewModel vm => vm.Content is VaultItemFormViewModel fvm ? fvm : null,
-                //            _ => null
-                //        };
-
-                //        if (formVM == null) break;
-
-                //        string? value = formVM.Form.Value;
-
-                //        if (value != null)
-                //        {
-                //            formVM.Form.Value = formVM.ValueRevealed
-                //                ? Encrypt(value)
-                //                : Decrypt(value);
-                //        }
-
-                //        formVM.ValueRevealed = !formVM.ValueRevealed;
-
-                //        break;
-                //    }
-                //case VaultItemAction.EditSave:
-                //    {
-                //        VaultItemFormViewModel? formVM = itemVM switch
-                //        {
-                //            VaultItemFormViewModel vm => vm,
-                //            VaultItemViewModel vm => vm.Content is VaultItemFormViewModel fvm ? fvm : null,
-                //            _ => null
-                //        };
-
-                //        if (formVM == null) break;
-
-                //        string value = formVM.Form.Value ?? throw new NullReferenceException("This shouldn't happen."); // TODO: Handle properly.
-                //        if (formVM.ValueRevealed)
-                //            value = Encrypt(value);
-
-                //        var updateModel = formVM.Form.GetModel() with { Value = value };
-
-                //        var updateResult = await vaultItemService.UpdateAsync(updateModel);
-                //        if (updateResult.IsSuccessful)
-                //        {
-                //            itemVM.Model = updateResult.Value!;
-
-                //            if (itemVM is VaultItemViewModel listVM)
-                //            {
-                //                listVM.ViewMode = RecordViewMode.ReadOnly;
-                //                HideVaultItemForm();
-                //            }
-                //        }
-
-                //        break;
-                //    }
-        }
     }
 
     private string Encrypt(string value)

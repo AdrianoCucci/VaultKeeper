@@ -1,7 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using VaultKeeper.Common.Extensions;
 using VaultKeeper.Common.Models.Queries;
@@ -15,26 +14,14 @@ namespace VaultKeeper.Services;
 
 public class VaultItemService(IRepository<VaultItem> repository, ISecurityService securityService, ILogger<VaultItemService> logger) : IVaultItemService
 {
-    // TODO: Implement properly.
     public async Task<Result<IEnumerable<VaultItem>>> LoadAllAsync()
     {
         logger.LogInformation(nameof(LoadAllAsync));
 
         try
         {
-            //IEnumerable<VaultItem> items = await repository.GetManyAsync();
-            //return items.ToOkResult();
-
-            IEnumerable<VaultItem> items = Enumerable.Range(1, 10).Select(x => new VaultItem
-            {
-                Id = Guid.NewGuid(),
-                Name = $"{x}: My Account",
-                Value = securityService.Encrypt($"{x}: Password123").Value!
-            });
-
-            items = await repository.SetAllAsync(items);
-
-            return items.ToOkResult().Logged(logger);
+            IEnumerable<VaultItem> items = await repository.GetManyAsync();
+            return items.ToOkResult();
         }
         catch (Exception ex)
         {
@@ -124,6 +111,24 @@ public class VaultItemService(IRepository<VaultItem> repository, ISecurityServic
         catch (Exception ex)
         {
             return ex.ToFailedResult<VaultItem>().Logged(logger);
+        }
+    }
+
+    public async Task<Result> DeleteAsync(VaultItem vaultItem)
+    {
+        logger.LogInformation(nameof(DeleteAsync));
+
+        try
+        {
+            bool didRemove = await repository.RemoveAsync(vaultItem);
+            if (!didRemove)
+                return Result.Failed<VaultItem>(ResultFailureType.NotFound, $"Vault Item ID does not exist: ({vaultItem.Id})").Logged(logger);
+
+            return Result.Ok($"Vault Item deleted successfuly (ID: {vaultItem.Id}).").Logged(logger);
+        }
+        catch (Exception ex)
+        {
+            return ex.ToFailedResult().Logged(logger);
         }
     }
 
