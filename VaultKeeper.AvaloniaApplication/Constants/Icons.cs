@@ -12,6 +12,7 @@ public static class Icons
     public const string List = $"{_prefix}List";
     public const string Check = $"{_prefix}Check";
     public const string X = $"{_prefix}X";
+    public const string Plus = $"{_prefix}Plus";
 
     private const string _prefix = "Icon";
 }

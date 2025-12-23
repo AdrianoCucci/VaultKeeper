@@ -9,9 +9,6 @@ namespace VaultKeeper.AvaloniaApplication.ViewModels.VaultItems;
 public partial class VaultItemViewModel(VaultItem vaultItem) : VaultItemViewModelBase(vaultItem)
 {
     [ObservableProperty]
-    private RecordViewMode _viewMode;
-
-    [ObservableProperty]
     private VaultItemViewModelBase _content = new VaultItemReadOnlyViewModel(vaultItem);
 
     protected override void OnPropertyChanged(PropertyChangedEventArgs e)
@@ -22,7 +19,7 @@ public partial class VaultItemViewModel(VaultItem vaultItem) : VaultItemViewMode
         {
             Content = ViewMode switch
             {
-                RecordViewMode.Edit => new VaultItemEditViewModel(Model),
+                RecordViewMode.Edit => new VaultItemFormViewModel(Model, FormMode.Edit),
                 _ => new VaultItemReadOnlyViewModel(Model)
             };
         }

@@ -12,7 +12,7 @@ public class InMemoryRepository<T> : IRepository<T>
     private readonly HashSet<T> _items = [];
 
     public Task<IEnumerable<T>> GetManyAsync(ReadQuery<T>? query = null) =>
-        Task.FromResult(_items.FromReadQuery(query));
+        Task.FromResult<IEnumerable<T>>([.. _items.FromReadQuery(query)]);
 
     public Task<T?> GetFirstOrDefaultAsync(ReadQuery<T>? query = null, T? defaultValue = default) =>
         Task.FromResult(_items.FromReadQuery(query).FirstOrDefault(defaultValue));
@@ -29,7 +29,7 @@ public class InMemoryRepository<T> : IRepository<T>
         _items.Clear();
         _items.UnionWith(items);
 
-        return Task.FromResult(_items as IEnumerable<T>);
+        return Task.FromResult<IEnumerable<T>>([.. _items]);
     }
 
     public Task<T> AddAsync(T item)

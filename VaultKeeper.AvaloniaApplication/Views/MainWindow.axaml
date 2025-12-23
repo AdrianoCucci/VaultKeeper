@@ -18,8 +18,8 @@
     <x:Static Member="vm:MainWindowViewModel.Design"/>
   </Design.DataContext>
 
-  <Grid ColumnDefinitions="*" RowDefinitions="Auto, Auto, *, Auto" ShowGridLines="true">
-    <Border BorderThickness="2" Height="25" BorderBrush="Red" Grid.Row="0">
+  <Grid ColumnDefinitions="*" RowDefinitions="Auto, Auto, *, Auto">
+    <Border BorderThickness="2" Height="25" BorderBrush="Black" Grid.Row="0">
       <TextBlock>Header</TextBlock>
     </Border>
 
@@ -31,11 +31,11 @@
       </TabStrip.ItemTemplate>
     </TabStrip>
 
-    <Border BorderThickness="2" BorderBrush="Red" Grid.Row="2">
-      <TransitioningContentControl VerticalAlignment="Top" Content="{Binding SelectedTab.MainContent}"></TransitioningContentControl>
+    <Border BorderThickness="2" BorderBrush="Black" Grid.Row="2">
+      <TransitioningContentControl Content="{Binding SelectedTab.MainContent}"></TransitioningContentControl>
     </Border>
 
-    <Border BorderThickness="2" Height="25" BorderBrush="Red" Grid.Row="3">
+    <Border BorderThickness="2" Height="25" BorderBrush="Black" Grid.Row="3">
       <TextBlock>Footer</TextBlock>
     </Border>
   </Grid>

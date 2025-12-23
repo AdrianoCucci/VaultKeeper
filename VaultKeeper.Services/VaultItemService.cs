@@ -1,7 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using VaultKeeper.Common.Extensions;
 using VaultKeeper.Common.Models.Queries;
@@ -22,18 +21,19 @@ public class VaultItemService(IRepository<VaultItem> repository, ISecurityServic
 
         try
         {
-            await Task.Delay(1000);
+            IEnumerable<VaultItem> items = await repository.GetManyAsync();
+            return items.ToOkResult();
 
-            IEnumerable<VaultItem> items = Enumerable.Range(1, 10).Select(x => new VaultItem
-            {
-                Id = Guid.NewGuid(),
-                Name = $"{x}: My Account",
-                Value = securityService.Encrypt($"{x}: Password123").Value!
-            });
+            //IEnumerable<VaultItem> items = Enumerable.Range(1, 10).Select(x => new VaultItem
+            //{
+            //    Id = Guid.NewGuid(),
+            //    Name = $"{x}: My Account",
+            //    Value = securityService.Encrypt($"{x}: Password123").Value!
+            //});
 
-            items = await repository.SetAllAsync(items);
+            //items = await repository.SetAllAsync(items);
 
-            return items.ToOkResult().Logged(logger);
+            //return items.ToOkResult().Logged(logger);
         }
         catch (Exception ex)
         {
@@ -56,7 +56,7 @@ public class VaultItemService(IRepository<VaultItem> repository, ISecurityServic
         }
     }
 
-    public async Task<Result<VaultItem>> AddAsync(NewVaultItem vaultItem)
+    public async Task<Result<VaultItem>> AddAsync(NewVaultItem vaultItem, bool encrypt = false)
     {
         logger.LogInformation(nameof(AddAsync));
 
@@ -68,6 +68,15 @@ public class VaultItemService(IRepository<VaultItem> repository, ISecurityServic
             if (!validateResult.IsSuccessful)
                 return validateResult.WithValue(model).Logged(logger);
 
+            if (encrypt)
+            {
+                Result<string> encryptValueResult = securityService.Encrypt(model.Value);
+                if (!encryptValueResult.IsSuccessful)
+                    return encryptValueResult.WithValue(model).Logged(logger);
+
+                model.Value = encryptValueResult.Value!;
+            }
+
             model = await repository.AddAsync(model);
 
             return model.ToOkResult().Logged(logger);
@@ -78,13 +87,13 @@ public class VaultItemService(IRepository<VaultItem> repository, ISecurityServic
         }
     }
 
-    public async Task<Result<VaultItem>> UpdateAsync(VaultItem vaultItem)
+    public async Task<Result<VaultItem>> UpdateAsync(VaultItem vaultItem, bool encrypt = false)
     {
         logger.LogInformation(nameof(UpdateAsync));
 
         try
         {
-            var existingModel = await repository.GetFirstOrDefaultAsync(new()
+            VaultItem? existingModel = await repository.GetFirstOrDefaultAsync(new()
             {
                 Where = x => x.Id == vaultItem.Id
             });
@@ -96,9 +105,20 @@ public class VaultItemService(IRepository<VaultItem> repository, ISecurityServic
             if (!validateResult.IsSuccessful)
                 return validateResult.WithValue(vaultItem).Logged(logger);
 
-            vaultItem = (await repository.UpdateAsync(existingModel, vaultItem))!;
+            VaultItem updateModel = vaultItem with { };
 
-            return vaultItem.ToOkResult().Logged(logger);
+            if (encrypt)
+            {
+                Result<string> encryptValueResult = securityService.Encrypt(updateModel.Value);
+                if (!encryptValueResult.IsSuccessful)
+                    return encryptValueResult.WithValue(updateModel).Logged(logger);
+
+                updateModel.Value = encryptValueResult.Value!;
+            }
+
+            updateModel = (await repository.UpdateAsync(existingModel, updateModel))!;
+
+            return updateModel.ToOkResult().Logged(logger);
         }
         catch (Exception ex)
         {
@@ -114,9 +134,12 @@ public class VaultItemService(IRepository<VaultItem> repository, ISecurityServic
         if (string.IsNullOrWhiteSpace(vaultItem.Value))
             return Result.Failed(ResultFailureType.BadRequest, "Value is required.");
 
-        var isDuplicate = await repository.HasAnyAsync(new()
+        bool isDuplicate = await repository.HasAnyAsync(new()
         {
-            Where = x => vaultItem.Name == x.Name && vaultItem.GroupId == x.GroupId
+            Where = x =>
+                vaultItem.Name == x.Name &&
+                vaultItem.Id != x.Id &&
+                vaultItem.GroupId == x.GroupId
         });
 
         if (isDuplicate)

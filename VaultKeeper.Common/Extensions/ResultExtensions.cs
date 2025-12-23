@@ -13,15 +13,13 @@ public static class ResultExtensions
         Exception = result.Exception
     };
 
-    public static Result<T> WithValue<T>(this Result result, T? value) => new()
+    public static Result<T> WithValue<T>(this Result result, T? value = default) => new()
     {
         Value = value,
         FailureType = result.FailureType,
         Message = result.Message,
         Exception = result.Exception
     };
-
-    public static Result<TTo> ConvertValue<TFrom, TTo>(this Result<TFrom> result, TTo? value) => WithValue(result, value);
 
     public static Result<T> ToOkResult<T>(this T value) => Result.Ok(value);
 

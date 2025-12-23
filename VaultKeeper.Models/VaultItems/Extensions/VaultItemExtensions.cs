@@ -8,4 +8,11 @@ public static class VaultItemExtensions
         Value = newVaultItem.Value,
         GroupId = newVaultItem.GroupId
     };
+
+    public static NewVaultItem ToNewVaultItem(this VaultItem vaultItem) => new()
+    {
+        Name = vaultItem.Name,
+        Value = vaultItem.Value,
+        GroupId = vaultItem.GroupId
+    };
 }

@@ -16,10 +16,10 @@
   <TransitioningContentControl Content="{Binding Content}">
     <ContentControl.DataTemplates>
       <DataTemplate DataType="vm:VaultItemReadOnlyViewModel">
-        <local:VaultItemReadOnlyView ActionInvoked="VaultItem_ActionInvoked"></local:VaultItemReadOnlyView>
+        <local:VaultItemReadOnlyView ActionInvoked="VaultItem_ActionInvoked"/>
       </DataTemplate>
-      <DataTemplate DataType="vm:VaultItemEditViewModel">
-        <local:VaultItemEditView ActionInvoked="VaultItem_ActionInvoked"></local:VaultItemEditView>
+      <DataTemplate DataType="vm:VaultItemFormViewModel">
+        <local:VaultItemFormView ActionInvoked="VaultItem_ActionInvoked" FormActionInvoked="VaultItemFormView_FormActionInvoked"/>
       </DataTemplate>
     </ContentControl.DataTemplates>
   </TransitioningContentControl>

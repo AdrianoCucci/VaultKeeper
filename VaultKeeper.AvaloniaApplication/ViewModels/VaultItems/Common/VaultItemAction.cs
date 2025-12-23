@@ -6,8 +6,13 @@ public enum VaultItemAction
     CopyName,
     Edit,
     Group,
-    Delete,
+    Delete
+}
+
+public enum VaultItemFormAction
+{
+    Submit,
+    Cancel,
     ToggleRevealValue,
-    EditCancel,
-    EditSave
+    GenerateValue
 }
