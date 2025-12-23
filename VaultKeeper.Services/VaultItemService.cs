@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using VaultKeeper.Common.Extensions;
 using VaultKeeper.Common.Models.Queries;
@@ -21,19 +22,19 @@ public class VaultItemService(IRepository<VaultItem> repository, ISecurityServic
 
         try
         {
-            IEnumerable<VaultItem> items = await repository.GetManyAsync();
-            return items.ToOkResult();
+            //IEnumerable<VaultItem> items = await repository.GetManyAsync();
+            //return items.ToOkResult();
 
-            //IEnumerable<VaultItem> items = Enumerable.Range(1, 10).Select(x => new VaultItem
-            //{
-            //    Id = Guid.NewGuid(),
-            //    Name = $"{x}: My Account",
-            //    Value = securityService.Encrypt($"{x}: Password123").Value!
-            //});
+            IEnumerable<VaultItem> items = Enumerable.Range(1, 10).Select(x => new VaultItem
+            {
+                Id = Guid.NewGuid(),
+                Name = $"{x}: My Account",
+                Value = securityService.Encrypt($"{x}: Password123").Value!
+            });
 
-            //items = await repository.SetAllAsync(items);
+            items = await repository.SetAllAsync(items);
 
-            //return items.ToOkResult().Logged(logger);
+            return items.ToOkResult().Logged(logger);
         }
         catch (Exception ex)
         {

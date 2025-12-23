@@ -9,6 +9,14 @@ public partial class VaultItemFormView : VaultItemViewBase<VaultItemFormViewMode
 {
     public VaultItemFormView() => InitializeComponent();
 
+    protected override void OnLoaded(RoutedEventArgs e)
+    {
+        InputName.Focus();
+        InputName.CaretIndex = InputName.Text?.Length ?? 0;
+
+        base.OnLoaded(e);
+    }
+
     private void RaiseEvent(VaultItemFormAction action)
     {
         if (Model == null) return;

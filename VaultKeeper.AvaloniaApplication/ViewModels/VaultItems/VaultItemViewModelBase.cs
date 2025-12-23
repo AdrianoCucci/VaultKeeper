@@ -2,7 +2,7 @@
 using VaultKeeper.AvaloniaApplication.ViewModels.Common;
 using VaultKeeper.Models.VaultItems;
 
-namespace VaultKeeper.AvaloniaApplication.ViewModels.VaultItems.Common;
+namespace VaultKeeper.AvaloniaApplication.ViewModels.VaultItems;
 
 public abstract partial class VaultItemViewModelBase(VaultItem vaultItem) : ViewModelBase<VaultItem>(vaultItem)
 {

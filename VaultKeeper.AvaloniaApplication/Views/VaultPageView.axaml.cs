@@ -10,9 +10,9 @@ public partial class VaultPageView : ViewBase<VaultPageViewModel>
 {
     public VaultPageView() => InitializeComponent();
 
-    private void ButtonNew_Click(object? sender, RoutedEventArgs e) => Model?.ShowVaultItemForm();
+    private void ButtonNew_Click(object? sender, RoutedEventArgs e) => Model?.ShowVaultItemCreateForm();
 
-    private void ButtonCloseSidePane_Click(object? sender, RoutedEventArgs e) => Model?.HideVaultItemForm();
+    private void ButtonCloseSidePane_Click(object? sender, RoutedEventArgs e) => Model?.HideVaultItemCreateForm();
 
     private async void VaultItemView_ActionInvoked(object? sender, VaultItemActionEventArgs e)
     {

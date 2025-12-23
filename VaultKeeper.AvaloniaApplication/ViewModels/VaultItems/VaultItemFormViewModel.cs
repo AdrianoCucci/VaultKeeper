@@ -20,6 +20,8 @@ public partial class VaultItemFormViewModel(VaultItem vaultItem, FormMode formMo
     [ObservableProperty]
     private bool _useVerticalLayout = false;
 
+    public VaultItemFormViewModel() : this(new()) { }
+
     protected override void OnPropertyChanged(PropertyChangedEventArgs e)
     {
         if (e.PropertyName == nameof(ValueRevealed))
@@ -27,6 +29,4 @@ public partial class VaultItemFormViewModel(VaultItem vaultItem, FormMode formMo
 
         base.OnPropertyChanged(e);
     }
-
-    public VaultItemFormViewModel() : this(new()) { }
 }

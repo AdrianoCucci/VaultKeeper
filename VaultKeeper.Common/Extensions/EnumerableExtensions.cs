@@ -17,6 +17,11 @@ public static class EnumerableExtensions
         return !enumerable.GetEnumerator().MoveNext();
     }
 
+    public static bool HasIndex<T>(this IList<T>? list, int index) => list != null && index.IsBetween(0, list.Count - 1);
+
+    public static T? FirstOrDefaultByIndex<T>(this IList<T>? list, int index, T? defaultValue = default) =>
+        HasIndex(list, index) ? list![index] : defaultValue;
+
     public static IEnumerable<T> FromReadQuery<T>(this IEnumerable<T> enumerable, ReadQuery<T>? query)
     {
         if (query == null)

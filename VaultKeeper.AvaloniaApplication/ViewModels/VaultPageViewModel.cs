@@ -1,5 +1,4 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
-using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -21,10 +20,10 @@ public partial class VaultPageViewModel(
     IPlatformService platformService) : ViewModelBase
 {
     [ObservableProperty]
-    private ObservableCollection<VaultItemViewModel> _vaultItems = [];
+    private ObservableCollection<VaultItemViewModelBase> _vaultItems = [];
 
     [ObservableProperty]
-    private VaultItemViewModel? _focusedVaultItemVM;
+    private VaultItemFormViewModel? _newVaultItemForm;
 
     [ObservableProperty]
     public bool _isSidePaneOpen = false;
@@ -42,29 +41,35 @@ public partial class VaultPageViewModel(
         VaultItems = [.. viewModels];
     }
 
-    public void ShowVaultItemForm(VaultItemViewModel? itemVM = null)
+    public void ShowVaultItemCreateForm()
     {
-        if (itemVM != null)
-        {
-            itemVM.ViewMode = RecordViewMode.Edit;
-            FocusedVaultItemVM = itemVM.Content as VaultItemViewModel;
-        }
-        else
-        {
-            FocusedVaultItemVM = new(new() { Id = Guid.NewGuid() }) { ViewMode = RecordViewMode.Edit };
-        }
-
+        NewVaultItemForm = null;
+        NewVaultItemForm = new(new(), FormMode.New);
         IsSidePaneOpen = true;
     }
 
-    public void HideVaultItemForm(VaultItemFormViewModel? formVM = null)
+    public void HideVaultItemCreateForm(bool clearData = false)
     {
-        formVM ??= FocusedVaultItemVM?.Content as VaultItemFormViewModel;
-
-        if (formVM != null)
-            formVM.ViewMode = RecordViewMode.Default;
-
         IsSidePaneOpen = false;
+
+        if (clearData)
+            NewVaultItemForm = null;
+    }
+
+    public void ShowVaultItemEditForm(VaultItemViewModel vaultItem)
+    {
+        var index = VaultItems.IndexOf(vaultItem);
+        if (index == -1) return;
+
+        VaultItems[index] = new VaultItemFormViewModel(vaultItem.Model, FormMode.Edit);
+    }
+
+    public void HideVaultItemEditForm(VaultItemFormViewModel vaultItem)
+    {
+        var index = VaultItems.IndexOf(vaultItem);
+        if (index == -1) return;
+
+        VaultItems[index] = new VaultItemViewModel(vaultItem.Model);
     }
 
     public async Task HandleFormEventAsync(VaultItemFormActionEventArgs formEvent)
@@ -72,7 +77,10 @@ public partial class VaultPageViewModel(
         switch (formEvent.Action)
         {
             case VaultItemFormAction.Cancel:
-                HideVaultItemForm(formEvent.ViewModel);
+                if (formEvent.ViewModel == NewVaultItemForm)
+                    HideVaultItemCreateForm();
+                else
+                    HideVaultItemEditForm(formEvent.ViewModel);
                 break;
             case VaultItemFormAction.Submit:
                 await SaveVaultItemFormAsync(formEvent);
@@ -90,22 +98,36 @@ public partial class VaultPageViewModel(
         VaultItem formModel = formEvent.Form.GetModel();
         bool shouldEncrypt = formEvent.ViewModel.ValueRevealed;
 
-        Result<VaultItem> upsertResult = formEvent.Form.Mode switch
+        switch (formEvent.Form.Mode)
         {
-            FormMode.New => await vaultItemService.AddAsync(formModel.ToNewVaultItem(), shouldEncrypt),
-            FormMode.Edit => await vaultItemService.UpdateAsync(formModel, shouldEncrypt),
-            _ => throw new ArgumentOutOfRangeException(nameof(formEvent))
-        };
+            case FormMode.New:
+                {
+                    Result<VaultItem> addResult = await vaultItemService.AddAsync(formModel.ToNewVaultItem(), shouldEncrypt);
+                    if (!addResult.IsSuccessful)
+                    {
+                        // TODO: handle error.
+                        break;
+                    }
 
-        if (upsertResult.IsSuccessful)
-        {
-            formEvent.ViewModel.UpdateModel(_ => upsertResult.Value!);
-            HideVaultItemForm(formEvent.ViewModel);
+                    HideVaultItemCreateForm();
+                    await LoadVaultItemsAsync();
 
-            if (formEvent.Form.Mode == FormMode.New)
-            {
-                await LoadVaultItemsAsync();
-            }
+                    break;
+                }
+            case FormMode.Edit:
+                {
+                    Result<VaultItem> updateResult = await vaultItemService.UpdateAsync(formModel, shouldEncrypt);
+                    if (!updateResult.IsSuccessful)
+                    {
+                        // TODO: handle error.
+                        break;
+                    }
+
+                    formEvent.ViewModel.UpdateModel(_ => updateResult.Value!);
+                    HideVaultItemEditForm(formEvent.ViewModel);
+
+                    break;
+                }
         }
     }
 
@@ -136,11 +158,8 @@ public partial class VaultPageViewModel(
                 await platformService.GetClipboard().SetTextAsync(Decrypt(model.Value));
                 break;
             case VaultItemAction.Edit:
-                {
-                    if (itemVM is VaultItemViewModel listVM)
-                        listVM.ViewMode = RecordViewMode.Edit;
-                    break;
-                }
+                ShowVaultItemEditForm(itemVM);
+                break;
                 //case VaultItemAction.EditCancel:
                 //    {
                 //        if (itemVM is VaultItemViewModel listVM)
