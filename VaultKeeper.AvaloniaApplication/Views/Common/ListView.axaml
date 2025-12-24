@@ -1,0 +1,66 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:controls="using:VaultKeeper.AvaloniaApplication.Views.Common">
+
+  <Design.PreviewWith>
+    <StackPanel Width="400" Spacing="10">
+      <controls:ListView ItemsSource="ABCDEFG" Padding="20" HorizontalAlignment="Right">
+        <controls:ListView.ItemTemplate>
+          <DataTemplate>
+            <TextBlock Text="{Binding .}"></TextBlock>
+          </DataTemplate>
+        </controls:ListView.ItemTemplate>
+
+        <controls:ListView.EmptyTemplate>
+          <DataTemplate>
+            <TextBlock>EMPTY</TextBlock>
+          </DataTemplate>
+        </controls:ListView.EmptyTemplate>
+      </controls:ListView>
+
+      <controls:ListView ItemsSource="">
+        <controls:ListView.ItemTemplate>
+          <DataTemplate>
+            <TextBlock Text="{Binding .}"></TextBlock>
+          </DataTemplate>
+        </controls:ListView.ItemTemplate>
+
+        <controls:ListView.EmptyTemplate>
+          <DataTemplate>
+            <TextBlock>EMPTY</TextBlock>
+          </DataTemplate>
+        </controls:ListView.EmptyTemplate>
+      </controls:ListView>
+    </StackPanel>
+  </Design.PreviewWith>
+
+  <ControlTheme x:Key="{x:Type controls:ListView}" TargetType="controls:ListView">
+    <Setter Property="Template">
+      <ControlTemplate>
+        <Border Width="{TemplateBinding Width}"
+                MinWidth="{TemplateBinding MinWidth}"
+                MaxWidth="{TemplateBinding MaxWidth}"
+                Height="{TemplateBinding Height}"
+                MinHeight="{TemplateBinding MinHeight}"
+                MaxHeight="{TemplateBinding MaxHeight}"
+                Margin="{TemplateBinding Margin}"
+                Padding="{TemplateBinding Padding}"
+                HorizontalAlignment="{TemplateBinding HorizontalAlignment}"
+                VerticalAlignment="{TemplateBinding VerticalAlignment}"
+                Background="{TemplateBinding Background}">
+          <Panel>
+            <ScrollViewer IsVisible="{TemplateBinding HasItems}"
+                          HorizontalScrollBarVisibility="{TemplateBinding HorizontalScrollBarVisibility}"
+                          VerticalScrollBarVisibility="{TemplateBinding VerticalScrollBarVisibility}">
+              <ItemsControl ItemsSource="{TemplateBinding ItemsSource}"
+                            ItemTemplate="{TemplateBinding ItemTemplate}"/>
+            </ScrollViewer>
+
+            <ContentPresenter ContentTemplate="{TemplateBinding EmptyTemplate}"
+                              IsVisible="{TemplateBinding IsEmpty}"/>
+          </Panel>
+        </Border>
+      </ControlTemplate>
+    </Setter>
+  </ControlTheme>
+</ResourceDictionary>

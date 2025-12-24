@@ -1,5 +1,5 @@
 using Avalonia.Interactivity;
-using VaultKeeper.AvaloniaApplication.ViewModels.Common;
+using VaultKeeper.AvaloniaApplication.ViewModels.Common.Forms;
 using VaultKeeper.Models.VaultItems;
 
 namespace VaultKeeper.AvaloniaApplication.ViewModels.VaultItems.Common;

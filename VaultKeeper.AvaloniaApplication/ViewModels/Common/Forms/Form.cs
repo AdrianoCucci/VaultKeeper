@@ -2,7 +2,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace VaultKeeper.AvaloniaApplication.ViewModels.Common;
+namespace VaultKeeper.AvaloniaApplication.ViewModels.Common.Forms;
 
 public abstract class Form<T>(FormMode mode = FormMode.New) : ObservableValidator where T : class
 {

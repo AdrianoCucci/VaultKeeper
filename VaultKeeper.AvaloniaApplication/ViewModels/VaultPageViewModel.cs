@@ -4,7 +4,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 using VaultKeeper.AvaloniaApplication.Abstractions;
-using VaultKeeper.AvaloniaApplication.ViewModels.Common;
+using VaultKeeper.AvaloniaApplication.ViewModels.Common.Forms;
 using VaultKeeper.AvaloniaApplication.ViewModels.VaultItems;
 using VaultKeeper.AvaloniaApplication.ViewModels.VaultItems.Common;
 using VaultKeeper.Common.Results;

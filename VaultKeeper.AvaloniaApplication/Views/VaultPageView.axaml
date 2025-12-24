@@ -24,30 +24,28 @@
                           Click="ButtonNew_Click"
                           Grid.Row="0"/>
 
-        <Panel Grid.Row="1">
-          <ScrollViewer IsVisible="{Binding HasVaultItems}">
-            <ItemsControl ItemsSource="{Binding VaultItems}">
-              <ItemsControl.ItemTemplate>
-                <DataTemplate DataType="vaultitems:VaultItemViewModelBase">
-                  <TransitioningContentControl Content="{Binding .}" Padding="0 10">
-                    <ContentControl.DataTemplates>
-                      <DataTemplate DataType="vaultitems:VaultItemViewModel">
-                        <uc:VaultItemView ActionInvoked="VaultItemView_ActionInvoked"/>
-                      </DataTemplate>
-                      <DataTemplate DataType="vaultitems:VaultItemFormViewModel">
-                        <uc:VaultItemFormView ActionInvoked="VaultItemView_ActionInvoked" FormActionInvoked="VaultItemFormView_FormActionInvoked"/>
-                      </DataTemplate>
-                    </ContentControl.DataTemplates>
-                  </TransitioningContentControl>
-                </DataTemplate>
-              </ItemsControl.ItemTemplate>
-            </ItemsControl>
-          </ScrollViewer>
+        <common:ListView ItemsSource="{Binding VaultItems}" Grid.Row="1">
+          <common:ListView.ItemTemplate>
+            <DataTemplate DataType="vaultitems:VaultItemViewModelBase">
+              <TransitioningContentControl Content="{Binding .}" Padding="20 10 20 10">
+                <ContentControl.DataTemplates>
+                  <DataTemplate DataType="vaultitems:VaultItemViewModel">
+                    <uc:VaultItemView ActionInvoked="VaultItemView_ActionInvoked"/>
+                  </DataTemplate>
+                  <DataTemplate DataType="vaultitems:VaultItemFormViewModel">
+                    <uc:VaultItemFormView ActionInvoked="VaultItemView_ActionInvoked" FormActionInvoked="VaultItemFormView_FormActionInvoked"/>
+                  </DataTemplate>
+                </ContentControl.DataTemplates>
+              </TransitioningContentControl>
+            </DataTemplate>
+          </common:ListView.ItemTemplate>
 
-          <Panel IsVisible="{Binding !HasVaultItems}">
-            <TextBlock>EMPTY</TextBlock>
-          </Panel>
-        </Panel>
+          <common:ListView.EmptyTemplate>
+            <DataTemplate>
+              <TextBlock>EMPTY</TextBlock>
+            </DataTemplate>
+          </common:ListView.EmptyTemplate>
+        </common:ListView>
       </Grid>
     </Border>
 

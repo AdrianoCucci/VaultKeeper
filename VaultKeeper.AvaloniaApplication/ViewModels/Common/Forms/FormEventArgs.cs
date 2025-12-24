@@ -1,6 +1,6 @@
 using Avalonia.Interactivity;
 
-namespace VaultKeeper.AvaloniaApplication.ViewModels.Common;
+namespace VaultKeeper.AvaloniaApplication.ViewModels.Common.Forms;
 
 public class FormEventArgs<T>(RoutedEvent routedEvent) : RoutedEventArgs(routedEvent) where T : class
 {
