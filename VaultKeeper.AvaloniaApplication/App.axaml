@@ -12,8 +12,8 @@
   <Application.Styles>
     <FluentTheme>
       <FluentTheme.Palettes>
-        <ColorPaletteResources x:Key="Light" Accent="#ff3f72af" AltHigh="White" AltLow="White" AltMedium="White" AltMediumHigh="White" AltMediumLow="White" BaseHigh="Black" BaseLow="#ffdbe2ef" BaseMedium="#ff889cb5" BaseMediumHigh="#ff506d8e" BaseMediumLow="#ff6c84a1" ChromeAltLow="#ff506d8e" ChromeBlackHigh="Black" ChromeBlackLow="#ffdbe2ef" ChromeBlackMedium="#ff506d8e" ChromeBlackMediumLow="#ff889cb5" ChromeDisabledHigh="#ffdbe2ef" ChromeDisabledLow="#ff889cb5" ChromeGray="#ff6c84a1" ChromeHigh="#ffdbe2ef" ChromeLow="#ffedf4ff" ChromeMedium="#ffe9f0fc" ChromeMediumLow="#ffedf4ff" ChromeWhite="White" ListLow="#ffe9f0fc" ListMedium="#ffdbe2ef" RegionColor="#fff9f7f7" />
-        <ColorPaletteResources x:Key="Dark" Accent="#ff9db2bf" AltHigh="Black" AltLow="Black" AltMedium="Black" AltMediumHigh="Black" AltMediumLow="Black" BaseHigh="White" BaseLow="#ff526d82" BaseMedium="#ffa0b8ca" BaseMediumHigh="#ffb4cbdc" BaseMediumLow="#ff7993a6" ChromeAltLow="#ffb4cbdc" ChromeBlackHigh="Black" ChromeBlackLow="#ffb4cbdc" ChromeBlackMedium="Black" ChromeBlackMediumLow="Black" ChromeDisabledHigh="#ff526d82" ChromeDisabledLow="#ffa0b8ca" ChromeGray="#ff8da5b8" ChromeHigh="#ff8da5b8" ChromeLow="#ff103454" ChromeMedium="#ff214260" ChromeMediumLow="#ff425f77" ChromeWhite="White" ListLow="#ff214260" ListMedium="#ff526d82" RegionColor="#ff27374d" />
+        <ColorPaletteResources x:Key="Light" Accent="#ff8961cc" AltHigh="White" AltLow="White" AltMedium="White" AltMediumHigh="White" AltMediumLow="White" BaseHigh="Black" BaseLow="#ffeeceff" BaseMedium="#ffa987bc" BaseMediumHigh="#ff7b5890" BaseMediumLow="#ff9270a6" ChromeAltLow="#ff7b5890" ChromeBlackHigh="Black" ChromeBlackLow="#ffeeceff" ChromeBlackMedium="#ff7b5890" ChromeBlackMediumLow="#ffa987bc" ChromeDisabledHigh="#ffeeceff" ChromeDisabledLow="#ffa987bc" ChromeGray="#ff9270a6" ChromeHigh="#ffeeceff" ChromeLow="#fffeeaff" ChromeMedium="#fffbe4ff" ChromeMediumLow="#fffeeaff" ChromeWhite="White" ListLow="#fffbe4ff" ListMedium="#ffeeceff" RegionColor="#fffef6ff" />
+        <ColorPaletteResources x:Key="Dark" Accent="#ff8961cc" AltHigh="Black" AltLow="Black" AltMedium="Black" AltMediumHigh="Black" AltMediumLow="Black" BaseHigh="White" BaseLow="#ff64576b" BaseMedium="#ffb6aabc" BaseMediumHigh="#ffcbbfd0" BaseMediumLow="#ff8d8193" ChromeAltLow="#ffcbbfd0" ChromeBlackHigh="Black" ChromeBlackLow="#ffcbbfd0" ChromeBlackMedium="Black" ChromeBlackMediumLow="Black" ChromeDisabledHigh="#ff64576b" ChromeDisabledLow="#ffb6aabc" ChromeGray="#ffa295a8" ChromeHigh="#ffa295a8" ChromeLow="#ff332041" ChromeMedium="#ff3f2e4b" ChromeMediumLow="#ff584960" ChromeWhite="White" ListLow="#ff3f2e4b" ListMedium="#ff64576b" RegionColor="#ff262738" />
       </FluentTheme.Palettes>
     </FluentTheme>
 
@@ -23,11 +23,8 @@
   <Application.Resources>
     <ResourceDictionary>
       <ResourceDictionary.MergedDictionaries>
-        <ResourceInclude Source="/Theme/Colors.axaml"/>
         <ResourceInclude Source="/Theme/Icons.axaml"/>
-
-        <ResourceInclude Source="/Views/Common/AppButton.axaml"/>
-        <ResourceInclude Source="/Views/Common/ListView.axaml"/>
+        <ResourceInclude Source="/Theme/Controls.axaml"/>
       </ResourceDictionary.MergedDictionaries>
     </ResourceDictionary>
   </Application.Resources>

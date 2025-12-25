@@ -4,16 +4,11 @@ using Avalonia.Controls.Primitives;
 using Avalonia.Interactivity;
 using Avalonia.Layout;
 using Avalonia.Media;
-using System;
 
 namespace VaultKeeper.AvaloniaApplication.Views.Common;
 
-public class AppButton : TemplatedControl
+public class AppButton : Button
 {
-
-    public static readonly RoutedEvent<RoutedEventArgs> ClickEvent = RoutedEvent.Register<RoutedEventArgs>(nameof(Click), RoutingStrategies.Bubble, typeof(AppButton));
-
-
     public static readonly StyledProperty<string?> TextProperty = AvaloniaProperty.Register<AppButton, string?>(nameof(Text));
 
     public static readonly StyledProperty<Orientation> OrientationProperty = AvaloniaProperty.Register<AppButton, Orientation>(nameof(Orientation), Orientation.Horizontal);
@@ -28,8 +23,6 @@ public class AppButton : TemplatedControl
 
     public static readonly StyledProperty<double> SpacingProperty = AvaloniaProperty.Register<AppButton, double>(nameof(Spacing), 12);
 
-
-    public event EventHandler<RoutedEventArgs> Click { add => AddHandler(ClickEvent, value); remove => RemoveHandler(ClickEvent, value); }
 
     public string? Text { get => GetValue(TextProperty); set => SetValue(TextProperty, value); }
 

@@ -67,14 +67,17 @@
     <StackPanel Classes="PART_ValuePanel">
       <Label Target="InputValue">Value</Label>
       <TextBox Name="InputValue"
-               Text="{Binding Form.Value}"
+               MinHeight="35"
                VerticalContentAlignment="Center"
+               Text="{Binding Form.Value}"
                PasswordChar="{Binding PasswordChar}"
                RevealPassword="{Binding ValueRevealed}"
                IsReadOnly="{Binding !ValueRevealed}">
 
         <TextBox.InnerLeftContent>
-          <Button Classes.unlocked="{Binding ValueRevealed}" Click="ActionToggleRevealValue_Click">
+          <Button IsVisible="{Binding IsValueRevealToggleVisible}" 
+                  Classes.unlocked="{Binding ValueRevealed}" 
+                  Click="ActionToggleRevealValue_Click">
             <Button.Styles>
               <Style Selector="Button">
                 <Setter Property="ToolTip.Tip" Value="Show Value"></Setter>

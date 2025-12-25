@@ -6,6 +6,13 @@
     </Border>
   </Design.PreviewWith>
 
+  <Style Selector="Button">
+    <Setter Property="MinHeight" Value="34"/>
+  </Style>
+  <Style Selector="Button:pointerover">
+    <Setter Property="Cursor" Value="Hand" />
+  </Style>
+
   <Style Selector="DataValidationErrors">
     <Setter Property="Template">
       <ControlTemplate>
@@ -19,38 +26,5 @@
                           CornerRadius="{TemplateBinding CornerRadius}" />
       </ControlTemplate>
     </Setter>
-  </Style>
-
-  <Style Selector=":is(Control).transition-fade">
-    <Setter Property="Transitions">
-      <Transitions>
-        <DoubleTransition Property="Opacity" Duration="0:0:0:0.1"></DoubleTransition>
-      </Transitions>
-    </Setter>
-  </Style>
-
-  <Style Selector="TextBlock.h1">
-    <Setter Property="FontWeight" Value="Bold" />
-    <Setter Property="FontSize" Value="15" />
-    <Setter Property="Margin" Value="5" />
-  </Style>
-
-  <!--  We want our CheckBox to be stretched horizontally (the default is left-aligned)  -->
-  <Style Selector="CheckBox">
-    <Setter Property="HorizontalAlignment" Value="Stretch" />
-  </Style>
-
-  <!--  These styles add some useful feedback for the user  -->
-  <Style Selector="CheckBox:pointerover /template/ Grid#RootGrid">
-    <Setter Property="Background" Value="{DynamicResource SystemAccentColorLight3}" />
-  </Style>
-
-  <Style Selector="Button:pointerover">
-    <Setter Property="Cursor" Value="Hand" />
-  </Style>
-
-  <!-- This style will make the icon semi-transparent, if a button is disabled -->
-  <Style Selector="Button:disabled PathIcon">
-    <Setter Property="Opacity" Value="0.4" />
   </Style>
 </Styles>

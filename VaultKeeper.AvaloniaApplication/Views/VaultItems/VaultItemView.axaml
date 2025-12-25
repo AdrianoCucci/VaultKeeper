@@ -9,14 +9,10 @@
              Classes.focused="{Binding IsFocused}">
 
   <Design.DataContext>
-    <x:Static Member="vm:VaultItemReadOnlyViewModel.Design"/>
+    <x:Static Member="vm:VaultItemViewModel.Design"/>
   </Design.DataContext>
 
   <UserControl.Styles>
-    <Style Selector="Border#GridBorder">
-      <Setter Property="Background" Value="Transparent"></Setter>
-    </Style>
-
     <Style Selector="Border#GridBorder SplitButton">
       <Setter Property="Opacity" Value="0"></Setter>
       <Setter Property="Transitions">
@@ -26,9 +22,6 @@
       </Setter>
     </Style>
 
-    <Style Selector=".focused Border#GridBorder">
-      <Setter Property="Background" Value="#4FFF0000"></Setter>
-    </Style>
     <Style Selector=".focused Border#GridBorder SplitButton">
       <Setter Property="Opacity" Value="1"></Setter>
     </Style>

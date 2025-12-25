@@ -6,10 +6,11 @@ using VaultKeeper.Models.VaultItems;
 
 namespace VaultKeeper.AvaloniaApplication.ViewModels.VaultItems;
 
-public partial class VaultItemFormViewModel(VaultItem vaultItem, FormMode formMode = FormMode.New) : VaultItemViewModelBase(vaultItem)
+public partial class VaultItemFormViewModel : VaultItemViewModelBase
 {
     public const char PASSWORD_CHAR = '*';
-    public VaultItemEditForm Form { get; } = new(vaultItem, formMode);
+
+    public VaultItemEditForm Form { get; }
 
     [ObservableProperty]
     private bool _valueRevealed = false;
@@ -18,7 +19,27 @@ public partial class VaultItemFormViewModel(VaultItem vaultItem, FormMode formMo
     private char? _passwordChar = PASSWORD_CHAR;
 
     [ObservableProperty]
+    private bool _isValueRevealToggleVisible = false;
+
+    [ObservableProperty]
     private bool _useVerticalLayout = false;
+
+    public VaultItemFormViewModel(VaultItem vaultItem, FormMode formMode = FormMode.New) : base(vaultItem)
+    {
+        Form = new(vaultItem, formMode);
+
+        switch (formMode)
+        {
+            case FormMode.New:
+                IsValueRevealToggleVisible = false;
+                ValueRevealed = true;
+                break;
+            case FormMode.Edit:
+                IsValueRevealToggleVisible = true;
+                ValueRevealed = false;
+                break;
+        }
+    }
 
     public VaultItemFormViewModel() : this(new()) { }
 
