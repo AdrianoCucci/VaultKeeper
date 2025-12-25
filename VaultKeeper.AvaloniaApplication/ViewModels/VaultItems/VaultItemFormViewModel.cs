@@ -46,7 +46,7 @@ public partial class VaultItemFormViewModel : VaultItemViewModelBase
     protected override void OnPropertyChanged(PropertyChangedEventArgs e)
     {
         if (e.PropertyName == nameof(ValueRevealed))
-            PasswordChar = ValueRevealed ? null : PASSWORD_CHAR;
+            PasswordChar = ValueRevealed ? '\0' : PASSWORD_CHAR;
 
         base.OnPropertyChanged(e);
     }

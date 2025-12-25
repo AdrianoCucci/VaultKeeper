@@ -6,6 +6,7 @@
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="VaultKeeper.AvaloniaApplication.Views.VaultItems.VaultItemView"
              x:DataType="vm:VaultItemViewModel"
+             Background="Transparent"
              Classes.focused="{Binding IsFocused}">
 
   <Design.DataContext>
@@ -21,7 +22,7 @@
         </Transitions>
       </Setter>
     </Style>
-
+    
     <Style Selector=".focused Border#GridBorder SplitButton">
       <Setter Property="Opacity" Value="1"></Setter>
     </Style>

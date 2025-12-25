@@ -1,4 +1,5 @@
 using Avalonia.Interactivity;
+using System.Threading.Tasks;
 using VaultKeeper.AvaloniaApplication.ViewModels;
 using VaultKeeper.AvaloniaApplication.ViewModels.VaultItems;
 using VaultKeeper.AvaloniaApplication.ViewModels.VaultItems.Common;
@@ -27,5 +28,11 @@ public partial class VaultPageView : ViewBase<VaultPageViewModel>
     {
         if (Model != null)
             await Model.HandleItemFormEventAsync(e);
+    }
+
+    private async void SplitView_PaneClosed(object? sender, RoutedEventArgs e)
+    {
+        await Task.Delay(250);
+        UpdateModel(x => x.NewVaultItemForm = null);
     }
 }

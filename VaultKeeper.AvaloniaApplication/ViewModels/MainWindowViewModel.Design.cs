@@ -7,5 +7,5 @@ public partial class MainWindowViewModel
 {
     public static readonly DesignContext Design = new();
 
-    public class DesignContext() : MainWindowViewModel(new VaultPageViewModel.DesignContext());
+    public class DesignContext() : MainWindowViewModel(VaultPageViewModel.Design);
 }

@@ -8,8 +8,8 @@
              x:Class="VaultKeeper.AvaloniaApplication.Views.VaultItems.VaultItemFormView"
              x:DataType="vm:VaultItemFormViewModel"
              Name="Root"
-             Classes.vertical-layout="{Binding UseVerticalLayout}"
-             LayoutUpdated="Root_LayoutUpdated">
+             LayoutUpdated="Root_LayoutUpdated"
+             Classes.vertical-layout="{Binding UseVerticalLayout}">
 
   <Design.DataContext>
     <vm:VaultItemFormViewModel/>
@@ -75,8 +75,8 @@
                IsReadOnly="{Binding !ValueRevealed}">
 
         <TextBox.InnerLeftContent>
-          <Button IsVisible="{Binding IsValueRevealToggleVisible}" 
-                  Classes.unlocked="{Binding ValueRevealed}" 
+          <Button IsVisible="{Binding IsValueRevealToggleVisible}"
+                  Classes.unlocked="{Binding ValueRevealed}"
                   Click="ActionToggleRevealValue_Click">
             <Button.Styles>
               <Style Selector="Button">
@@ -119,70 +119,4 @@
                         Grid.Column="1"/>
     </Grid>
   </Grid>
-
-  <!--<Grid RowDefinitions="Auto, Auto, Auto" ColumnDefinitions="*" RowSpacing="12" ColumnSpacing="12">
-  <StackPanel Grid.Row="0">
-  <Label Target="InputName">Name</Label>
-  <TextBox Name="InputName"
-  Text="{Binding Form.Name}"
-  MinHeight="35"
-  VerticalContentAlignment="Center"></TextBox>
-
-  <ItemsControl ItemsSource="{Binding #InputName.(DataValidationErrors.Errors)}">
-  <ItemsControl.ItemTemplate>
-  <DataTemplate>
-  <TextBlock Text="{Binding}" Margin="0 6 0 0" Foreground="Red"></TextBlock>
-  </DataTemplate>
-  </ItemsControl.ItemTemplate>
-  </ItemsControl>
-  </StackPanel>
-
-  <StackPanel Grid.Row="1">
-  <Label Target="InputValue">Value</Label>
-  <TextBox Name="InputValue"
-  Text="{Binding Form.Value}"
-  VerticalContentAlignment="Center"
-  PasswordChar="{Binding PasswordChar}"
-  RevealPassword="{Binding ValueRevealed}"
-  IsReadOnly="{Binding !ValueRevealed}">
-
-  <TextBox.InnerLeftContent>
-  <Button Classes.unlocked="{Binding ValueRevealed}" Click="ActionToggleRevealValue_Click">
-  <Button.Styles>
-  <Style Selector="Button">
-  <Setter Property="ToolTip.Tip" Value="Show Value"></Setter>
-  </Style>
-  <Style Selector="PathIcon">
-  <Setter Property="Data" Value="{StaticResource IconLockClosed}"></Setter>
-  </Style>
-
-  <Style Selector="Button.unlocked">
-  <Setter Property="ToolTip.Tip" Value="Hide Value"></Setter>
-  </Style>
-  <Style Selector="Button.unlocked PathIcon">
-  <Setter Property="Data" Value="{StaticResource IconLockOpened}"></Setter>
-  </Style>
-  </Button.Styles>
-
-  <PathIcon/>
-  </Button>
-  </TextBox.InnerLeftContent>
-  </TextBox>
-  </StackPanel>
-
-  <Grid RowDefinitions="*" ColumnDefinitions="*, *" Margin="0 20 0 0" ColumnSpacing="12" Grid.Row="2">
-  <common:AppButton Text="Cancel"
-  IconStart="{StaticResource IconX}"
-  HorizontalAlignment="Stretch"
-  Click="ActionCancel_Click"
-  Grid.Column="0"/>
-
-  <common:AppButton Text="Save"
-  IconStart="{StaticResource IconCheck}"
-  IsEnabled="{Binding !Form.HasErrors}"
-  Click="ActionSave_Click"
-  HorizontalAlignment="Stretch"
-  Grid.Column="1"/>
-  </Grid>
-  </Grid>-->
 </UserControl>

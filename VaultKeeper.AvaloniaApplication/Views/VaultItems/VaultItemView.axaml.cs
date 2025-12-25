@@ -14,6 +14,18 @@ public partial class VaultItemView : VaultItemViewBase<VaultItemViewModel>
 
     protected override void OnPointerExited(PointerEventArgs e) => UpdateModel(x => x.IsFocused = x.OptionsMenuOpened);
 
+    protected override void OnGotFocus(GotFocusEventArgs e)
+    {
+        UpdateModel(x => x.IsFocused = true);
+        base.OnGotFocus(e);
+    }
+
+    protected override void OnLostFocus(RoutedEventArgs e)
+    {
+        UpdateModel(x => x.IsFocused = false);
+        base.OnLostFocus(e);
+    }
+
     private void VaultItem_ActionInvoked(object? sender, VaultItemActionEventArgs e) => RaiseEvent(e.Action);
 
     private void VaultItemFormView_FormActionInvoked(object? sender, VaultItemFormActionEventArgs e) => RaiseEvent(e.Action, e.Form);

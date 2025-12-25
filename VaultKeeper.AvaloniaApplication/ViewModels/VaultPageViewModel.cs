@@ -26,18 +26,13 @@ public partial class VaultPageViewModel(
     private VaultItemFormViewModel? _newVaultItemForm;
 
     [ObservableProperty]
+    private bool _isToolbarVisible = false;
+
+    [ObservableProperty]
     public bool _isSidePaneOpen = false;
-
-    private bool _isLoading;
-    public bool IsLoading { get => _isLoading; private set => SetProperty(ref _isLoading, value); }
-
-    private bool _hasVaultItems;
-    public bool HasVaultItems { get => _hasVaultItems; private set => SetProperty(ref _hasVaultItems, value); }
 
     public async Task LoadVaultItemsAsync()
     {
-        IsLoading = true;
-
         var loadResult = await vaultItemService.LoadAllAsync();
         if (!loadResult.IsSuccessful)
         {
@@ -45,14 +40,13 @@ public partial class VaultPageViewModel(
         }
 
         SetVaultItems(loadResult.Value!);
-        IsLoading = false;
     }
 
     public void SetVaultItems(IEnumerable<VaultItem> vaultItems)
     {
         IEnumerable<VaultItemViewModel> viewModels = vaultItems.Select(x => new VaultItemViewModel(x));
+
         VaultItems = [.. viewModels];
-        HasVaultItems = VaultItems.Count > 0;
     }
 
     public void ShowVaultItemCreateForm()
@@ -99,7 +93,6 @@ public partial class VaultPageViewModel(
         }
 
         VaultItems.Remove(vaultItem);
-        HasVaultItems = VaultItems.Count > 0;
     }
 
     public async Task HandleItemActionAsync(VaultItemViewModel itemVM, VaultItemAction action)

@@ -6,6 +6,20 @@
     </Border>
   </Design.PreviewWith>
 
+  <Style Selector="TextBlock">
+    <Setter Property="FontFamily" Value="Inter"></Setter>
+  </Style>
+  <Style Selector="TextBlock.h1">
+    <Setter Property="FontSize" Value="36"></Setter>
+    <Setter Property="FontWeight" Value="Bold"></Setter>
+    <Setter Property="Margin" Value="0 20"></Setter>
+  </Style>
+  <Style Selector="TextBlock.h2">
+    <Setter Property="FontSize" Value="28"></Setter>
+    <Setter Property="FontWeight" Value="SemiBold"></Setter>
+    <Setter Property="Margin" Value="0 10"></Setter>
+  </Style>
+
   <Style Selector="Button">
     <Setter Property="MinHeight" Value="34"/>
   </Style>
