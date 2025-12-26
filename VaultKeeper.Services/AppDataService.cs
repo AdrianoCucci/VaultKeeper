@@ -122,7 +122,7 @@ public class AppDataService(
         if (!dataEncryptResult.IsSuccessful)
             return dataEncryptResult;
 
-        Result saveResult = fileService.WriteFileText(filePath, dataEncryptResult.Value!);
+        Result saveResult = fileService.WriteFileText(filePath, dataEncryptResult.Value!, FileAttributes.ReadOnly);
 
         return saveResult;
     }

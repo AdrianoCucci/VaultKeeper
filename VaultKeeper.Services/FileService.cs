@@ -41,7 +41,7 @@ public class FileService(ILogger<FileService> logger) : IFileService
         return text.ToOkResult().Logged(logger);
     }
 
-    public Result WriteFileBytes(string path, byte[] data)
+    public Result WriteFileBytes(string path, byte[] data, FileAttributes? attributes = null)
     {
         logger.LogInformation($"{nameof(WriteFileBytes)} | Path: {{path}}", path);
 
@@ -53,6 +53,9 @@ public class FileService(ILogger<FileService> logger) : IFileService
             EnsureDirectoryCreated(path);
             File.WriteAllBytes(path, data);
 
+            if (attributes.HasValue)
+                File.SetAttributes(path, attributes.Value);
+
             return Result.Ok().Logged(logger);
         }
         catch (Exception ex)
@@ -61,7 +64,7 @@ public class FileService(ILogger<FileService> logger) : IFileService
         }
     }
 
-    public Result WriteFileText(string path, string data, Encoding? encoding = null)
+    public Result WriteFileText(string path, string data, FileAttributes? attributes = null, Encoding? encoding = null)
     {
         logger.LogInformation($"{nameof(WriteFileText)} | Path: {{path}}", path);
 
@@ -70,7 +73,7 @@ public class FileService(ILogger<FileService> logger) : IFileService
 
         byte[] dataBytes = (encoding ?? Encoding.UTF8).GetBytes(data);
 
-        var writeResult = WriteFileBytes(path, dataBytes);
+        var writeResult = WriteFileBytes(path, dataBytes, attributes);
 
         return writeResult.Logged(logger);
     }
