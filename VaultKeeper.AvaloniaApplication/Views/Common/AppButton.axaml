@@ -1,0 +1,78 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:converters="clr-namespace:Avalonia.Data.Converters;assembly=Avalonia.Base"
+                    xmlns:controls="using:VaultKeeper.AvaloniaApplication.Views.Common">
+
+  <!--
+  Additional resources
+  Using Control Themes:
+  https://docs.avaloniaui.net/docs/basics/user-interface/styling/control-themes
+  Using Theme Variants:
+  https://docs.avaloniaui.net/docs/guides/styles-and-resources/how-to-use-theme-variants
+  -->
+
+  <Design.PreviewWith>
+    <StackPanel Background="{DynamicResource SystemRegionBrush}" Spacing="10" Width="300">
+      <controls:AppButton Text="Text"/>
+      <controls:AppButton Text="Text" HorizontalAlignment="Center"/>
+      <controls:AppButton Text="Text" HorizontalAlignment="Right"/>
+      <controls:AppButton Text="Text" HorizontalAlignment="Stretch"/>
+      <controls:AppButton IconStart="{StaticResource IconCheck}"/>
+      <controls:AppButton Text="Text" Background="DarkBlue" Foreground="White"/>
+      <controls:AppButton Text="Text" IconStart="{StaticResource IconCheck}"/>
+      <controls:AppButton Text="Text" IconStart="{StaticResource IconCheck}" HorizontalAlignment="Stretch" Background="DarkBlue" Foreground="White"/>
+      <controls:AppButton Text="Text" IconEnd="{StaticResource IconCheck}"/>
+      <controls:AppButton Text="Text" IconStart="{StaticResource IconCheck}" IconEnd="{StaticResource IconCheck}"/>
+      <controls:AppButton Text="Text" IconStart="{StaticResource IconCheck}" IconEnd="{StaticResource IconCheck}" Orientation="Vertical"/>
+    </StackPanel>
+  </Design.PreviewWith>
+
+  <ControlTheme x:Key="{x:Type controls:AppButton}" TargetType="controls:AppButton">
+    <Setter Property="Background" Value="{DynamicResource SystemBaseLowColor}"/>
+    <Setter Property="Foreground" Value="{DynamicResource SystemBaseHighColor}"/>
+    <Setter Property="Focusable" Value="False" />
+
+    <Setter Property="Template">
+      <ControlTemplate>
+        <Button Name="PART_Button"
+                Width="{TemplateBinding Width}"
+                MinWidth="{TemplateBinding MinWidth}"
+                MaxWidth="{TemplateBinding MaxWidth}"
+                Height="{TemplateBinding Height}"
+                MinHeight="{TemplateBinding MinHeight}"
+                MaxHeight="{TemplateBinding MaxHeight}"
+                Margin="{TemplateBinding Margin}"
+                Padding="{TemplateBinding Padding}"
+                HorizontalAlignment="{TemplateBinding HorizontalAlignment}"
+                VerticalAlignment="{TemplateBinding VerticalAlignment}"
+                Background="{TemplateBinding Background}"
+                Foreground="{TemplateBinding Foreground}">
+          <StackPanel HorizontalAlignment="Center" Orientation="{TemplateBinding Orientation}" Spacing="{TemplateBinding Spacing}">
+            <PathIcon Name="PART_IconStart"
+                      Data="{TemplateBinding IconStart}"
+                      IsVisible="{Binding IconStart, RelativeSource={RelativeSource TemplatedParent}, Converter={x:Static converters:ObjectConverters.IsNotNull}}"
+                      Width="{TemplateBinding IconStartSize}"
+                      Height="{TemplateBinding IconStartSize}"
+                      Foreground="{Binding #PART_TextBlock.Foreground}"
+                      Classes="icon icon-start"/>
+
+            <TextBlock Name="PART_TextBlock"
+                       Text="{TemplateBinding Text}"
+                       FontWeight="{TemplateBinding FontWeight}"
+                       IsVisible="{Binding Text, RelativeSource={RelativeSource TemplatedParent}, Converter={x:Static converters:ObjectConverters.IsNotNull}}"
+                       HorizontalAlignment="Center"
+                       VerticalAlignment="Center"/>
+
+            <PathIcon Name="PART_IconEnd"
+                      Data="{TemplateBinding IconEnd}"
+                      IsVisible="{Binding IconEnd, RelativeSource={RelativeSource TemplatedParent}, Converter={x:Static converters:ObjectConverters.IsNotNull}}"
+                      Width="{TemplateBinding IconEndSize}"
+                      Height="{TemplateBinding IconEndSize}"
+                      Foreground="{Binding #PART_TextBlock.Foreground}"
+                      Classes="icon icon-end"/>
+          </StackPanel>
+        </Button>
+      </ControlTemplate>
+    </Setter>
+  </ControlTheme>
+</ResourceDictionary>

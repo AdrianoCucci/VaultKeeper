@@ -11,16 +11,29 @@
     <AvaloniaResource Include="Assets\**" />
   </ItemGroup>
 
+  <ItemGroup Condition="'$(Configuration)' != 'Debug'">
+    <Compile Remove="**/*Design.cs" />
+  </ItemGroup>
+
   <ItemGroup>
-    <PackageReference Include="Avalonia" Version="11.3.9" />
-    <PackageReference Include="Avalonia.Desktop" Version="11.3.9" />
-    <PackageReference Include="Avalonia.Themes.Fluent" Version="11.3.9" />
-    <PackageReference Include="Avalonia.Fonts.Inter" Version="11.3.9" />
+    <PackageReference Include="Avalonia.Desktop" Version="11.3.10" />
+    <PackageReference Include="Avalonia.Themes.Fluent" Version="11.3.10" />
+    <PackageReference Include="Avalonia.Fonts.Inter" Version="11.3.10" />
     <!--Condition below is needed to remove Avalonia.Diagnostics package from build output in Release configuration.-->
-    <PackageReference Include="Avalonia.Diagnostics" Version="11.3.9">
+    <PackageReference Include="Avalonia.Diagnostics" Version="11.3.10">
       <IncludeAssets Condition="'$(Configuration)' != 'Debug'">None</IncludeAssets>
       <PrivateAssets Condition="'$(Configuration)' != 'Debug'">All</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.1" />
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\VaultKeeper.AvaloniaApplication.Abstractions\VaultKeeper.AvaloniaApplication.Abstractions.csproj" />
+    <ProjectReference Include="..\VaultKeeper.Common\VaultKeeper.Common.csproj" />
+    <ProjectReference Include="..\VaultKeeper.Models\VaultKeeper.Models.csproj" />
+    <ProjectReference Include="..\VaultKeeper.Repositories.Abstractions\VaultKeeper.Repositories.Abstractions.csproj" />
+    <ProjectReference Include="..\VaultKeeper.Repositories\VaultKeeper.Repositories.csproj" />
+    <ProjectReference Include="..\VaultKeeper.Services.Abstractions\VaultKeeper.Services.Abstractions.csproj" />
+    <ProjectReference Include="..\VaultKeeper.Services\VaultKeeper.Services.csproj" />
   </ItemGroup>
 </Project>

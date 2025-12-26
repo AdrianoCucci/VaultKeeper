@@ -1,61 +1,43 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:vm="using:VaultKeeper.AvaloniaApplication.ViewModels"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:dataannotations="using:System.ComponentModel.DataAnnotations"
-        xmlns:local="using:VaultKeeper.AvaloniaApplication.Views"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:dataannotations="using:System.ComponentModel.DataAnnotations"
+        xmlns:vm="using:VaultKeeper.AvaloniaApplication.ViewModels"
+        xmlns:vm.common="using:VaultKeeper.AvaloniaApplication.ViewModels.Common"
+        xmlns:local="using:VaultKeeper.AvaloniaApplication.Views"
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
         x:Class="VaultKeeper.AvaloniaApplication.Views.MainWindow"
         x:DataType="vm:MainWindowViewModel"
         x:Name="Window"
         Icon="/Assets/avalonia-logo.ico"
         Title="VaultKeeper.AvaloniaApplication"
-        Width="300"
-        Height="500"
-        Padding="4">
-
-  <Grid RowDefinitions="Auto, *, Auto">
-    <TextBlock Text="My Todo List" Classes="h1"></TextBlock>
-    <ScrollViewer Grid.Row="1">
-      <ItemsControl ItemsSource="{Binding TodoItems}">
-        <ItemsControl.ItemTemplate>
-          <DataTemplate DataType="vm:TodoItemViewModel">
-            <Grid ColumnDefinitions="*, Auto">
-              <CheckBox Content="{Binding Content}" IsChecked="{Binding IsChecked}"></CheckBox>
-              <Button Command="{Binding $parent[Window].DataContext.RemoveItemCommand}"
-                      CommandParameter="{Binding .}"
-                      Grid.Column="1">
-                <PathIcon Data="{DynamicResource IconTrash}" Foreground="Red"></PathIcon>
-              </Button>
-            </Grid>
-          </DataTemplate>
-        </ItemsControl.ItemTemplate>
-      </ItemsControl>
-    </ScrollViewer>
-
-    <TextBox Grid.Row="2"
-             Text="{Binding NewItemContent}"
-             Watermark="Add a new item">
-
-      <TextBox.InnerRightContent>
-        <Button Command="{Binding AddItemCommand}">
-          <PathIcon Data="{DynamicResource IconCheck}" Foreground="Green"></PathIcon>
-        </Button>
-      </TextBox.InnerRightContent>
-
-      <TextBox.KeyBindings>
-        <KeyBinding Gesture="Enter" Command="{Binding AddItemCommand}"></KeyBinding>
-      </TextBox.KeyBindings>
-    </TextBox>
-  </Grid>
-
-  <!-- <Design.DataContext>
-  This only sets the DataContext for the previewer in an IDE,
-  to set the actual DataContext for runtime, set the DataContext property in code (look at App.axaml.cs)
-  <vm:MainWindowViewModel/>
+        Width="1920"
+        Height="1080">
+  <Design.DataContext>
+    <x:Static Member="vm:MainWindowViewModel.Design"/>
   </Design.DataContext>
 
-  <TextBlock Text="{Binding Greeting}" HorizontalAlignment="Center" VerticalAlignment="Center"/> -->
+  <Grid ColumnDefinitions="*" RowDefinitions="Auto, Auto, *, Auto">
+    <Border BorderThickness="2" Height="25" BorderBrush="Black" Grid.Row="0">
+      <TextBlock>Header</TextBlock>
+    </Border>
+
+    <TabStrip ItemsSource="{Binding TabNavItems}" SelectedItem="{Binding SelectedTab}" HorizontalAlignment="Center" Grid.Row="1">
+      <TabStrip.ItemTemplate>
+        <DataTemplate x:DataType="vm.common:NavItemViewModel">
+          <ContentControl Content="{Binding NavContent}"></ContentControl>
+        </DataTemplate>
+      </TabStrip.ItemTemplate>
+    </TabStrip>
+
+    <Border BorderThickness="2" BorderBrush="Black" Grid.Row="2">
+      <TransitioningContentControl Content="{Binding SelectedTab.MainContent}"></TransitioningContentControl>
+    </Border>
+
+    <Border BorderThickness="2" Height="25" BorderBrush="Black" Grid.Row="3">
+      <TextBlock>Footer</TextBlock>
+    </Border>
+  </Grid>
 
 </Window>

@@ -1,0 +1,122 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:common="using:VaultKeeper.AvaloniaApplication.Views.Common"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="using:VaultKeeper.AvaloniaApplication.ViewModels.VaultItems"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="VaultKeeper.AvaloniaApplication.Views.VaultItems.VaultItemFormView"
+             x:DataType="vm:VaultItemFormViewModel"
+             Name="Root"
+             LayoutUpdated="Root_LayoutUpdated"
+             Classes.vertical-layout="{Binding UseVerticalLayout}">
+
+  <Design.DataContext>
+    <vm:VaultItemFormViewModel/>
+  </Design.DataContext>
+
+  <UserControl.Styles>
+    <Style Selector=":not(.vertical-layout) StackPanel.PART_NamePanel">
+      <Setter Property="Grid.ColumnSpan" Value="1"></Setter>
+    </Style>
+    <Style Selector=":not(.vertical-layout) StackPanel.PART_ValuePanel">
+      <Setter Property="Grid.Row" Value="0"></Setter>
+      <Setter Property="Grid.Column" Value="1"></Setter>
+      <Setter Property="Grid.ColumnSpan" Value="1"></Setter>
+    </Style>
+    <Style Selector=":not(.vertical-layout) Grid.PART_ActionsGrid">
+      <Setter Property="HorizontalAlignment" Value="Right"></Setter>
+      <Setter Property="Grid.Row" Value="1"></Setter>
+      <Setter Property="Grid.Column" Value="1"></Setter>
+      <Setter Property="Grid.ColumnSpan" Value="1"></Setter>
+    </Style>
+
+    <Style Selector=".vertical-layout StackPanel.PART_NamePanel">
+      <Setter Property="Grid.ColumnSpan" Value="2"></Setter>
+    </Style>
+    <Style Selector=".vertical-layout StackPanel.PART_ValuePanel">
+      <Setter Property="Grid.Row" Value="1"></Setter>
+      <Setter Property="Grid.Column" Value="0"></Setter>
+      <Setter Property="Grid.ColumnSpan" Value="2"></Setter>
+    </Style>
+    <Style Selector=".vertical-layout Grid.PART_ActionsGrid">
+      <Setter Property="HorizontalAlignment" Value="Stretch"></Setter>
+      <Setter Property="Grid.Row" Value="2"></Setter>
+      <Setter Property="Grid.Column" Value="0"></Setter>
+      <Setter Property="Grid.ColumnSpan" Value="2"></Setter>
+    </Style>
+  </UserControl.Styles>
+
+  <Grid RowDefinitions="Auto, Auto, Auto" ColumnDefinitions="*, *" RowSpacing="12" ColumnSpacing="12">
+    <StackPanel Classes="PART_NamePanel" Grid.Row="0" Grid.Column="0">
+      <Label Target="InputName">Name</Label>
+      <TextBox Name="InputName"
+               Text="{Binding Form.Name}"
+               MinHeight="35"
+               VerticalContentAlignment="Center"></TextBox>
+
+      <ItemsControl ItemsSource="{Binding #InputName.(DataValidationErrors.Errors)}">
+        <ItemsControl.ItemTemplate>
+          <DataTemplate>
+            <TextBlock Text="{Binding}" Margin="0 6 0 0" Foreground="Red"></TextBlock>
+          </DataTemplate>
+        </ItemsControl.ItemTemplate>
+      </ItemsControl>
+    </StackPanel>
+
+    <StackPanel Classes="PART_ValuePanel">
+      <Label Target="InputValue">Value</Label>
+      <TextBox Name="InputValue"
+               MinHeight="35"
+               VerticalContentAlignment="Center"
+               Text="{Binding Form.Value}"
+               PasswordChar="{Binding PasswordChar}"
+               RevealPassword="{Binding ValueRevealed}"
+               IsReadOnly="{Binding !ValueRevealed}">
+
+        <TextBox.InnerLeftContent>
+          <Button IsVisible="{Binding IsValueRevealToggleVisible}"
+                  Classes.unlocked="{Binding ValueRevealed}"
+                  Click="ActionToggleRevealValue_Click">
+            <Button.Styles>
+              <Style Selector="Button">
+                <Setter Property="ToolTip.Tip" Value="Show Value"></Setter>
+              </Style>
+              <Style Selector="PathIcon">
+                <Setter Property="Data" Value="{StaticResource IconLockClosed}"></Setter>
+              </Style>
+
+              <Style Selector="Button.unlocked">
+                <Setter Property="ToolTip.Tip" Value="Hide Value"></Setter>
+              </Style>
+              <Style Selector="Button.unlocked PathIcon">
+                <Setter Property="Data" Value="{StaticResource IconLockOpened}"></Setter>
+              </Style>
+            </Button.Styles>
+
+            <PathIcon/>
+          </Button>
+        </TextBox.InnerLeftContent>
+      </TextBox>
+    </StackPanel>
+
+    <Grid Classes="PART_ActionsGrid"
+          RowDefinitions="*"
+          ColumnDefinitions="*, *"
+          Margin="0 20 0 0"
+          ColumnSpacing="12">
+      <common:AppButton Text="Cancel"
+                        IconStart="{StaticResource IconX}"
+                        Click="ActionCancel_Click"
+                        HorizontalAlignment="Stretch"
+                        Grid.Column="0"/>
+
+      <common:AppButton Text="Save"
+                        IconStart="{StaticResource IconCheck}"
+                        IsEnabled="{Binding !Form.HasErrors}"
+                        Click="ActionSave_Click"
+                        HorizontalAlignment="Stretch"
+                        Grid.Column="1"/>
+    </Grid>
+  </Grid>
+</UserControl>

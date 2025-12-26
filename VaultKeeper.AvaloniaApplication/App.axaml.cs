@@ -2,29 +2,27 @@ using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Data.Core.Plugins;
 using Avalonia.Markup.Xaml;
+using Microsoft.Extensions.DependencyInjection;
 using System.Linq;
-using System.Threading.Tasks;
+using VaultKeeper.AvaloniaApplication.Abstractions;
 using VaultKeeper.AvaloniaApplication.Services;
 using VaultKeeper.AvaloniaApplication.ViewModels;
 using VaultKeeper.AvaloniaApplication.Views;
+using VaultKeeper.Models;
+using VaultKeeper.Models.VaultItems;
+using VaultKeeper.Repositories.Extensions.DependencyInjection;
+using VaultKeeper.Services.Extensions.DependencyInjection;
 
 namespace VaultKeeper.AvaloniaApplication;
 
 public partial class App : Application
 {
-    // This is a reference to our MainViewModel which we use to save the list on shutdown. You can also use Dependency Injection
-    // in your App.
-    private readonly MainWindowViewModel _mainViewModel = new();
-
-    private bool _canClose = false;
-
-    public override void Initialize()
-    {
-        AvaloniaXamlLoader.Load(this);
-    }
+    public override void Initialize() => AvaloniaXamlLoader.Load(this);
 
     public override async void OnFrameworkInitializationCompleted()
     {
+        ServiceProvider services = ConfigureServices();
+
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
             // Avoid duplicate validations from both Avalonia and the CommunityToolkit. 
@@ -32,18 +30,14 @@ public partial class App : Application
             DisableAvaloniaDataAnnotationValidation();
             desktop.MainWindow = new MainWindow
             {
-                DataContext = _mainViewModel,
+                DataContext = services.GetRequiredService<MainWindowViewModel>()
             };
-
-            desktop.ShutdownRequested += Desktop_ShutdownRequestedAsync;
         }
-
-        await InitMainViewModelAsync();
 
         base.OnFrameworkInitializationCompleted();
     }
 
-    private void DisableAvaloniaDataAnnotationValidation()
+    private static void DisableAvaloniaDataAnnotationValidation()
     {
         // Get an array of plugins to remove
         var dataValidationPluginsToRemove =
@@ -56,39 +50,23 @@ public partial class App : Application
         }
     }
 
-    // Optional: Load data from disc
-    private async Task InitMainViewModelAsync()
+    private ServiceProvider ConfigureServices()
     {
-        // get the items to load
-        var itemsLoaded = await TodoListFileService.LoadFromFileAsync();
+        var services = new ServiceCollection()
+            .AddLogging()
 
-        if (itemsLoaded is not null)
-        {
-            _mainViewModel.TodoItems.Clear();
+            .AddInMemoryRepository<VaultItem>()
+            .AddInMemoryRepository<Group>()
 
-            foreach (var item in itemsLoaded)
-            {
-                _mainViewModel.TodoItems.Add(new TodoItemViewModel(item));
-            }
-        }
-    }
+            .AddVaultKeeperServices()
+            .AddSingleton<IPlatformService, PlatformService>()
 
-    private async void Desktop_ShutdownRequestedAsync(object? sender, ShutdownRequestedEventArgs e)
-    {
-        e.Cancel = !_canClose; // cancel closing event first time
+            .AddScoped<MainWindowViewModel>()
+            .AddScoped<VaultPageViewModel>();
 
-        if (!_canClose)
-        {
-            // To save the items, we map them to the ToDoItem-Model which is better suited for I/O operations
-            var itemsToSave = _mainViewModel.TodoItems.Select(item => item.GetModel());
-            await TodoListFileService.SaveToFileAsync(itemsToSave);
+        if (ApplicationLifetime != null)
+            services.AddSingleton(ApplicationLifetime);
 
-            // Set _canClose to true and Close this Window again
-            _canClose = true;
-            if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
-            {
-                desktop.Shutdown();
-            }
-        }
+        return services.BuildServiceProvider();
     }
 }

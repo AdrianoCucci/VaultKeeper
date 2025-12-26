@@ -1,6 +1,7 @@
 using Avalonia.Controls;
 using Avalonia.Controls.Templates;
 using System;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using VaultKeeper.AvaloniaApplication.ViewModels;
 
@@ -19,8 +20,13 @@ public class ViewLocator : IDataTemplate
         if (param is null)
             return null;
 
-        var name = param.GetType().FullName!.Replace("ViewModel", "View", StringComparison.Ordinal);
+        var name = param.GetType().FullName!
+            .Replace("ViewModel", "View", StringComparison.Ordinal)
+            .Replace("+DesignContext", string.Empty, StringComparison.Ordinal);
+
         var type = Type.GetType(name);
+
+        Debug.WriteLine($"LOCATE | param: {param} | name: {name} | type: {type}");
 
         if (type != null)
         {

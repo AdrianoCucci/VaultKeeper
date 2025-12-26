@@ -1,0 +1,116 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:common="using:VaultKeeper.AvaloniaApplication.Views.Common"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="using:VaultKeeper.AvaloniaApplication.ViewModels"
+             xmlns:uc="using:VaultKeeper.AvaloniaApplication.Views.VaultItems"
+             xmlns:converters="clr-namespace:Avalonia.Data.Converters;assembly=Avalonia.Base"
+             xmlns:vaultitems="using:VaultKeeper.AvaloniaApplication.ViewModels.VaultItems"
+             mc:Ignorable="d" d:DesignWidth="1920" d:DesignHeight="1080"
+             x:Class="VaultKeeper.AvaloniaApplication.Views.VaultPageView"
+             x:DataType="vm:VaultPageViewModel">
+  <Design.DataContext>
+    <x:Static Member="vm:VaultPageViewModel.Design"/>
+  </Design.DataContext>
+
+  <SplitView DisplayMode="Inline" PanePlacement="Right" OpenPaneLength="500" IsPaneOpen="{Binding IsSidePaneOpen}" PaneClosed="SplitView_PaneClosed">
+    <Border Padding="20">
+      <Grid RowDefinitions="Auto, *" ColumnDefinitions="*">
+        <Panel Height="80" Grid.Row="0" Focusable="False">
+          <Panel Name="TOOLBAR" IsVisible="{Binding !#List.IsEmpty}" Focusable="False">
+            <common:AppButton Text="New"
+                              HorizontalAlignment="Right"
+                              VerticalAlignment="Top"
+                              IconStart="{StaticResource IconPlus}"
+                              IsVisible="{Binding !IsSidePaneOpen}"
+                              Click="ButtonNew_Click"/>
+          </Panel>
+        </Panel>
+
+        <common:ListView Name="List" ItemsSource="{Binding VaultItems}" Grid.Row="1">
+          <common:ListView.ItemTemplate>
+            <DataTemplate DataType="vaultitems:VaultItemViewModelBase">
+              <TransitioningContentControl Content="{Binding .}" Padding="20 10 20 10">
+                <ContentControl.DataTemplates>
+                  <DataTemplate DataType="vaultitems:VaultItemViewModel">
+                    <uc:VaultItemView ActionInvoked="VaultItemView_ActionInvoked"/>
+                  </DataTemplate>
+                  <DataTemplate DataType="vaultitems:VaultItemFormViewModel">
+                    <uc:VaultItemFormView ActionInvoked="VaultItemView_ActionInvoked" FormActionInvoked="VaultItemFormView_FormActionInvoked"/>
+                  </DataTemplate>
+                </ContentControl.DataTemplates>
+              </TransitioningContentControl>
+            </DataTemplate>
+          </common:ListView.ItemTemplate>
+
+          <common:ListView.EmptyTemplate>
+            <DataTemplate>
+              <ScrollViewer>
+                <StackPanel HorizontalAlignment="Center">
+                  <Border HorizontalAlignment="Center"
+                          Padding="30"
+                          CornerRadius="10"
+                          BorderThickness="6"
+                          Background="{DynamicResource SystemAccentColor}"
+                          BorderBrush="{DynamicResource SystemControlBackgroundAltHighBrush}">
+                    <PathIcon Data="{StaticResource IconVault}" Foreground="{DynamicResource SystemControlBackgroundAltHighBrush}" Width="100" Height="100"/>
+                  </Border>
+
+                  <TextBlock HorizontalAlignment="Center" Classes="h1">No Keys Created</TextBlock>
+                  <TextBlock HorizontalAlignment="Center" FontSize="16">Create your first key or import your existing keys to get started.</TextBlock>
+
+                  <Grid RowDefinitions="*" ColumnDefinitions="*, *" ColumnSpacing="20" Margin="0 60 0 0" IsEnabled="{Binding !$parent[UserControl].DataContext.IsSidePaneOpen}">
+                    <common:AppButton Text="New Key"
+                                      HorizontalAlignment="Center"
+                                      IconStart="{StaticResource IconPlus}"
+                                      Click="ButtonNew_Click"
+                                      Grid.Column="0"/>
+
+                    <common:AppButton Text="Import Keys"
+                                      HorizontalAlignment="Center"
+                                      IconStart="{StaticResource IconPlus}"
+                                      Click="ButtonNew_Click"
+                                      Grid.Column="1"/>
+                  </Grid>
+                </StackPanel>
+              </ScrollViewer>
+            </DataTemplate>
+          </common:ListView.EmptyTemplate>
+        </common:ListView>
+      </Grid>
+    </Border>
+
+    <SplitView.Pane>
+      <Border Padding="20" IsVisible="{Binding NewVaultItemForm, Converter={x:Static converters:ObjectConverters.IsNotNull}}">
+        <Grid RowDefinitions="Auto, *" ColumnDefinitions="*">
+
+          <Grid RowDefinitions="Auto, Auto" ColumnDefinitions="*, Auto" Margin="0,0,0,10">
+            <TextBlock VerticalAlignment="Center" Margin="0" Classes="h2" Grid.Column="0">New Key</TextBlock>
+
+            <common:AppButton IconStart="{StaticResource IconX}"
+                              Width="34"
+                              Height="34"
+                              HorizontalAlignment="Right"
+                              Click="ButtonCloseSidePane_Click"
+                              Grid.Column="1"
+                              ToolTip.Tip="Close"/>
+
+            <Separator Margin="0 20 0 0" Grid.Row="1" Grid.ColumnSpan="2"></Separator>
+          </Grid>
+
+          <ContentControl Content="{Binding NewVaultItemForm}" Padding="12" Grid.Row="1">
+            <ContentControl.ContentTemplate>
+              <DataTemplate DataType="vaultitems:VaultItemFormViewModel">
+                <uc:VaultItemFormView
+                ActionInvoked="VaultItemView_ActionInvoked"
+                FormActionInvoked="VaultItemFormView_FormActionInvoked"/>
+              </DataTemplate>
+            </ContentControl.ContentTemplate>
+          </ContentControl>
+
+        </Grid>
+      </Border>
+    </SplitView.Pane>
+  </SplitView>
+</UserControl>

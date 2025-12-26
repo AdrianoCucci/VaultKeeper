@@ -1,3 +1,10 @@
 <Solution>
+  <Project Path="VaultKeeper.AvaloniaApplication.Abstractions/VaultKeeper.AvaloniaApplication.Abstractions.csproj" Id="f7bfd5b7-e237-4bc8-9a5b-b73ba2f061f8" />
   <Project Path="VaultKeeper.AvaloniaApplication/VaultKeeper.AvaloniaApplication.csproj" />
+  <Project Path="VaultKeeper.Common/VaultKeeper.Common.csproj" Id="8c3d83ef-8eee-4648-8f76-f6242e98e0cb" />
+  <Project Path="VaultKeeper.Models/VaultKeeper.Models.csproj" Id="3bb94c4b-0b3a-43f7-9626-c047e883a7bf" />
+  <Project Path="VaultKeeper.Repositories.Abstractions/VaultKeeper.Repositories.Abstractions.csproj" Id="ae23dedf-f61a-4a32-ac93-81a34d822df3" />
+  <Project Path="VaultKeeper.Repositories/VaultKeeper.Repositories.csproj" Id="0ef9abde-431b-4b2d-bfc0-dd4d46559fbe" />
+  <Project Path="VaultKeeper.Services.Abstractions/VaultKeeper.Services.Abstractions.csproj" Id="4f5cdb61-cbec-4572-83bb-920095c987bf" />
+  <Project Path="VaultKeeper.Services/VaultKeeper.Services.csproj" Id="c657da31-3fe6-49ea-85a1-d551fefabab1" />
 </Solution>

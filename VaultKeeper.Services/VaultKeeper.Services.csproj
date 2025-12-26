@@ -1,0 +1,15 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\VaultKeeper.Common\VaultKeeper.Common.csproj" />
+    <ProjectReference Include="..\VaultKeeper.Models\VaultKeeper.Models.csproj" />
+    <ProjectReference Include="..\VaultKeeper.Repositories.Abstractions\VaultKeeper.Repositories.Abstractions.csproj" />
+    <ProjectReference Include="..\VaultKeeper.Services.Abstractions\VaultKeeper.Services.Abstractions.csproj" />
+  </ItemGroup>
+
+</Project>
