@@ -11,7 +11,7 @@
              x:Class="VaultKeeper.AvaloniaApplication.Views.VaultPageView"
              x:DataType="vm:VaultPageViewModel">
   <Design.DataContext>
-    <!--<x:Static Member="vm:VaultPageViewModel.Design"/>-->
+    <x:Static Member="vm:VaultPageViewModel.Design"/>
   </Design.DataContext>
 
   <SplitView DisplayMode="Inline" PanePlacement="Right" OpenPaneLength="500" IsPaneOpen="{Binding IsSidePaneOpen}" PaneClosed="SplitView_PaneClosed">
