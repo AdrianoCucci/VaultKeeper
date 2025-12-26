@@ -8,20 +8,23 @@ using VaultKeeper.AvaloniaApplication.Abstractions;
 using VaultKeeper.AvaloniaApplication.Services;
 using VaultKeeper.AvaloniaApplication.ViewModels;
 using VaultKeeper.AvaloniaApplication.Views;
-using VaultKeeper.Models;
-using VaultKeeper.Models.VaultItems;
-using VaultKeeper.Repositories.Extensions.DependencyInjection;
+using VaultKeeper.Services.Abstractions;
 using VaultKeeper.Services.Extensions.DependencyInjection;
 
 namespace VaultKeeper.AvaloniaApplication;
 
 public partial class App : Application
 {
+    private ServiceProvider? _serviceProvider;
+
     public override void Initialize() => AvaloniaXamlLoader.Load(this);
 
     public override async void OnFrameworkInitializationCompleted()
     {
-        ServiceProvider services = ConfigureServices();
+        _serviceProvider = ConfigureServices();
+
+        IAppDataService appDataService = _serviceProvider.GetRequiredService<IAppDataService>();
+        _ = await appDataService.LoadUserDataAsync();
 
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
@@ -30,11 +33,18 @@ public partial class App : Application
             DisableAvaloniaDataAnnotationValidation();
             desktop.MainWindow = new MainWindow
             {
-                DataContext = services.GetRequiredService<MainWindowViewModel>()
+                DataContext = _serviceProvider.GetRequiredService<MainWindowViewModel>()
             };
+            desktop.ShutdownRequested += ShutdownRequested;
         }
 
         base.OnFrameworkInitializationCompleted();
+    }
+
+    private void ShutdownRequested(object? sender, ShutdownRequestedEventArgs e)
+    {
+        IAppDataService? appDataService = _serviceProvider?.GetRequiredService<IAppDataService>();
+        appDataService?.SaveDataAsync().Wait();
     }
 
     private static void DisableAvaloniaDataAnnotationValidation()
@@ -54,9 +64,6 @@ public partial class App : Application
     {
         var services = new ServiceCollection()
             .AddLogging()
-
-            .AddInMemoryRepository<VaultItem>()
-            .AddInMemoryRepository<Group>()
 
             .AddVaultKeeperServices()
             .AddSingleton<IPlatformService, PlatformService>()

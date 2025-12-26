@@ -1,3 +1,4 @@
+using Avalonia;
 using Avalonia.Interactivity;
 using System.Threading.Tasks;
 using VaultKeeper.AvaloniaApplication.ViewModels;
@@ -10,6 +11,12 @@ namespace VaultKeeper.AvaloniaApplication.Views;
 public partial class VaultPageView : ViewBase<VaultPageViewModel>
 {
     public VaultPageView() => InitializeComponent();
+
+    protected override async void OnAttachedToVisualTree(VisualTreeAttachmentEventArgs e)
+    {
+        if (Model != null)
+            await Model.LoadVaultItemsAsync();
+    }
 
     private void ButtonNew_Click(object? sender, RoutedEventArgs e) => Model?.ShowVaultItemCreateForm();
 
