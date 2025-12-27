@@ -6,6 +6,9 @@ namespace VaultKeeper.Services.Abstractions;
 
 public interface IAppDataService
 {
-    Task<Result> SaveDataAsync();
-    Task<Result<UserData>> LoadUserDataAsync();
+    Task<Result> SaveAllDataAsync();
+    Task<Result<SavedData<UserData>?>> SaveUserDataAsync(UserData? userData = null);
+    Task<Result<SavedData<EntityData>>> SaveEntityDataAsync(EntityData? entityData = null, string? filePath = null);
+    Task<Result<SavedData<UserData>?>> LoadUserDataAsync();
+    Task<Result<SavedData<EntityData>?>> LoadEntityDataAsync(string? filePath = null);
 }

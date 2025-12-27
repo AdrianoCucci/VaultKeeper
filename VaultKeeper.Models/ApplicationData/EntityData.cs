@@ -2,7 +2,7 @@
 
 namespace VaultKeeper.Models.ApplicationData;
 
-public record EntityData : AppData
+public record EntityData
 {
     public VaultItem[]? VaultItems { get; init; }
     public Group[]? Groups { get; init; }

@@ -5,6 +5,7 @@ using System.IO;
 using System.Threading.Tasks;
 using VaultKeeper.Common.Extensions;
 using VaultKeeper.Common.Results;
+using VaultKeeper.Models;
 using VaultKeeper.Models.ApplicationData;
 using VaultKeeper.Models.VaultItems;
 using VaultKeeper.Repositories.Abstractions;
@@ -17,52 +18,32 @@ public class AppDataService(
     IFileService fileService,
     IJsonService jsonService,
     ISecurityService securityService,
-    IRepository<VaultItem> vaultItemRepository) : IAppDataService
+    IRepository<VaultItem> vaultItemRepository,
+    IRepository<Group> groupRepository,
+    ICache<UserData> userDataCache) : IAppDataService
 {
+    private const int _saveDataVersion = 1;
     private const string _appDataDirectory = "VaultKeeper";
     private const string _userDataFile = "VaultKeeper.user.dat";
     private const string _entitiesDataFile = "VaultKeeper.entities.dat";
 
-    public async Task<Result> SaveDataAsync()
+    public async Task<Result> SaveAllDataAsync()
     {
-        logger.LogInformation(nameof(SaveDataAsync));
+        logger.LogInformation(nameof(SaveAllDataAsync));
 
         try
         {
-            // User data
-            UserData userData = new()
-            {
-                Version = 1,
-                MainPassword = "TODO"
-            };
-
-            var hashPasswordResult = securityService.CreateHash(userData.MainPassword);
-            if (!hashPasswordResult.IsSuccessful)
-                return hashPasswordResult.Logged(logger);
-
-            userData = userData with { MainPassword = hashPasswordResult.Value };
-
-            string userDataPath = CreateSaveDataPath(_userDataFile);
-            Result saveUserDataResult = SaveDataInternal(userDataPath, userData);
+            Result<SavedData<UserData>?> saveUserDataResult = await SaveUserDataAsync();
             if (!saveUserDataResult.IsSuccessful)
                 return saveUserDataResult.Logged(logger);
 
-            // Entities
-            IEnumerable<VaultItem> vaultItems = await vaultItemRepository.GetManyAsync();
+            UserData? userData = saveUserDataResult.Value?.Data;
 
-            EntityData entityData = new()
-            {
-                Version = 1,
-                VaultItems = [.. vaultItems]
-            };
+            Result<SavedData<EntityData>> saveEntitiesResult = await SaveEntityDataAsync(filePath: userData?.CustomEntitiesDataPath);
+            if (!saveEntitiesResult.IsSuccessful)
+                return saveEntitiesResult.Logged(logger);
 
-            string entitiesDataPath = string.IsNullOrWhiteSpace(userData.CustomEntitiesDataPath)
-                ? CreateSaveDataPath(_entitiesDataFile)
-                : userData.CustomEntitiesDataPath;
-
-            var saveEntitiesResult = SaveDataInternal(entitiesDataPath, entityData);
-
-            return saveEntitiesResult.Logged(logger);
+            return Result.Ok().Logged(logger);
         }
         catch (Exception ex)
         {
@@ -70,51 +51,117 @@ public class AppDataService(
         }
     }
 
-    public async Task<Result<UserData>> LoadUserDataAsync()
+    public async Task<Result<SavedData<UserData>?>> SaveUserDataAsync(UserData? userData = null)
+    {
+        logger.LogInformation(nameof(SaveUserDataAsync));
+
+        try
+        {
+            if (userData == null)
+            {
+                Result<UserData?> getUserDataResult = userDataCache.Get();
+                if (!getUserDataResult.IsSuccessful)
+                    return getUserDataResult.WithValue<SavedData<UserData>?>().Logged(logger);
+
+                userData = getUserDataResult.Value;
+            }
+
+            if (userData == null)
+            {
+                logger.LogInformation($"No user data provided, and none found in cache - nothing to save.");
+                return userData.ToOkResult().WithValue<SavedData<UserData>?>().Logged(logger);
+            }
+
+            SavedData<UserData> savedData = new()
+            {
+                Data = userData,
+                Metadata = new() { Version = _saveDataVersion }
+            };
+
+            string userDataPath = CreateSaveDataPath(_userDataFile);
+            Result saveResult = SaveDataInternal(userDataPath, savedData);
+
+            return saveResult.WithValue(savedData).Logged(logger)!;
+        }
+        catch (Exception ex)
+        {
+            return ex.ToFailedResult<SavedData<UserData>?>().Logged(logger);
+        }
+    }
+
+    public async Task<Result<SavedData<UserData>?>> LoadUserDataAsync()
     {
         logger.LogInformation(nameof(LoadUserDataAsync));
 
         try
         {
             string userDataPath = CreateSaveDataPath(_userDataFile);
-            Result<UserData> loadDataResult = LoadDataInternal<UserData>(userDataPath);
-            if (!loadDataResult.IsSuccessful)
-                return loadDataResult.Logged(logger, failedAsWarning: loadDataResult.FailureType == ResultFailureType.NotFound);
+            Result<SavedData<UserData>?> loadDataResult = LoadDataInternal<UserData>(userDataPath);
 
-            UserData userData = loadDataResult.Value!;
-
-            return userData.ToOkResult().Logged(logger);
+            return loadDataResult.Logged(logger);
         }
         catch (Exception ex)
         {
-            return ex.ToFailedResult<UserData>().Logged(logger);
+            return ex.ToFailedResult<SavedData<UserData>?>().Logged(logger);
         }
     }
 
-    public async Task<Result<EntityData>> LoadEntityDataAsync(string? filePath = null)
+    public async Task<Result<SavedData<EntityData>?>> LoadEntityDataAsync(string? filePath = null)
     {
         logger.LogInformation(nameof(LoadEntityDataAsync));
 
         try
         {
             string entityDataPath = string.IsNullOrWhiteSpace(filePath) ? CreateSaveDataPath(_userDataFile) : filePath;
-            Result<EntityData> loadDataResult = LoadDataInternal<EntityData>(entityDataPath);
-            if (!loadDataResult.IsSuccessful)
-                return loadDataResult.Logged(logger, failedAsWarning: loadDataResult.FailureType == ResultFailureType.NotFound);
+            Result<SavedData<EntityData>?> loadDataResult = LoadDataInternal<EntityData>(entityDataPath);
 
-            EntityData entityData = loadDataResult.Value!;
-
-            return entityData.ToOkResult().Logged(logger);
+            return loadDataResult.Logged(logger);
         }
         catch (Exception ex)
         {
-            return ex.ToFailedResult<EntityData>().Logged(logger);
+            return ex.ToFailedResult<SavedData<EntityData>?>().Logged(logger);
         }
     }
 
-    private Result SaveDataInternal<T>(string filePath, T fileData)
+    public async Task<Result<SavedData<EntityData>>> SaveEntityDataAsync(EntityData? entityData = null, string? filePath = null)
     {
-        Result<string> dataSerializeResult = jsonService.Serialize(fileData);
+        logger.LogInformation(nameof(SaveEntityDataAsync));
+
+        try
+        {
+            if (entityData == null)
+            {
+                // Entities
+                IEnumerable<VaultItem> vaultItems = await vaultItemRepository.GetManyAsync();
+                IEnumerable<Group> groups = await groupRepository.GetManyAsync();
+
+                entityData = new()
+                {
+                    VaultItems = [.. vaultItems],
+                    Groups = [.. groups]
+                };
+            }
+
+            SavedData<EntityData> savedData = new()
+            {
+                Data = entityData,
+                Metadata = new() { Version = _saveDataVersion }
+            };
+
+            filePath ??= CreateSaveDataPath(_entitiesDataFile);
+            var saveResult = SaveDataInternal(filePath, savedData);
+
+            return saveResult.WithValue(savedData).Logged(logger);
+        }
+        catch (Exception ex)
+        {
+            return ex.ToFailedResult<SavedData<EntityData>>().Logged(logger);
+        }
+    }
+
+    private Result SaveDataInternal<T>(string filePath, SavedData<T> savedData)
+    {
+        Result<string> dataSerializeResult = jsonService.Serialize(savedData);
         if (!dataSerializeResult.IsSuccessful)
             return dataSerializeResult;
 
@@ -127,17 +174,22 @@ public class AppDataService(
         return saveResult;
     }
 
-    private Result<T> LoadDataInternal<T>(string filePath)
+    private Result<SavedData<T>?> LoadDataInternal<T>(string filePath)
     {
         Result<string> readFileResult = fileService.ReadFileText(filePath);
         if (!readFileResult.IsSuccessful)
-            return readFileResult.WithValue<T>();
+        {
+            if (readFileResult.FailureType == ResultFailureType.NotFound)
+                return Result.Ok<SavedData<T>?>(null);
+
+            return readFileResult.WithValue<SavedData<T>?>();
+        }
 
         Result<string> dataDecryptResult = securityService.Decrypt(readFileResult.Value!);
         if (!dataDecryptResult.IsSuccessful)
-            return dataDecryptResult.WithValue<T>();
+            return dataDecryptResult.WithValue<SavedData<T>?>();
 
-        Result<T> dataDeserializeResult = jsonService.Deserialize<T>(dataDecryptResult.Value!);
+        Result<SavedData<T>?> dataDeserializeResult = jsonService.Deserialize<SavedData<T>?>(dataDecryptResult.Value!);
 
         return dataDeserializeResult;
     }

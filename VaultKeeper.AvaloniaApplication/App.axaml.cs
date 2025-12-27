@@ -44,7 +44,7 @@ public partial class App : Application
     private void ShutdownRequested(object? sender, ShutdownRequestedEventArgs e)
     {
         IAppDataService? appDataService = _serviceProvider?.GetRequiredService<IAppDataService>();
-        appDataService?.SaveDataAsync().Wait();
+        appDataService?.SaveAllDataAsync().Wait();
     }
 
     private static void DisableAvaloniaDataAnnotationValidation()
