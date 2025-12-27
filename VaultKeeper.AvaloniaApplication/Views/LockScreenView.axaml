@@ -1,0 +1,62 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:common="using:VaultKeeper.AvaloniaApplication.Views.Common"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="using:VaultKeeper.AvaloniaApplication.ViewModels.LockScreen"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="VaultKeeper.AvaloniaApplication.Views.LockScreenView"
+             x:DataType="vm:LockScreenViewModel">
+  <Design.DataContext>
+    <x:Static Member="vm:LockScreenViewModel.Design"/>
+  </Design.DataContext>
+
+  <Border Padding="20 0" Background="{DynamicResource SystemAccentColor}">
+    <Border Padding="80"
+            HorizontalAlignment="Center"
+            BorderThickness="10 0"
+            BorderBrush="{DynamicResource SystemControlBackgroundBaseLowBrush}"
+            Background="{DynamicResource SystemControlBackgroundAltHighBrush}">
+      <Grid RowDefinitions="Auto, Auto, Auto"
+            ColumnDefinitions="Auto"
+            HorizontalAlignment="Center"
+            VerticalAlignment="Center"
+            RowSpacing="20">
+        <Border Padding="20"
+                Margin="0 0 0 20"
+                CornerRadius="10"
+                Background="{DynamicResource SystemControlBackgroundBaseLowBrush}"
+                Grid.Row="0">
+          <StackPanel Orientation="Horizontal" Spacing="10">
+            <PathIcon Data="{StaticResource IconVault}" Foreground="{DynamicResource SystemAccentColor}" Height="80" Width="80"/>
+            <TextBlock Foreground="{DynamicResource SystemAccentColor}" Classes="h1">Vault Keeper</TextBlock>
+          </StackPanel>
+        </Border>
+
+        <TextBlock HorizontalAlignment="Center" FontSize="16" FontWeight="SemiBold" Grid.Row="1">Enter your password to continue.</TextBlock>
+
+        <StackPanel Grid.Row="2">
+          <TextBox Name="InputPassword"
+                   PasswordChar="*"
+                   TextAlignment="Center"
+                   Text="{Binding Form.PasswordInput}"
+                   KeyDown="InputPassword_KeyDown">
+            <TextBox.InnerRightContent>
+              <common:AppButton IconStart="{StaticResource IconArrowRight}" ToolTip.Tip="Submit" Click="SubmitButton_Click"/>
+            </TextBox.InnerRightContent>
+          </TextBox>
+
+          <ItemsControl ItemsSource="{Binding #InputPassword.(DataValidationErrors.Errors)}">
+            <ItemsControl.ItemTemplate>
+              <DataTemplate>
+                <TextBlock Text="{Binding}" Margin="0 6 0 0" Foreground="Red"></TextBlock>
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
+
+          <TextBlock Text="{Binding Form.SubmissionError}" Margin="0 6 0 0" Foreground="Red"></TextBlock>
+        </StackPanel>
+      </Grid>
+    </Border>
+  </Border>
+</UserControl>

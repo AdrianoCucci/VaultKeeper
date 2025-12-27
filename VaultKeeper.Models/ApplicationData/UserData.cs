@@ -2,6 +2,6 @@
 
 public record UserData
 {
-    public string? MainPassword { get; set; }
+    public string? MainPasswordHash { get; set; }
     public string? CustomEntitiesDataPath { get; init; }
 }
