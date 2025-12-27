@@ -22,13 +22,6 @@ public class VaultItemService(IRepository<VaultItem> repository, ISecurityServic
         {
             IEnumerable<VaultItem> items = await repository.GetManyAsync();
             return items.ToOkResult().Logged(logger);
-
-            //return Enumerable.Range(1, 20).Select(x => new VaultItem
-            //{
-            //    Id = Guid.NewGuid(),
-            //    Name = $"{x}: Name",
-            //    Value = $"{x}: Value"
-            //}).ToOkResult();
         }
         catch (Exception ex)
         {
