@@ -2,7 +2,5 @@
 
 public partial class LockScreenViewModel : ViewModelBase
 {
-    public static readonly DesignContext Design = new();
-
-    public class DesignContext() : LockScreenViewModel(null!, null!);
+    public static readonly LockScreenViewModel Design = new(null!, null!);
 }

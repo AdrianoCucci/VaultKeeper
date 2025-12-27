@@ -3,11 +3,15 @@ using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Data.Core.Plugins;
 using Avalonia.Markup.Xaml;
 using Microsoft.Extensions.DependencyInjection;
+using System.Collections.Generic;
 using System.Linq;
 using VaultKeeper.AvaloniaApplication.Abstractions;
+using VaultKeeper.AvaloniaApplication.Extensions.DependencyInjection;
 using VaultKeeper.AvaloniaApplication.Services;
 using VaultKeeper.AvaloniaApplication.ViewModels;
+using VaultKeeper.AvaloniaApplication.ViewModels.LockScreen;
 using VaultKeeper.AvaloniaApplication.Views;
+using VaultKeeper.Models.Navigation;
 using VaultKeeper.Services.Abstractions;
 using VaultKeeper.Services.Extensions.DependencyInjection;
 
@@ -65,12 +69,42 @@ public partial class App : Application
         var services = new ServiceCollection()
             .AddVaultKeeperServices()
             .AddSingleton<IPlatformService, PlatformService>()
+            .AddSingleton<INavigator, Navigator>()
 
             .AddScoped<MainWindowViewModel>()
+            .AddScoped<LockScreenViewModel>()
+            .AddScoped<MainContentViewModel>()
             .AddScoped<VaultPageViewModel>();
 
         if (ApplicationLifetime != null)
             services.AddSingleton(ApplicationLifetime);
+
+        services.AddNavigator(sp => new HashSet<Route>()
+        {
+            new()
+            {
+                Key = nameof(LockScreenViewModel),
+                Content = () => new LockScreenView { DataContext = sp.GetRequiredService<LockScreenViewModel>() }
+            },
+            new()
+            {
+                Key = nameof(MainContentViewModel),
+                Content = () => new MainContentView { DataContext = sp.GetRequiredService<MainContentViewModel>() },
+                Children =
+                [
+                    new()
+                    {
+                        Key = nameof(VaultPageViewModel),
+                        Content = () => new VaultPageView { DataContext = sp.GetRequiredService<VaultPageViewModel>() }
+                    },
+                    new()
+                    {
+                        Key = "SettingsPageViewModel",
+                        Content = () => "CONTENT"
+                    }
+                ]
+            }
+        });
 
         return services.BuildServiceProvider();
     }

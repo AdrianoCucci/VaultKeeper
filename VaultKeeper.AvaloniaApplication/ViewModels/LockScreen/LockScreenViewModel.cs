@@ -6,6 +6,9 @@ namespace VaultKeeper.AvaloniaApplication.ViewModels.LockScreen;
 
 public partial class LockScreenViewModel(ISecurityService securityService, ICache<UserData> userDataCache) : ViewModelBase
 {
+    private readonly ISecurityService _securityService = securityService;
+    private readonly ICache<UserData> _userDataCache = userDataCache;
+
     public LockScreenForm Form { get; } = new();
 
     public bool SubmitForm()
@@ -14,7 +17,7 @@ public partial class LockScreenViewModel(ISecurityService securityService, ICach
         if (!Form.Validate())
             return false;
 
-        Result<UserData?> getUserData = userDataCache.Get();
+        Result<UserData?> getUserData = _userDataCache.Get();
         if (!getUserData.IsSuccessful)
         {
             // TODO: Handle error.
@@ -22,7 +25,7 @@ public partial class LockScreenViewModel(ISecurityService securityService, ICach
         }
 
         string inputPassword = Form.PasswordInput!;
-        string? expectedPasswordHash = getUserData.Value!.MainPasswordHash;
+        string? expectedPasswordHash = getUserData.Value?.MainPasswordHash;
 
         if (expectedPasswordHash == null)
         {
@@ -30,7 +33,7 @@ public partial class LockScreenViewModel(ISecurityService securityService, ICach
             return false;
         }
 
-        Result<bool> compareHashResult = securityService.CompareHash(inputPassword, expectedPasswordHash);
+        Result<bool> compareHashResult = _securityService.CompareHash(inputPassword, expectedPasswordHash);
         if (!compareHashResult.IsSuccessful)
         {
             // TODO: Handle error.

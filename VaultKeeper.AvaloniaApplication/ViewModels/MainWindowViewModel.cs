@@ -1,59 +1,27 @@
-﻿using Avalonia.Controls;
-using CommunityToolkit.Mvvm.ComponentModel;
-using System.Collections.ObjectModel;
-using VaultKeeper.AvaloniaApplication.Constants;
-using VaultKeeper.AvaloniaApplication.ViewModels.Common;
-using VaultKeeper.AvaloniaApplication.ViewModels.VaultItems;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
+using VaultKeeper.AvaloniaApplication.Abstractions;
+using VaultKeeper.Models.Navigation;
 
 namespace VaultKeeper.AvaloniaApplication.ViewModels;
 
 public partial class MainWindowViewModel : ViewModelBase
 {
-    public ObservableCollection<NavItemViewModel> TabNavItems { get; }
+    public INavigator Navigator { get; }
 
     [ObservableProperty]
-    private NavItemViewModel _selectedTab;
+    private object? _navigatorContent;
 
-    public MainWindowViewModel(VaultPageViewModel vaultPageViewModel)
+    public MainWindowViewModel(INavigator navigator)
     {
-        TabNavItems =
-        [
-            new(new()
-            {
-                Key = "Vault",
-                NavContent = CreateControl<StackPanel>(panel =>
-                {
-                    panel.Orientation = Avalonia.Layout.Orientation.Horizontal;
-                    panel.Children.Add(CreateControl<PathIcon>(x =>
-                    {
-                        x.Margin = new(0, 0, 6, 0);
-                        x.Bind(PathIcon.DataProperty, x.Resources.GetResourceObservable(Icons.Vault));
-                    }));
-                    panel.Children.Add(CreateControl<TextBlock>(x => x.Text = "Vault"));
-                }),
-                MainContent = vaultPageViewModel
-            }),
-            new(new()
-            {
-                Key = "Settings",
-                NavContent = CreateControl<StackPanel>(panel =>
-                {
-                    panel.Orientation = Avalonia.Layout.Orientation.Horizontal;
-                    panel.Children.Add(CreateControl<PathIcon>(x =>
-                    {
-                        x.Margin = new(0, 0, 6, 0);
-                        x.Bind(PathIcon.DataProperty, x.Resources.GetResourceObservable(Icons.Gear));
-                    }));
-                    panel.Children.Add(CreateControl<TextBlock>(x => x.Text = "Settings"));
-                }),
-                MainContent = new VaultItemViewModel(new()
-                {
-                    Name = "My Account",
-                    Value = "Password123"
-                })
-            }),
-        ];
+        Navigator = navigator;
 
-        _selectedTab = TabNavItems[0];
+        //UpdateNavigationContent(Navigator.CurrentRoute);
+        //Navigator.Navigated += Navigator_Navigated;
     }
+
+    ~MainWindowViewModel() => Navigator.Navigated -= Navigator_Navigated;
+
+    private void UpdateNavigationContent(CurrentRoute currentRoute) => NavigatorContent = currentRoute.Content?.Invoke();
+
+    private void Navigator_Navigated(object? sender, CurrentRoute e) => UpdateNavigationContent(e);
 }

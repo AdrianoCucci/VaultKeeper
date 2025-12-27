@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using VaultKeeper.Common.Extensions;
 using VaultKeeper.Common.Results;
+using VaultKeeper.Services.Abstractions;
 
 namespace VaultKeeper.Services;
 

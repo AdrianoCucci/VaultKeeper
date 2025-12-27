@@ -19,7 +19,7 @@ public static class ServiceCollectionExtensions
 
     public static IServiceCollection AddVaultKeeperServices(this IServiceCollection services)
     {
-        return services
+        services
             .AddLogging()
             .AddSingleton<ISecurityService, SecurityService>()
             .AddSingleton<IJsonService, JsonService>()
@@ -27,9 +27,11 @@ public static class ServiceCollectionExtensions
             .AddSingleton<IFileService, FileService>()
             .AddSingleton<IAppDataService, AppDataService>()
             .AddScoped<IVaultItemService, VaultItemService>()
-            .AddInMemoryCache<UserData>()
 
+            .AddInMemoryCache<UserData>()
             .AddInMemoryRepository<VaultItem>()
             .AddInMemoryRepository<Group>();
+
+        return services;
     }
 }
