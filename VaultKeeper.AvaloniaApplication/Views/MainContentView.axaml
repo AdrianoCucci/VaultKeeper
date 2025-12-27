@@ -3,6 +3,7 @@
              xmlns:common="using:VaultKeeper.AvaloniaApplication.ViewModels.Common"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:local="using:VaultKeeper.AvaloniaApplication.Views"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:vm="using:VaultKeeper.AvaloniaApplication.ViewModels"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
@@ -20,6 +21,7 @@
     <TabStrip ItemsSource="{Binding TabNavItems}"
               SelectedItem="{Binding SelectedTab}"
               HorizontalAlignment="Center"
+              SelectionChanged="TabStrip_SelectionChanged"
               Grid.Row="1">
       <TabStrip.ItemTemplate>
         <DataTemplate x:DataType="common:NavItemViewModel">
@@ -29,12 +31,13 @@
     </TabStrip>
 
     <Border BorderThickness="2" BorderBrush="Black" Grid.Row="2">
-      <common-views:NavigatorView Navigator="{Binding Navigator}">
-        <common-views:NavigatorView.ForRoutes>
-          <x:String>VaultPageViewModel</x:String>
-          <x:String>SettingsPageViewModel</x:String>
-        </common-views:NavigatorView.ForRoutes>
-      </common-views:NavigatorView>
+      <TransitioningContentControl Content="{Binding Content}">
+        <TransitioningContentControl.DataTemplates>
+          <DataTemplate DataType="vm:VaultPageViewModel">
+            <local:VaultPageView/>
+          </DataTemplate>
+        </TransitioningContentControl.DataTemplates>
+      </TransitioningContentControl>
     </Border>
 
     <Border BorderThickness="2" Height="25" BorderBrush="Black" Grid.Row="3">

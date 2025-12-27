@@ -69,7 +69,6 @@ public partial class App : Application
         var services = new ServiceCollection()
             .AddVaultKeeperServices()
             .AddSingleton<IPlatformService, PlatformService>()
-            .AddSingleton<INavigator, Navigator>()
 
             .AddScoped<MainWindowViewModel>()
             .AddScoped<LockScreenViewModel>()
@@ -79,23 +78,34 @@ public partial class App : Application
         if (ApplicationLifetime != null)
             services.AddSingleton(ApplicationLifetime);
 
-        services.AddNavigator(sp => new HashSet<Route>()
+        services.AddNavigation(sp => new HashSet<RouteScope>()
         {
             new()
             {
-                Key = nameof(LockScreenViewModel),
-                Content = () => new LockScreenView { DataContext = sp.GetRequiredService<LockScreenViewModel>() }
+                Key = nameof(MainWindowViewModel),
+                Routes =
+                [
+                    new()
+                    {
+                        Key = nameof(LockScreenViewModel),
+                        Content = sp.GetRequiredService<LockScreenViewModel>
+                    },
+                    new()
+                    {
+                        Key = nameof(MainContentViewModel),
+                        Content = sp.GetRequiredService<MainContentViewModel>
+                    }
+                ]
             },
             new()
             {
                 Key = nameof(MainContentViewModel),
-                Content = () => new MainContentView { DataContext = sp.GetRequiredService<MainContentViewModel>() },
-                Children =
+                Routes =
                 [
                     new()
                     {
                         Key = nameof(VaultPageViewModel),
-                        Content = () => new VaultPageView { DataContext = sp.GetRequiredService<VaultPageViewModel>() }
+                        Content = sp.GetRequiredService<VaultPageViewModel>
                     },
                     new()
                     {

@@ -1,27 +1,26 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
-using VaultKeeper.AvaloniaApplication.Abstractions;
+using VaultKeeper.AvaloniaApplication.Abstractions.Navigation;
 using VaultKeeper.Models.Navigation;
 
 namespace VaultKeeper.AvaloniaApplication.ViewModels;
 
 public partial class MainWindowViewModel : ViewModelBase
 {
-    public INavigator Navigator { get; }
-
     [ObservableProperty]
-    private object? _navigatorContent;
+    private object? _content = null;
 
-    public MainWindowViewModel(INavigator navigator)
+    private readonly INavigator _navigator;
+
+    public MainWindowViewModel(INavigatorFactory navFactory)
     {
-        Navigator = navigator;
-
-        //UpdateNavigationContent(Navigator.CurrentRoute);
-        //Navigator.Navigated += Navigator_Navigated;
+        _navigator = navFactory.GetRequiredNavigator(nameof(MainWindowViewModel));
+        _navigator.Navigated += Navigator_Navigated;
+        Content = _navigator.CurrentRoute.Content;
     }
 
-    ~MainWindowViewModel() => Navigator.Navigated -= Navigator_Navigated;
+    ~MainWindowViewModel() => _navigator.Navigated -= Navigator_Navigated;
 
-    private void UpdateNavigationContent(CurrentRoute currentRoute) => NavigatorContent = currentRoute.Content?.Invoke();
+    public void NavigateToHome() => _navigator.Navigate(nameof(MainContentViewModel));
 
-    private void Navigator_Navigated(object? sender, CurrentRoute e) => UpdateNavigationContent(e);
+    private void Navigator_Navigated(object? sender, CurrentRoute e) => Content = e.Content;
 }

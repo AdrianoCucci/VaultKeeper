@@ -1,7 +1,7 @@
 ﻿using Avalonia.Controls;
 using CommunityToolkit.Mvvm.ComponentModel;
 using System.Collections.ObjectModel;
-using VaultKeeper.AvaloniaApplication.Abstractions;
+using VaultKeeper.AvaloniaApplication.Abstractions.Navigation;
 using VaultKeeper.AvaloniaApplication.Constants;
 using VaultKeeper.AvaloniaApplication.ViewModels.Common;
 using VaultKeeper.Models.Navigation;
@@ -10,7 +10,7 @@ namespace VaultKeeper.AvaloniaApplication.ViewModels;
 
 public partial class MainContentViewModel : ViewModelBase
 {
-    public INavigator Navigator { get; }
+    private readonly INavigator _navigator;
 
     public ObservableCollection<NavItemViewModel> TabNavItems { get; }
 
@@ -18,9 +18,9 @@ public partial class MainContentViewModel : ViewModelBase
     private NavItemViewModel? _selectedTab;
 
     [ObservableProperty]
-    private object? _navigatorContent;
+    private object? _content;
 
-    public MainContentViewModel(INavigator navigator)
+    public MainContentViewModel(INavigatorFactory navFactory)
     {
         TabNavItems =
         [
@@ -54,16 +54,15 @@ public partial class MainContentViewModel : ViewModelBase
             }),
         ];
 
-        Navigator = navigator;
-
-        UpdateCurrentNavigation(Navigator.CurrentRoute);
-        Navigator.Navigated += Navigator_Navigated;
+        _navigator = navFactory.GetRequiredNavigator(nameof(MainContentViewModel));
+        _navigator.Navigated += Navigator_Navigated;
+        Content = _navigator.CurrentRoute.Content;
     }
 
 #if DEBUG
     public MainContentViewModel()
     {
-        Navigator = null!;
+        _navigator = null!;
         _selectedTab = null!;
         TabNavItems = [];
     }
@@ -71,18 +70,16 @@ public partial class MainContentViewModel : ViewModelBase
 
     ~MainContentViewModel()
     {
-        if (Navigator != null)
-            Navigator.Navigated -= Navigator_Navigated;
+        if (_navigator != null)
+            _navigator.Navigated -= Navigator_Navigated;
     }
 
     public void UpdateSelectedTabState()
     {
         string? tabKey = SelectedTab?.Model.Key;
         if (tabKey != null)
-            Navigator.Navigate(tabKey);
+            _navigator.Navigate(tabKey);
     }
 
-    private void UpdateCurrentNavigation(CurrentRoute currentRoute) => NavigatorContent = currentRoute.Content?.Invoke();
-
-    private void Navigator_Navigated(object? sender, CurrentRoute e) => UpdateCurrentNavigation(e);
+    private void Navigator_Navigated(object? sender, CurrentRoute e) => Content = e.Content;
 }
