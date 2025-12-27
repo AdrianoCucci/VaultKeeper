@@ -63,8 +63,6 @@ public partial class App : Application
     private ServiceProvider ConfigureServices()
     {
         var services = new ServiceCollection()
-            .AddLogging()
-
             .AddVaultKeeperServices()
             .AddSingleton<IPlatformService, PlatformService>()
 

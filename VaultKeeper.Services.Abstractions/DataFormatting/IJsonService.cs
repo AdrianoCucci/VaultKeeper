@@ -1,6 +1,6 @@
 ﻿using VaultKeeper.Common.Results;
 
-namespace VaultKeeper.Services.Abstractions;
+namespace VaultKeeper.Services.Abstractions.DataFormatting;
 
 public interface IJsonService
 {

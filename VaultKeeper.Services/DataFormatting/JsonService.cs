@@ -3,9 +3,9 @@ using System;
 using System.Text.Json;
 using VaultKeeper.Common.Extensions;
 using VaultKeeper.Common.Results;
-using VaultKeeper.Services.Abstractions;
+using VaultKeeper.Services.Abstractions.DataFormatting;
 
-namespace VaultKeeper.Services;
+namespace VaultKeeper.Services.DataFormatting;
 
 public class JsonService(ILogger<JsonService> logger) : IJsonService
 {

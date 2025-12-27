@@ -10,6 +10,7 @@ using VaultKeeper.Models.ApplicationData;
 using VaultKeeper.Models.VaultItems;
 using VaultKeeper.Repositories.Abstractions;
 using VaultKeeper.Services.Abstractions;
+using VaultKeeper.Services.Abstractions.DataFormatting;
 
 namespace VaultKeeper.Services;
 
