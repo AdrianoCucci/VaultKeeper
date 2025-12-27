@@ -1,11 +1,11 @@
 <Window xmlns="https://github.com/avaloniaui"
+        xmlns:common="using:VaultKeeper.AvaloniaApplication.Views.Common"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:dataannotations="using:System.ComponentModel.DataAnnotations"
-        xmlns:vm="using:VaultKeeper.AvaloniaApplication.ViewModels"
-        xmlns:vm.common="using:VaultKeeper.AvaloniaApplication.ViewModels.Common"
         xmlns:local="using:VaultKeeper.AvaloniaApplication.Views"
+        xmlns:lockscreen="using:VaultKeeper.AvaloniaApplication.ViewModels.LockScreen"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:vm="using:VaultKeeper.AvaloniaApplication.ViewModels"
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
         x:Class="VaultKeeper.AvaloniaApplication.Views.MainWindow"
         x:DataType="vm:MainWindowViewModel"
@@ -14,30 +14,15 @@
         Title="VaultKeeper.AvaloniaApplication"
         Width="1920"
         Height="1080">
-  <Design.DataContext>
-    <x:Static Member="vm:MainWindowViewModel.Design"/>
-  </Design.DataContext>
 
-  <Grid ColumnDefinitions="*" RowDefinitions="Auto, Auto, *, Auto">
-    <Border BorderThickness="2" Height="25" BorderBrush="Black" Grid.Row="0">
-      <TextBlock>Header</TextBlock>
-    </Border>
-
-    <TabStrip ItemsSource="{Binding TabNavItems}" SelectedItem="{Binding SelectedTab}" HorizontalAlignment="Center" Grid.Row="1">
-      <TabStrip.ItemTemplate>
-        <DataTemplate x:DataType="vm.common:NavItemViewModel">
-          <ContentControl Content="{Binding NavContent}"></ContentControl>
-        </DataTemplate>
-      </TabStrip.ItemTemplate>
-    </TabStrip>
-
-    <Border BorderThickness="2" BorderBrush="Black" Grid.Row="2">
-      <TransitioningContentControl Content="{Binding SelectedTab.MainContent}"></TransitioningContentControl>
-    </Border>
-
-    <Border BorderThickness="2" Height="25" BorderBrush="Black" Grid.Row="3">
-      <TextBlock>Footer</TextBlock>
-    </Border>
-  </Grid>
-
+  <TransitioningContentControl Content="{Binding Content}">
+    <TransitioningContentControl.DataTemplates>
+      <DataTemplate DataType="lockscreen:LockScreenViewModel">
+        <local:LockScreenView LoginSuccess="LockScreenView_LoginSuccess"/>
+      </DataTemplate>
+      <DataTemplate DataType="vm:MainContentViewModel">
+        <local:MainContentView/>
+      </DataTemplate>
+    </TransitioningContentControl.DataTemplates>
+  </TransitioningContentControl>
 </Window>

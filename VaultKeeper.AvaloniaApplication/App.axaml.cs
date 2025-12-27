@@ -3,11 +3,15 @@ using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Data.Core.Plugins;
 using Avalonia.Markup.Xaml;
 using Microsoft.Extensions.DependencyInjection;
+using System.Collections.Generic;
 using System.Linq;
 using VaultKeeper.AvaloniaApplication.Abstractions;
+using VaultKeeper.AvaloniaApplication.Extensions.DependencyInjection;
 using VaultKeeper.AvaloniaApplication.Services;
 using VaultKeeper.AvaloniaApplication.ViewModels;
+using VaultKeeper.AvaloniaApplication.ViewModels.LockScreen;
 using VaultKeeper.AvaloniaApplication.Views;
+using VaultKeeper.Models.Navigation;
 using VaultKeeper.Services.Abstractions;
 using VaultKeeper.Services.Extensions.DependencyInjection;
 
@@ -67,10 +71,50 @@ public partial class App : Application
             .AddSingleton<IPlatformService, PlatformService>()
 
             .AddScoped<MainWindowViewModel>()
+            .AddScoped<LockScreenViewModel>()
+            .AddScoped<MainContentViewModel>()
             .AddScoped<VaultPageViewModel>();
 
         if (ApplicationLifetime != null)
             services.AddSingleton(ApplicationLifetime);
+
+        services.AddNavigation(sp => new HashSet<RouteScope>()
+        {
+            new()
+            {
+                Key = nameof(MainWindowViewModel),
+                Routes =
+                [
+                    new()
+                    {
+                        Key = nameof(LockScreenViewModel),
+                        Content = sp.GetRequiredService<LockScreenViewModel>
+                    },
+                    new()
+                    {
+                        Key = nameof(MainContentViewModel),
+                        Content = sp.GetRequiredService<MainContentViewModel>
+                    }
+                ]
+            },
+            new()
+            {
+                Key = nameof(MainContentViewModel),
+                Routes =
+                [
+                    new()
+                    {
+                        Key = nameof(VaultPageViewModel),
+                        Content = sp.GetRequiredService<VaultPageViewModel>
+                    },
+                    new()
+                    {
+                        Key = "SettingsPageViewModel",
+                        Content = () => "CONTENT"
+                    }
+                ]
+            }
+        });
 
         return services.BuildServiceProvider();
     }

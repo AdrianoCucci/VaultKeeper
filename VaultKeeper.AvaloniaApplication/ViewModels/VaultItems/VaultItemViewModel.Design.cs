@@ -5,9 +5,7 @@ namespace VaultKeeper.AvaloniaApplication.ViewModels.VaultItems;
 [ExcludeFromCodeCoverage]
 public partial class VaultItemViewModel
 {
-    public static readonly DesignContext Design = new();
-
-    public class DesignContext() : VaultItemViewModel(new()
+    public static readonly VaultItemViewModel Design = new(new()
     {
         Name = "Name",
         Value = "Value"
