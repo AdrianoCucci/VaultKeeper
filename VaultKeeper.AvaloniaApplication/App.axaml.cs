@@ -72,7 +72,7 @@ public partial class App : Application
 
             .AddScoped<MainWindowViewModel>()
             .AddScoped<LockScreenViewModel>()
-            .AddScoped<MainContentViewModel>()
+            .AddScoped<HomeViewModel>()
             .AddScoped<VaultPageViewModel>();
 
         if (ApplicationLifetime != null)
@@ -92,14 +92,14 @@ public partial class App : Application
                     },
                     new()
                     {
-                        Key = nameof(MainContentViewModel),
-                        Content = sp.GetRequiredService<MainContentViewModel>
+                        Key = nameof(HomeViewModel),
+                        Content = sp.GetRequiredService<HomeViewModel>
                     }
                 ]
             },
             new()
             {
-                Key = nameof(MainContentViewModel),
+                Key = nameof(HomeViewModel),
                 Routes =
                 [
                     new()

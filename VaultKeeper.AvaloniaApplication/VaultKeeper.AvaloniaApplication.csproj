@@ -36,4 +36,10 @@
     <ProjectReference Include="..\VaultKeeper.Services.Abstractions\VaultKeeper.Services.Abstractions.csproj" />
     <ProjectReference Include="..\VaultKeeper.Services\VaultKeeper.Services.csproj" />
   </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Views\HomeView.axaml.cs">
+      <DependentUpon>HomeView.axaml</DependentUpon>
+    </Compile>
+  </ItemGroup>
 </Project>

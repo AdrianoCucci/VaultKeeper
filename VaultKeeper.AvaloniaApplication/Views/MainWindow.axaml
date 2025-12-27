@@ -20,7 +20,7 @@
       <DataTemplate DataType="lockscreen:LockScreenViewModel">
         <local:LockScreenView LoginSuccess="LockScreenView_LoginSuccess"/>
       </DataTemplate>
-      <DataTemplate DataType="vm:MainContentViewModel">
+      <DataTemplate DataType="vm:HomeViewModel">
         <local:MainContentView/>
       </DataTemplate>
     </TransitioningContentControl.DataTemplates>

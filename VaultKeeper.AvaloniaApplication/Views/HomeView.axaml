@@ -8,9 +8,9 @@
              xmlns:vm="using:VaultKeeper.AvaloniaApplication.ViewModels"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="VaultKeeper.AvaloniaApplication.Views.MainContentView"
-             x:DataType="vm:MainContentViewModel">
+             x:DataType="vm:HomeViewModel">
   <Design.DataContext>
-    <x:Static Member="vm:MainContentViewModel.Design"/>
+    <x:Static Member="vm:HomeViewModel.Design"/>
   </Design.DataContext>
 
   <Grid ColumnDefinitions="*" RowDefinitions="Auto, Auto, *, Auto">

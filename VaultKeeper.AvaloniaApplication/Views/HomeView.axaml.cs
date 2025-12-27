@@ -3,7 +3,7 @@ using VaultKeeper.AvaloniaApplication.ViewModels;
 
 namespace VaultKeeper.AvaloniaApplication.Views;
 
-public partial class MainContentView : ViewBase<MainContentViewModel>
+public partial class MainContentView : ViewBase<HomeViewModel>
 {
     public MainContentView() => InitializeComponent();
 

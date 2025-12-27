@@ -20,7 +20,7 @@ public partial class MainWindowViewModel : ViewModelBase
 
     ~MainWindowViewModel() => _navigator.Navigated -= Navigator_Navigated;
 
-    public void NavigateToHome() => _navigator.Navigate(nameof(MainContentViewModel));
+    public void NavigateToHome() => _navigator.Navigate(nameof(HomeViewModel));
 
     private void Navigator_Navigated(object? sender, CurrentRoute e) => Content = e.Content;
 }

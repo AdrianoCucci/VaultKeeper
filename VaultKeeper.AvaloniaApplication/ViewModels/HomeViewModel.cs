@@ -8,7 +8,7 @@ using VaultKeeper.Models.Navigation;
 
 namespace VaultKeeper.AvaloniaApplication.ViewModels;
 
-public partial class MainContentViewModel : ViewModelBase
+public partial class HomeViewModel : ViewModelBase
 {
     private readonly INavigator _navigator;
 
@@ -20,7 +20,7 @@ public partial class MainContentViewModel : ViewModelBase
     [ObservableProperty]
     private object? _content;
 
-    public MainContentViewModel(INavigatorFactory navFactory)
+    public HomeViewModel(INavigatorFactory navFactory)
     {
         TabNavItems =
         [
@@ -54,13 +54,13 @@ public partial class MainContentViewModel : ViewModelBase
             }),
         ];
 
-        _navigator = navFactory.GetRequiredNavigator(nameof(MainContentViewModel));
+        _navigator = navFactory.GetRequiredNavigator(nameof(HomeViewModel));
         _navigator.Navigated += Navigator_Navigated;
         Content = _navigator.CurrentRoute.Content;
     }
 
 #if DEBUG
-    public MainContentViewModel()
+    public HomeViewModel()
     {
         _navigator = null!;
         _selectedTab = null!;
@@ -68,7 +68,7 @@ public partial class MainContentViewModel : ViewModelBase
     }
 #endif
 
-    ~MainContentViewModel()
+    ~HomeViewModel()
     {
         if (_navigator != null)
             _navigator.Navigated -= Navigator_Navigated;
