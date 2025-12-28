@@ -1,3 +1,4 @@
+using Avalonia.Controls.Primitives;
 using Avalonia.Interactivity;
 using System.Threading.Tasks;
 using VaultKeeper.AvaloniaApplication.Forms.VaultItems;
@@ -11,6 +12,14 @@ namespace VaultKeeper.AvaloniaApplication.Views;
 public partial class VaultPageView : ViewBase<VaultPageViewModel>
 {
     public VaultPageView() => InitializeComponent();
+
+    protected override async void OnApplyTemplate(TemplateAppliedEventArgs e)
+    {
+        if (Model != null)
+            await Model.LoadVaultItemsAsync();
+
+        base.OnApplyTemplate(e);
+    }
 
     private void ButtonNew_Click(object? sender, RoutedEventArgs e) => Model?.ShowVaultItemCreateForm();
 

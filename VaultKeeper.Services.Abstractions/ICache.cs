@@ -1,12 +1,10 @@
-﻿using VaultKeeper.Common.Results;
-
-namespace VaultKeeper.Services.Abstractions;
+﻿namespace VaultKeeper.Services.Abstractions;
 
 public interface ICache<T>
 {
-    Result<T?> Get();
+    T? Get();
 
-    Result Set(T value);
+    void Set(T value);
 
-    Result Clear();
+    void Clear();
 }

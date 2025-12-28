@@ -38,22 +38,16 @@ public partial class MainWindowViewModel : ViewModelBase
         {
             IsInitializing = true;
 
-            Result<SavedData<UserData>?> loadUserDataResult = await _appDataService.LoadUserDataAsync();
+            Result<SavedData<UserData>?> loadUserDataResult = await _appDataService.LoadUserDataAsync(updateUserCache: true);
             if (!loadUserDataResult.IsSuccessful)
                 throw new Exception($"{nameof(MainWindowViewModel)} failed to load user data: {loadUserDataResult.Message}", loadUserDataResult.Exception);
 
             SavedData<UserData>? userData = loadUserDataResult.Value;
+
             if (userData == null)
-            {
                 NavigateToSetup();
-                return;
-            }
-
-            Result cacheUserDataResult = _userDataCache.Set(userData.Data);
-            if (!cacheUserDataResult.IsSuccessful)
-                throw new Exception($"{nameof(MainWindowViewModel)} failed to cache loaded user data: {cacheUserDataResult.Message}", cacheUserDataResult.Exception);
-
-            NavigateToLockscreen();
+            else
+                NavigateToLockscreen();
         }
         finally
         {
@@ -64,6 +58,15 @@ public partial class MainWindowViewModel : ViewModelBase
     public void NavigateToSetup() => _navigator.Navigate(nameof(SetupViewModel));
 
     public void NavigateToLockscreen() => _navigator.Navigate(nameof(LockScreenViewModel));
+
+    public async Task LoadSavedDataAsync()
+    {
+        UserData userData = _userDataCache.Get() ?? throw new InvalidOperationException($"{nameof(MainWindowViewModel)} failed to load user data - {nameof(UserData)} cache has no value.");
+
+        Result<SavedData<EntityData>?> loadEntitiesResult = await _appDataService.LoadEntityDataAsync(userData.CustomEntitiesDataPath, forUserId: userData.UserId, updateRepositories: true);
+        if (!loadEntitiesResult.IsSuccessful)
+            throw new Exception($"{nameof(MainWindowViewModel)} failed to load saved entity data: {loadEntitiesResult.Message}", loadEntitiesResult.Exception);
+    }
 
     public void NavigateToHome() => _navigator.Navigate(nameof(HomeViewModel));
 

@@ -34,7 +34,7 @@ public partial class VaultPageViewModel(
 
     public async Task LoadVaultItemsAsync()
     {
-        var loadResult = await vaultItemService.LoadAllAsync();
+        Result<IEnumerable<VaultItem>> loadResult = await vaultItemService.LoadAllAsync();
         if (!loadResult.IsSuccessful)
         {
             // TODO: Handle error.

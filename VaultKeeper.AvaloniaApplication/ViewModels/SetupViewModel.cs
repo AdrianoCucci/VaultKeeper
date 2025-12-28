@@ -1,4 +1,5 @@
 ﻿using Avalonia.Platform.Storage;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using VaultKeeper.AvaloniaApplication.Abstractions;
@@ -24,26 +25,19 @@ public class SetupViewModel(
 
         Result<string> hashPasswordResult = securityService.CreateHash(Form.PasswordInput!);
         if (!hashPasswordResult.IsSuccessful)
-        {
-            // TODO: Handle error
-            return false;
-        }
+            throw new Exception($"{nameof(SetupViewModel)}: Failed to submit form: {hashPasswordResult.Message}", hashPasswordResult.Exception);
 
-        UserData userData = new() { MainPasswordHash = hashPasswordResult.Value! };
+        UserData userData = new()
+        {
+            UserId = Guid.NewGuid(),
+            MainPasswordHash = hashPasswordResult.Value!
+        };
+
         Result<SavedData<UserData>?> saveUserDataResult = await appDataService.SaveUserDataAsync(userData);
         if (!saveUserDataResult.IsSuccessful)
-        {
-            // TODO: Handle error
-            return false;
-        }
+            throw new Exception($"{nameof(SetupViewModel)}: Failed to submit form: {hashPasswordResult.Message}", saveUserDataResult.Exception);
 
-        var cacheUserDataResult = userDataCache.Set(userData);
-        if (!cacheUserDataResult.IsSuccessful)
-        {
-            // TODO: Handle error
-            return false;
-        }
-
+        userDataCache.Set(userData);
         return true;
     }
 

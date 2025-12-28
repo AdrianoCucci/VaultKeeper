@@ -26,9 +26,6 @@ public partial class App : Application
     {
         _serviceProvider = ConfigureServices();
 
-        IAppDataService appDataService = _serviceProvider.GetRequiredService<IAppDataService>();
-        _ = await appDataService.LoadUserDataAsync();
-
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
             // Avoid duplicate validations from both Avalonia and the CommunityToolkit. 

@@ -1,4 +1,5 @@
-﻿using VaultKeeper.AvaloniaApplication.Forms;
+﻿using System;
+using VaultKeeper.AvaloniaApplication.Forms;
 using VaultKeeper.Common.Results;
 using VaultKeeper.Models.ApplicationData;
 using VaultKeeper.Services.Abstractions;
@@ -18,28 +19,13 @@ public partial class LockScreenViewModel(ISecurityService securityService, ICach
         if (!Form.Validate())
             return false;
 
-        Result<UserData?> getUserData = _userDataCache.Get();
-        if (!getUserData.IsSuccessful)
-        {
-            // TODO: Handle error.
-            return false;
-        }
-
+        UserData userData = _userDataCache.Get() ?? throw new InvalidOperationException($"{nameof(LockScreenViewModel)}: {nameof(UserData)} not set in cache.");
+        string expectedPasswordHash = userData.MainPasswordHash ?? throw new InvalidOperationException($"{nameof(LockScreenViewModel)}: cached {nameof(UserData)} state is missing password hash.");
         string inputPassword = Form.PasswordInput!;
-        string? expectedPasswordHash = getUserData.Value?.MainPasswordHash;
-
-        if (expectedPasswordHash == null)
-        {
-            // TODO: Handle invalid case.
-            return false;
-        }
 
         Result<bool> compareHashResult = _securityService.CompareHash(inputPassword, expectedPasswordHash);
         if (!compareHashResult.IsSuccessful)
-        {
-            // TODO: Handle error.
-            return false;
-        }
+            throw new Exception($"{nameof(LockScreenViewModel)}: Failed to verify password - {compareHashResult.Message}", compareHashResult.Exception);
 
         bool isMatch = compareHashResult.Value;
         if (!isMatch)
