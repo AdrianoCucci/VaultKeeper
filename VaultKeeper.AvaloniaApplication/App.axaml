@@ -3,7 +3,7 @@
              xmlns:sys="clr-namespace:System;assembly=netstandard"
              xmlns:local="using:VaultKeeper.AvaloniaApplication"
              x:Class="VaultKeeper.AvaloniaApplication.App"
-             RequestedThemeVariant="Light">
+             RequestedThemeVariant="Default">
   <!-- "Default" ThemeVariant follows system theme variant. "Dark" or "Light" are other available options. -->
 
   <Application.DataTemplates>

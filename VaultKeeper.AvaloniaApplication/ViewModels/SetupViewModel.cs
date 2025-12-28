@@ -11,11 +11,7 @@ using VaultKeeper.Services.Abstractions;
 
 namespace VaultKeeper.AvaloniaApplication.ViewModels;
 
-public class SetupViewModel(
-    IAppDataService appDataService,
-    ICache<UserData> userDataCache,
-    ISecurityService securityService,
-    IPlatformService platformService) : ViewModelBase
+public class SetupViewModel(IAppDataService appDataService, ISecurityService securityService, IPlatformService platformService) : ViewModelBase
 {
     public SetupForm Form { get; } = new();
 
@@ -33,11 +29,10 @@ public class SetupViewModel(
             MainPasswordHash = hashPasswordResult.Value!
         };
 
-        Result<SavedData<UserData>?> saveUserDataResult = await appDataService.SaveUserDataAsync(userData);
+        Result<SavedData<UserData>?> saveUserDataResult = await appDataService.SaveUserDataAsync(userData, updateUserCache: true);
         if (!saveUserDataResult.IsSuccessful)
             throw new Exception($"{nameof(SetupViewModel)}: Failed to submit form: {hashPasswordResult.Message}", saveUserDataResult.Exception);
 
-        userDataCache.Set(userData);
         return true;
     }
 
@@ -61,7 +56,11 @@ public class SetupViewModel(
         if (files.Count < 1)
             return false;
 
-        // TODO: Process file import.
-        return false;
+        string filePath = files[0].Path.AbsolutePath;
+        Result<SavedData<BackupData>?> loadBackupResult = await appDataService.LoadBackupAsync(filePath);
+        if (!loadBackupResult.IsSuccessful)
+            throw new Exception($"{nameof(SetupViewModel)}: Failed to load backup data: {loadBackupResult.Message}", loadBackupResult.Exception);
+
+        return true;
     }
 }
