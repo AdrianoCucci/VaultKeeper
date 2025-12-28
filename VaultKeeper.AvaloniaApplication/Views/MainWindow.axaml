@@ -17,7 +17,7 @@
   <TransitioningContentControl Content="{Binding Content}" IsVisible="{Binding !IsInitializing}">
     <TransitioningContentControl.DataTemplates>
       <DataTemplate DataType="vm:SetupViewModel">
-        <local:SetupView/>
+        <local:SetupView SetupCompleted="SetupView_SetupCompleted"/>
       </DataTemplate>
       <DataTemplate DataType="vm:LockScreenViewModel">
         <local:LockScreenView LoginSuccess="LockScreenView_LoginSuccess"/>

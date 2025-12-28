@@ -19,6 +19,8 @@ public partial class LockScreenView : ViewBase<LockScreenViewModel>
             RaiseEvent(new(LoginSuccessEvent, this));
     }
 
+    protected override void OnLoaded(RoutedEventArgs e) => InputPassword.Focus();
+
     private void SubmitButton_Click(object? sender, RoutedEventArgs e) => Submit();
 
     private void InputPassword_KeyDown(object? sender, KeyEventArgs e)

@@ -2,14 +2,52 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using VaultKeeper.AvaloniaApplication.Abstractions;
+using VaultKeeper.AvaloniaApplication.Forms;
+using VaultKeeper.Common.Results;
+using VaultKeeper.Models.ApplicationData;
 using VaultKeeper.Models.ApplicationData.Files;
 using VaultKeeper.Services.Abstractions;
 
 namespace VaultKeeper.AvaloniaApplication.ViewModels;
 
-public class SetupViewModel(IAppDataService appDataService, IPlatformService platformService) : ViewModelBase
+public class SetupViewModel(
+    IAppDataService appDataService,
+    ICache<UserData> userDataCache,
+    ISecurityService securityService,
+    IPlatformService platformService) : ViewModelBase
 {
-    public async Task ImportBackupDataAsync()
+    public SetupForm Form { get; } = new();
+
+    public async Task<bool> SubmitFormAsync()
+    {
+        if (!Form.Validate()) return false;
+
+        Result<string> hashPasswordResult = securityService.CreateHash(Form.PasswordInput!);
+        if (!hashPasswordResult.IsSuccessful)
+        {
+            // TODO: Handle error
+            return false;
+        }
+
+        UserData userData = new() { MainPasswordHash = hashPasswordResult.Value! };
+        Result<SavedData<UserData>?> saveUserDataResult = await appDataService.SaveUserDataAsync(userData);
+        if (!saveUserDataResult.IsSuccessful)
+        {
+            // TODO: Handle error
+            return false;
+        }
+
+        var cacheUserDataResult = userDataCache.Set(userData);
+        if (!cacheUserDataResult.IsSuccessful)
+        {
+            // TODO: Handle error
+            return false;
+        }
+
+        return true;
+    }
+
+    public async Task<bool> ImportBackupDataAsync()
     {
         AppFileDefinition backupFileDefinition = appDataService.GetFileDefinition(AppFileType.Backup);
 
@@ -27,8 +65,9 @@ public class SetupViewModel(IAppDataService appDataService, IPlatformService pla
         });
 
         if (files.Count < 1)
-            return;
+            return false;
 
         // TODO: Process file import.
+        return false;
     }
 }

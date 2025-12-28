@@ -1,11 +1,14 @@
 using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
+using Avalonia.Interactivity;
 using VaultKeeper.AvaloniaApplication.ViewModels;
 
 namespace VaultKeeper.AvaloniaApplication.Views;
 
 public partial class MainWindow : Window
 {
+    private MainWindowViewModel? Model => DataContext as MainWindowViewModel;
+
     public MainWindow() => InitializeComponent();
 
     protected override async void OnApplyTemplate(TemplateAppliedEventArgs e)
@@ -16,9 +19,7 @@ public partial class MainWindow : Window
         base.OnApplyTemplate(e);
     }
 
-    private void LockScreenView_LoginSuccess(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
-    {
-        if (DataContext is MainWindowViewModel viewModel)
-            viewModel.NavigateToHome();
-    }
+    private void SetupView_SetupCompleted(object? sender, RoutedEventArgs e) => Model?.NavigateToLockscreen();
+
+    private void LockScreenView_LoginSuccess(object? sender, RoutedEventArgs e) => Model?.NavigateToHome();
 }

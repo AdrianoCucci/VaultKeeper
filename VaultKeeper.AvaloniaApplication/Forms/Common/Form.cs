@@ -11,6 +11,8 @@ public abstract class Form(FormMode mode = FormMode.New) : ObservableValidator
         ValidateAllProperties();
         return !HasErrors;
     }
+
+    public void ClearErrors() => base.ClearErrors();
 }
 
 public abstract class Form<T>(FormMode mode = FormMode.New) : Form(mode) where T : class
