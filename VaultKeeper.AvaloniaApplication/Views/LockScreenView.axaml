@@ -3,7 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             xmlns:vm="using:VaultKeeper.AvaloniaApplication.ViewModels.LockScreen"
+             xmlns:vm="using:VaultKeeper.AvaloniaApplication.ViewModels"
              mc:Ignorable="d" d:DesignWidth="1920" d:DesignHeight="1080"
              x:Class="VaultKeeper.AvaloniaApplication.Views.LockScreenView"
              x:DataType="vm:LockScreenViewModel">
@@ -28,12 +28,12 @@
                 Background="{DynamicResource SystemControlBackgroundBaseLowBrush}"
                 Grid.Row="0">
           <StackPanel Orientation="Horizontal" Spacing="10">
-            <PathIcon Data="{StaticResource IconVault}" Foreground="{DynamicResource SystemAccentColor}" Height="80" Width="80"/>
-            <TextBlock Foreground="{DynamicResource SystemAccentColor}" Classes="h1">Vault Keeper</TextBlock>
+            <PathIcon Data="{StaticResource AppIconData}" Foreground="{DynamicResource SystemAccentColor}" Height="80" Width="80"/>
+            <TextBlock Text="{StaticResource AppName}" Foreground="{DynamicResource SystemAccentColor}" Classes="h1"/>
           </StackPanel>
         </Border>
 
-        <TextBlock HorizontalAlignment="Center" FontSize="16" FontWeight="SemiBold" Grid.Row="1">Enter your password to continue.</TextBlock>
+        <TextBlock HorizontalAlignment="Center" Classes="txt-md" FontWeight="SemiBold" Grid.Row="1">Enter your password to continue.</TextBlock>
 
         <StackPanel Grid.Row="2">
           <TextBox Name="InputPassword"

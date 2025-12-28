@@ -1,6 +1,4 @@
 ﻿using Microsoft.Extensions.Logging;
-using VaultKeeper.Common.Extensions;
-using VaultKeeper.Common.Results;
 using VaultKeeper.Services.Abstractions;
 
 namespace VaultKeeper.Services;
@@ -9,17 +7,21 @@ public class InMemoryCache<T>(ILogger<InMemoryCache<T>> logger) : ICache<T>
 {
     private T? _state;
 
-    public Result<T?> Get() => _state.ToOkResult().Logged(logger);
-
-    public Result Set(T value)
+    public T? Get()
     {
-        _state = value;
-        return Result.Ok().Logged(logger);
+        logger.LogInformation(nameof(Get));
+        return _state;
     }
 
-    public Result Clear()
+    public void Set(T value)
     {
+        logger.LogInformation(nameof(Set));
+        _state = value;
+    }
+
+    public void Clear()
+    {
+        logger.LogInformation(nameof(Clear));
         _state = default;
-        return Result.Ok().Logged(logger);
     }
 }

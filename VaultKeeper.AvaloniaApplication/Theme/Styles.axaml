@@ -19,6 +19,14 @@
     <Setter Property="FontWeight" Value="SemiBold"></Setter>
     <Setter Property="Margin" Value="0 10"></Setter>
   </Style>
+  <Style Selector="TextBlock.h3">
+    <Setter Property="FontSize" Value="22"></Setter>
+    <Setter Property="FontWeight" Value="SemiBold"></Setter>
+    <Setter Property="Margin" Value="0 10"></Setter>
+  </Style>
+  <Style Selector="TextBlock.txt-md">
+    <Setter Property="FontSize" Value="16"></Setter>
+  </Style>
 
   <Style Selector="Button">
     <Setter Property="MinHeight" Value="34"/>

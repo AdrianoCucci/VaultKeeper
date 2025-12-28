@@ -4,7 +4,8 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 using VaultKeeper.AvaloniaApplication.Abstractions;
-using VaultKeeper.AvaloniaApplication.ViewModels.Common.Forms;
+using VaultKeeper.AvaloniaApplication.Forms.Common;
+using VaultKeeper.AvaloniaApplication.Forms.VaultItems;
 using VaultKeeper.AvaloniaApplication.ViewModels.VaultItems;
 using VaultKeeper.AvaloniaApplication.ViewModels.VaultItems.Common;
 using VaultKeeper.Common.Results;
@@ -33,7 +34,7 @@ public partial class VaultPageViewModel(
 
     public async Task LoadVaultItemsAsync()
     {
-        var loadResult = await vaultItemService.LoadAllAsync();
+        Result<IEnumerable<VaultItem>> loadResult = await vaultItemService.LoadAllAsync();
         if (!loadResult.IsSuccessful)
         {
             // TODO: Handle error.

@@ -1,0 +1,92 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:common="using:VaultKeeper.AvaloniaApplication.Views.Common"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="using:VaultKeeper.AvaloniaApplication.ViewModels"
+             mc:Ignorable="d" d:DesignWidth="1920" d:DesignHeight="1080"
+             x:Class="VaultKeeper.AvaloniaApplication.Views.SetupView"
+             x:DataType="vm:SetupViewModel">
+  <ScrollViewer>
+    <Border Padding="20">
+      <Grid RowDefinitions="Auto, Auto" ColumnDefinitions="*" HorizontalAlignment="Stretch" VerticalAlignment="Center">
+        <StackPanel Margin="0 0 0 80" Grid.Row="0" Grid.Column="0">
+          <PathIcon Data="{StaticResource AppIconData}" Width="80" Height="80"/>
+
+          <TextBlock HorizontalAlignment="Center" TextWrapping="Wrap" Classes="h1">
+            <Run Text="{StaticResource AppName}"/> Setup
+          </TextBlock>
+
+          <Separator Margin="0 20" Width="640"/>
+
+          <TextBlock Margin="0 0 0 20" HorizontalAlignment="Center" FontWeight="Normal" TextWrapping="Wrap" Classes="h3">
+            Welcome to <Run Text="{StaticResource AppName}" FontWeight="SemiBold"/>
+          </TextBlock>
+
+          <TextBlock Classes="txt-md" MaxWidth="640" TextWrapping="Wrap">
+            If this is your first time launching the application, you will need to setup a main password that you will be asked for on subsequent launches to gain access to your vault.
+            This is the one password you must remember, as
+            <Run Text="{StaticResource AppName}" FontWeight="SemiBold"/>
+            <Run FontStyle="Italic" FontWeight="Bold">will not</Run>
+            show it.
+          </TextBlock>
+        </StackPanel>
+
+        <Grid RowDefinitions="Auto" ColumnDefinitions="*, Auto, *" ColumnSpacing="40" MaxWidth="1200" Grid.Row="1">
+          <StackPanel Grid.Column="0">
+            <TextBlock Margin="0 0 0 20" TextWrapping="Wrap">Please setup your main password below. It can be changed afterwards.</TextBlock>
+
+            <StackPanel Margin="0 0 0 20">
+              <Label Target="InputPassword">* Password</Label>
+              <TextBox Name="InputPassword" PasswordChar="*" Text="{Binding Form.PasswordInput}"></TextBox>
+              <ItemsControl ItemsSource="{Binding #InputPassword.(DataValidationErrors.Errors)}">
+                <ItemsControl.ItemTemplate>
+                  <DataTemplate>
+                    <TextBlock Text="{Binding}" Margin="0 6 0 0" Foreground="Red"></TextBlock>
+                  </DataTemplate>
+                </ItemsControl.ItemTemplate>
+              </ItemsControl>
+            </StackPanel>
+
+            <StackPanel Margin="0 0 0 20">
+              <Label Target="InputConfirmPassword">* Confirm Password</Label>
+              <TextBox Name="InputConfirmPassword" PasswordChar="*" Text="{Binding Form.ConfirmPasswordInput}"></TextBox>
+              <ItemsControl ItemsSource="{Binding #InputConfirmPassword.(DataValidationErrors.Errors)}">
+                <ItemsControl.ItemTemplate>
+                  <DataTemplate>
+                    <TextBlock Text="{Binding}" Margin="0 6 0 0" Foreground="Red"></TextBlock>
+                  </DataTemplate>
+                </ItemsControl.ItemTemplate>
+              </ItemsControl>
+            </StackPanel>
+
+            <common:AppButton Text="Submit"
+                              HorizontalAlignment="Right"
+                              IconEnd="{StaticResource IconArrowRight}"
+                              Click="SubmitButton_Click"/>
+          </StackPanel>
+
+          <Grid RowDefinitions="*, Auto, *" ColumnDefinitions="Auto" HorizontalAlignment="Center" Grid.Column="1">
+            <Separator Width="1" Height="NaN" Grid.Row="0"></Separator>
+            <TextBlock TextAlignment="Center" FontWeight="SemiBold" Grid.Row="1">OR</TextBlock>
+            <Separator Width="1" Height="NaN" Grid.Row="2"></Separator>
+          </Grid>
+
+          <Grid RowDefinitions="*, Auto" ColumnDefinitions="*" Grid.Column="2">
+            <TextBlock Margin="0 0 0 20" TextWrapping="Wrap" Grid.Row="0">
+              If you are a previous user and have a backup of your existing
+              <Run Text="{StaticResource AppName}" FontWeight="SemiBold"/>
+              data, you can restore it using the button below. Your previous main password will be carried over.
+            </TextBlock>
+
+            <common:AppButton Text="Import Data"
+                              HorizontalAlignment="Stretch"
+                              IconStart="{StaticResource IconUpload}"
+                              Grid.Row="1"
+                              Click="ImportDataButton_Click"/>
+          </Grid>
+        </Grid>
+      </Grid>
+    </Border>
+  </ScrollViewer>
+</UserControl>

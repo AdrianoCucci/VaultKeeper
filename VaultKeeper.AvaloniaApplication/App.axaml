@@ -1,7 +1,8 @@
 <Application xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             x:Class="VaultKeeper.AvaloniaApplication.App"
+             xmlns:sys="clr-namespace:System;assembly=netstandard"
              xmlns:local="using:VaultKeeper.AvaloniaApplication"
+             x:Class="VaultKeeper.AvaloniaApplication.App"
              RequestedThemeVariant="Default">
   <!-- "Default" ThemeVariant follows system theme variant. "Dark" or "Light" are other available options. -->
 
@@ -26,6 +27,9 @@
         <ResourceInclude Source="/Theme/Icons.axaml"/>
         <ResourceInclude Source="/Theme/Controls.axaml"/>
       </ResourceDictionary.MergedDictionaries>
+
+      <sys:String x:Key="AppName">Vault Keeper</sys:String>
+      <StaticResource x:Key="AppIconData" ResourceKey="IconVault"/>
     </ResourceDictionary>
   </Application.Resources>
 </Application>

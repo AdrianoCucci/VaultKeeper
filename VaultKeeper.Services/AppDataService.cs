@@ -7,6 +7,7 @@ using VaultKeeper.Common.Extensions;
 using VaultKeeper.Common.Results;
 using VaultKeeper.Models;
 using VaultKeeper.Models.ApplicationData;
+using VaultKeeper.Models.ApplicationData.Files;
 using VaultKeeper.Models.VaultItems;
 using VaultKeeper.Repositories.Abstractions;
 using VaultKeeper.Services.Abstractions;
@@ -23,10 +24,50 @@ public class AppDataService(
     IRepository<Group> groupRepository,
     ICache<UserData> userDataCache) : IAppDataService
 {
+    private const string _dataExtension = ".dat";
+    private const string _backupExtension = ".bak";
+    private const string _commonExtension = ".vk";
+
+    private static readonly Dictionary<AppFileType, AppFileDefinition> _fileDefinitionsDict = new()
+    {
+        {
+            AppFileType.User,
+            new()
+            {
+                FileType = AppFileType.User,
+                Name = "User",
+                Extension = $"{_dataExtension}{_commonExtension}"
+            }
+        },
+        {
+            AppFileType.Entities,
+            new()
+            {
+                FileType = AppFileType.Entities,
+                Name = "Entities",
+                Extension = $"{_dataExtension}{_commonExtension}"
+            }
+        },
+        {
+            AppFileType.Backup,
+            new()
+            {
+                FileType = AppFileType.Backup,
+                Name = "VaultKeeper",
+                Extension = $"{_backupExtension}{_commonExtension}"
+            }
+        }
+    };
+
+    public string DataDirectory { get; } = "VaultKeeper";
+
     private const int _saveDataVersion = 1;
-    private const string _appDataDirectory = "VaultKeeper";
-    private const string _userDataFile = "VaultKeeper.user.dat";
-    private const string _entitiesDataFile = "VaultKeeper.entities.dat";
+
+    public AppFileDefinition GetFileDefinition(AppFileType fileType)
+    {
+        logger.LogInformation($"{nameof(GetFileDefinition)} | {nameof(fileType)}: {{fileType}}", fileType);
+        return _fileDefinitionsDict[fileType];
+    }
 
     public async Task<Result> SaveAllDataAsync()
     {
@@ -40,7 +81,7 @@ public class AppDataService(
 
             UserData? userData = saveUserDataResult.Value?.Data;
 
-            Result<SavedData<EntityData>> saveEntitiesResult = await SaveEntityDataAsync(filePath: userData?.CustomEntitiesDataPath);
+            Result<SavedData<EntityData>> saveEntitiesResult = await SaveEntityDataAsync(relatedUserData: userData);
             if (!saveEntitiesResult.IsSuccessful)
                 return saveEntitiesResult.Logged(logger);
 
@@ -52,20 +93,13 @@ public class AppDataService(
         }
     }
 
-    public async Task<Result<SavedData<UserData>?>> SaveUserDataAsync(UserData? userData = null)
+    public async Task<Result<SavedData<UserData>?>> SaveUserDataAsync(UserData? userData = null, bool updateUserCache = false)
     {
         logger.LogInformation(nameof(SaveUserDataAsync));
 
         try
         {
-            if (userData == null)
-            {
-                Result<UserData?> getUserDataResult = userDataCache.Get();
-                if (!getUserDataResult.IsSuccessful)
-                    return getUserDataResult.WithValue<SavedData<UserData>?>().Logged(logger);
-
-                userData = getUserDataResult.Value;
-            }
+            userData ??= userDataCache.Get();
 
             if (userData == null)
             {
@@ -79,8 +113,11 @@ public class AppDataService(
                 Metadata = new() { Version = _saveDataVersion }
             };
 
-            string userDataPath = CreateSaveDataPath(_userDataFile);
+            string userDataPath = CreateSaveDataPath(AppFileType.User);
             Result saveResult = SaveDataInternal(userDataPath, savedData);
+
+            if (saveResult.IsSuccessful && updateUserCache)
+                userDataCache.Set(userData);
 
             return saveResult.WithValue(savedData).Logged(logger)!;
         }
@@ -90,14 +127,17 @@ public class AppDataService(
         }
     }
 
-    public async Task<Result<SavedData<UserData>?>> LoadUserDataAsync()
+    public async Task<Result<SavedData<UserData>?>> LoadUserDataAsync(bool updateUserCache = false)
     {
         logger.LogInformation(nameof(LoadUserDataAsync));
 
         try
         {
-            string userDataPath = CreateSaveDataPath(_userDataFile);
+            string userDataPath = CreateSaveDataPath(AppFileType.User);
             Result<SavedData<UserData>?> loadDataResult = LoadDataInternal<UserData>(userDataPath);
+
+            if (updateUserCache && loadDataResult.IsSuccessful && loadDataResult.Value != null)
+                userDataCache.Set(loadDataResult.Value.Data);
 
             return loadDataResult.Logged(logger);
         }
@@ -107,14 +147,30 @@ public class AppDataService(
         }
     }
 
-    public async Task<Result<SavedData<EntityData>?>> LoadEntityDataAsync(string? filePath = null)
+    public async Task<Result<SavedData<EntityData>?>> LoadEntityDataAsync(string? filePath = null, Guid? forUserId = null, bool updateRepositories = false)
     {
         logger.LogInformation(nameof(LoadEntityDataAsync));
 
         try
         {
-            string entityDataPath = string.IsNullOrWhiteSpace(filePath) ? CreateSaveDataPath(_userDataFile) : filePath;
-            Result<SavedData<EntityData>?> loadDataResult = LoadDataInternal<EntityData>(entityDataPath);
+            filePath ??= CreateSaveDataPath(AppFileType.Entities);
+
+            Result<SavedData<EntityData>?> loadDataResult = LoadDataInternal<EntityData>(filePath);
+            if (!loadDataResult.IsSuccessful)
+                return loadDataResult.Logged(logger);
+
+            EntityData? loadedData = loadDataResult.Value?.Data;
+            if (loadedData == null)
+                return loadDataResult.Logged(logger);
+
+            if (forUserId.HasValue && loadedData.UserId != forUserId.Value)
+            {
+                logger.LogWarning("Entity data was loaded, but user ID does not match. Discarding data.");
+                return loadDataResult.WithValue<SavedData<EntityData>?>(null).Logged(logger);
+            }
+
+            if (updateRepositories)
+                await UpdateEntityRepositoriesAsync(loadedData);
 
             return loadDataResult.Logged(logger);
         }
@@ -124,33 +180,28 @@ public class AppDataService(
         }
     }
 
-    public async Task<Result<SavedData<EntityData>>> SaveEntityDataAsync(EntityData? entityData = null, string? filePath = null)
+    public async Task<Result<SavedData<EntityData>>> SaveEntityDataAsync(EntityData? entityData = null, UserData? relatedUserData = null)
     {
         logger.LogInformation(nameof(SaveEntityDataAsync));
 
         try
         {
-            if (entityData == null)
-            {
-                // Entities
-                IEnumerable<VaultItem> vaultItems = await vaultItemRepository.GetManyAsync();
-                IEnumerable<Group> groups = await groupRepository.GetManyAsync();
+            entityData ??= await CreateEntityDataAsync();
 
-                entityData = new()
-                {
-                    VaultItems = [.. vaultItems],
-                    Groups = [.. groups]
-                };
-            }
+            if (entityData.VaultItems.IsNullOrEmpty() && entityData.Groups.IsNullOrEmpty())
+                entityData = new();
 
             SavedData<EntityData> savedData = new()
             {
-                Data = entityData,
+                Data = entityData with { UserId = relatedUserData?.UserId ?? entityData.UserId },
                 Metadata = new() { Version = _saveDataVersion }
             };
 
-            filePath ??= CreateSaveDataPath(_entitiesDataFile);
-            var saveResult = SaveDataInternal(filePath, savedData);
+            string filePath = string.IsNullOrWhiteSpace(relatedUserData?.CustomEntitiesDataPath)
+                ? CreateSaveDataPath(AppFileType.Entities)
+                : relatedUserData.CustomEntitiesDataPath;
+
+            Result saveResult = SaveDataInternal(filePath, savedData);
 
             return saveResult.WithValue(savedData).Logged(logger);
         }
@@ -158,6 +209,93 @@ public class AppDataService(
         {
             return ex.ToFailedResult<SavedData<EntityData>>().Logged(logger);
         }
+    }
+
+    public async Task<Result<SavedData<BackupData>?>> SaveBackupAsync(string? filePath = null)
+    {
+        filePath ??= CreateSaveDataPath(AppFileType.Backup);
+        logger.LogInformation($"{nameof(SaveBackupAsync)} | {nameof(filePath)}: \"{{filePath}}\"", filePath);
+
+        try
+        {
+            UserData? userData = userDataCache.Get();
+            if (userData == null)
+            {
+                logger.LogWarning($"{nameof(UserData)} not set in cache - cancelling backup process.");
+                return Result.Ok<SavedData<BackupData>?>(null).Logged(logger);
+            }
+
+            EntityData entityData = await CreateEntityDataAsync();
+
+            SavedData<BackupData> savedData = new()
+            {
+                Data = new()
+                {
+                    UserData = userData,
+                    EntityData = entityData with { UserId = userData.UserId }
+                },
+                Metadata = new() { Version = _saveDataVersion }
+            };
+
+            Result saveResult = SaveDataInternal(filePath, savedData);
+
+            return saveResult.WithValue<SavedData<BackupData>?>(savedData).Logged(logger);
+        }
+        catch (Exception ex)
+        {
+            return ex.ToFailedResult<SavedData<BackupData>?>().Logged(logger);
+        }
+    }
+
+    public async Task<Result<SavedData<BackupData>?>> LoadBackupAsync(string? filePath = null)
+    {
+        filePath ??= CreateSaveDataPath(AppFileType.Backup);
+        logger.LogInformation($"{nameof(LoadBackupAsync)} | {nameof(filePath)}: \"{{filePath}}\"", filePath);
+
+        try
+        {
+            Result<SavedData<BackupData>?> loadResult = LoadDataInternal<BackupData>(filePath);
+            if (!loadResult.IsSuccessful)
+                return loadResult.Logged(logger);
+
+            SavedData<BackupData> loadedData = loadResult.Value!;
+            UserData userData = loadedData.Data.UserData;
+
+            Result<SavedData<UserData>?> saveUserDataResult = await SaveUserDataAsync(userData, updateUserCache: true);
+            if (!saveUserDataResult.IsSuccessful)
+                return saveUserDataResult.WithValue<SavedData<BackupData>?>().Logged(logger);
+
+            Result<SavedData<EntityData>> saveEntityDataResult = await SaveEntityDataAsync(loadedData.Data.EntityData, userData);
+            if (!saveEntityDataResult.IsSuccessful)
+                return saveEntityDataResult.WithValue<SavedData<BackupData>?>().Logged(logger);
+
+            return loadResult.Logged(logger);
+        }
+        catch (Exception ex)
+        {
+            return ex.ToFailedResult<SavedData<BackupData>?>().Logged(logger);
+        }
+    }
+
+    private async Task<EntityData> CreateEntityDataAsync()
+    {
+        IEnumerable<VaultItem> vaultItems = await vaultItemRepository.GetManyAsync();
+        IEnumerable<Group> groups = await groupRepository.GetManyAsync();
+
+        return new()
+        {
+            VaultItems = [.. vaultItems],
+            Groups = [.. groups]
+        };
+    }
+
+    private async Task UpdateEntityRepositoriesAsync(EntityData entityData)
+    {
+        if (!entityData.VaultItems.IsNullOrEmpty())
+            await vaultItemRepository.SetAllAsync(entityData.VaultItems!);
+
+        if (!entityData.Groups.IsNullOrEmpty())
+            await groupRepository.SetAllAsync(entityData.Groups!);
     }
 
     private Result SaveDataInternal<T>(string filePath, SavedData<T> savedData)
@@ -170,7 +308,7 @@ public class AppDataService(
         if (!dataEncryptResult.IsSuccessful)
             return dataEncryptResult;
 
-        Result saveResult = fileService.WriteFileText(filePath, dataEncryptResult.Value!, FileAttributes.ReadOnly);
+        Result saveResult = fileService.WriteFileText(filePath, dataEncryptResult.Value!);
 
         return saveResult;
     }
@@ -191,9 +329,18 @@ public class AppDataService(
             return dataDecryptResult.WithValue<SavedData<T>?>();
 
         Result<SavedData<T>?> dataDeserializeResult = jsonService.Deserialize<SavedData<T>?>(dataDecryptResult.Value!);
+        if (!dataDeserializeResult.IsSuccessful)
+            dataDeserializeResult = dataDeserializeResult with
+            {
+                Message = "Saved file data could not be deserialized - data may be corrupted."
+            };
 
         return dataDeserializeResult;
     }
 
-    private static string CreateSaveDataPath(string file) => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), _appDataDirectory, file);
+    private string CreateSaveDataPath(AppFileType fileType)
+    {
+        AppFileDefinition definition = _fileDefinitionsDict[fileType];
+        return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), DataDirectory, definition.FullName);
+    }
 }

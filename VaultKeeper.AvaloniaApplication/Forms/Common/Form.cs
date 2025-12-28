@@ -1,6 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 
-namespace VaultKeeper.AvaloniaApplication.ViewModels.Common.Forms;
+namespace VaultKeeper.AvaloniaApplication.Forms.Common;
 
 public abstract class Form(FormMode mode = FormMode.New) : ObservableValidator
 {
@@ -11,6 +11,8 @@ public abstract class Form(FormMode mode = FormMode.New) : ObservableValidator
         ValidateAllProperties();
         return !HasErrors;
     }
+
+    public void ClearErrors() => base.ClearErrors();
 }
 
 public abstract class Form<T>(FormMode mode = FormMode.New) : Form(mode) where T : class

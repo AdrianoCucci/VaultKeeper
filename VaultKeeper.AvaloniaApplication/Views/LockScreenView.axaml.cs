@@ -1,7 +1,7 @@
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using System;
-using VaultKeeper.AvaloniaApplication.ViewModels.LockScreen;
+using VaultKeeper.AvaloniaApplication.ViewModels;
 
 namespace VaultKeeper.AvaloniaApplication.Views;
 
@@ -18,6 +18,8 @@ public partial class LockScreenView : ViewBase<LockScreenViewModel>
         if (Model?.SubmitForm() == true)
             RaiseEvent(new(LoginSuccessEvent, this));
     }
+
+    protected override void OnLoaded(RoutedEventArgs e) => InputPassword.Focus();
 
     private void SubmitButton_Click(object? sender, RoutedEventArgs e) => Submit();
 
