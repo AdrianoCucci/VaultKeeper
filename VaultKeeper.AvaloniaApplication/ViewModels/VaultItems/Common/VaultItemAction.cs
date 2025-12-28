@@ -8,11 +8,3 @@ public enum VaultItemAction
     Group,
     Delete
 }
-
-public enum VaultItemFormAction
-{
-    Submit,
-    Cancel,
-    ToggleRevealValue,
-    GenerateValue
-}

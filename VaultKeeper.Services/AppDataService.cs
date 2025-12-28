@@ -7,6 +7,7 @@ using VaultKeeper.Common.Extensions;
 using VaultKeeper.Common.Results;
 using VaultKeeper.Models;
 using VaultKeeper.Models.ApplicationData;
+using VaultKeeper.Models.ApplicationData.Files;
 using VaultKeeper.Models.VaultItems;
 using VaultKeeper.Repositories.Abstractions;
 using VaultKeeper.Services.Abstractions;
@@ -23,10 +24,50 @@ public class AppDataService(
     IRepository<Group> groupRepository,
     ICache<UserData> userDataCache) : IAppDataService
 {
+    private const string _dataExtension = ".dat";
+    private const string _backupExtension = ".bak";
+    private const string _commonExtension = ".vk";
+
+    private static readonly Dictionary<AppFileType, AppFileDefinition> _fileDefinitionsDict = new()
+    {
+        {
+            AppFileType.User,
+            new()
+            {
+                FileType = AppFileType.User,
+                Name = "User",
+                Extension = $"{_dataExtension}{_commonExtension}"
+            }
+        },
+        {
+            AppFileType.Entities,
+            new()
+            {
+                FileType = AppFileType.Entities,
+                Name = "Entities",
+                Extension = $"{_dataExtension}{_commonExtension}"
+            }
+        },
+        {
+            AppFileType.Backup,
+            new()
+            {
+                FileType = AppFileType.Backup,
+                Name = "VaultKeeper",
+                Extension = $"{_backupExtension}{_commonExtension}"
+            }
+        }
+    };
+
+    public string DataDirectory { get; } = "VaultKeeper";
+
     private const int _saveDataVersion = 1;
-    private const string _appDataDirectory = "VaultKeeper";
-    private const string _userDataFile = "VaultKeeper.user.dat";
-    private const string _entitiesDataFile = "VaultKeeper.entities.dat";
+
+    public AppFileDefinition GetFileDefinition(AppFileType fileType)
+    {
+        logger.LogInformation($"{nameof(GetFileDefinition)} | {nameof(fileType)}: {{fileType}}", fileType);
+        return _fileDefinitionsDict[fileType];
+    }
 
     public async Task<Result> SaveAllDataAsync()
     {
@@ -79,7 +120,7 @@ public class AppDataService(
                 Metadata = new() { Version = _saveDataVersion }
             };
 
-            string userDataPath = CreateSaveDataPath(_userDataFile);
+            string userDataPath = CreateSaveDataPath(AppFileType.User);
             Result saveResult = SaveDataInternal(userDataPath, savedData);
 
             return saveResult.WithValue(savedData).Logged(logger)!;
@@ -96,7 +137,7 @@ public class AppDataService(
 
         try
         {
-            string userDataPath = CreateSaveDataPath(_userDataFile);
+            string userDataPath = CreateSaveDataPath(AppFileType.User);
             Result<SavedData<UserData>?> loadDataResult = LoadDataInternal<UserData>(userDataPath);
 
             return loadDataResult.Logged(logger);
@@ -113,7 +154,7 @@ public class AppDataService(
 
         try
         {
-            string entityDataPath = string.IsNullOrWhiteSpace(filePath) ? CreateSaveDataPath(_userDataFile) : filePath;
+            string entityDataPath = string.IsNullOrWhiteSpace(filePath) ? CreateSaveDataPath(AppFileType.Entities) : filePath;
             Result<SavedData<EntityData>?> loadDataResult = LoadDataInternal<EntityData>(entityDataPath);
 
             return loadDataResult.Logged(logger);
@@ -132,7 +173,6 @@ public class AppDataService(
         {
             if (entityData == null)
             {
-                // Entities
                 IEnumerable<VaultItem> vaultItems = await vaultItemRepository.GetManyAsync();
                 IEnumerable<Group> groups = await groupRepository.GetManyAsync();
 
@@ -143,13 +183,19 @@ public class AppDataService(
                 };
             }
 
+            if (entityData.VaultItems.IsNullOrEmpty() && entityData.Groups.IsNullOrEmpty())
+            {
+                logger.LogInformation($"Entity data is empty - nothing to save.");
+                return entityData.ToOkResult().WithValue<SavedData<EntityData>>().Logged(logger);
+            }
+
             SavedData<EntityData> savedData = new()
             {
                 Data = entityData,
                 Metadata = new() { Version = _saveDataVersion }
             };
 
-            filePath ??= CreateSaveDataPath(_entitiesDataFile);
+            filePath ??= CreateSaveDataPath(AppFileType.Entities);
             var saveResult = SaveDataInternal(filePath, savedData);
 
             return saveResult.WithValue(savedData).Logged(logger);
@@ -195,5 +241,9 @@ public class AppDataService(
         return dataDeserializeResult;
     }
 
-    private static string CreateSaveDataPath(string file) => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), _appDataDirectory, file);
+    private string CreateSaveDataPath(AppFileType fileType)
+    {
+        AppFileDefinition definition = _fileDefinitionsDict[fileType];
+        return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), DataDirectory, definition.FullName);
+    }
 }

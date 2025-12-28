@@ -1,8 +1,9 @@
-﻿using VaultKeeper.Common.Results;
+﻿using VaultKeeper.AvaloniaApplication.Forms;
+using VaultKeeper.Common.Results;
 using VaultKeeper.Models.ApplicationData;
 using VaultKeeper.Services.Abstractions;
 
-namespace VaultKeeper.AvaloniaApplication.ViewModels.LockScreen;
+namespace VaultKeeper.AvaloniaApplication.ViewModels;
 
 public partial class LockScreenViewModel(ISecurityService securityService, ICache<UserData> userDataCache) : ViewModelBase
 {

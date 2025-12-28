@@ -3,7 +3,6 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:local="using:VaultKeeper.AvaloniaApplication.Views"
-        xmlns:lockscreen="using:VaultKeeper.AvaloniaApplication.ViewModels.LockScreen"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:vm="using:VaultKeeper.AvaloniaApplication.ViewModels"
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
@@ -15,9 +14,12 @@
         Width="1920"
         Height="1080">
 
-  <TransitioningContentControl Content="{Binding Content}">
+  <TransitioningContentControl Content="{Binding Content}" IsVisible="{Binding !IsInitializing}">
     <TransitioningContentControl.DataTemplates>
-      <DataTemplate DataType="lockscreen:LockScreenViewModel">
+      <DataTemplate DataType="vm:SetupViewModel">
+        <local:SetupView/>
+      </DataTemplate>
+      <DataTemplate DataType="vm:LockScreenViewModel">
         <local:LockScreenView LoginSuccess="LockScreenView_LoginSuccess"/>
       </DataTemplate>
       <DataTemplate DataType="vm:HomeViewModel">

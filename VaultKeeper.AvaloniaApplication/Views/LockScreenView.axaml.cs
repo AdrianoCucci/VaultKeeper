@@ -1,7 +1,7 @@
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using System;
-using VaultKeeper.AvaloniaApplication.ViewModels.LockScreen;
+using VaultKeeper.AvaloniaApplication.ViewModels;
 
 namespace VaultKeeper.AvaloniaApplication.Views;
 

@@ -1,6 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using System.ComponentModel;
-using VaultKeeper.AvaloniaApplication.ViewModels.Common.Forms;
+using VaultKeeper.AvaloniaApplication.Forms.Common;
 using VaultKeeper.AvaloniaApplication.ViewModels.VaultItems.Common;
 using VaultKeeper.Models.VaultItems;
 
@@ -10,7 +10,7 @@ public partial class VaultItemFormViewModel : VaultItemViewModelBase
 {
     public const char PASSWORD_CHAR = '*';
 
-    public VaultItemEditForm Form { get; }
+    public VaultItemForm Form { get; }
 
     [ObservableProperty]
     private bool _valueRevealed = false;

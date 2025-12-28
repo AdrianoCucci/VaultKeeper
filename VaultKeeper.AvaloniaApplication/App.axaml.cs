@@ -9,7 +9,6 @@ using VaultKeeper.AvaloniaApplication.Abstractions;
 using VaultKeeper.AvaloniaApplication.Extensions.DependencyInjection;
 using VaultKeeper.AvaloniaApplication.Services;
 using VaultKeeper.AvaloniaApplication.ViewModels;
-using VaultKeeper.AvaloniaApplication.ViewModels.LockScreen;
 using VaultKeeper.AvaloniaApplication.Views;
 using VaultKeeper.Models.Navigation;
 using VaultKeeper.Services.Abstractions;
@@ -71,6 +70,7 @@ public partial class App : Application
             .AddSingleton<IPlatformService, PlatformService>()
 
             .AddScoped<MainWindowViewModel>()
+            .AddScoped<SetupViewModel>()
             .AddScoped<LockScreenViewModel>()
             .AddScoped<HomeViewModel>()
             .AddScoped<VaultPageViewModel>();
@@ -85,6 +85,11 @@ public partial class App : Application
                 Key = nameof(MainWindowViewModel),
                 Routes =
                 [
+                    new()
+                    {
+                        Key = nameof(SetupViewModel),
+                        Content = sp.GetRequiredService<SetupViewModel>
+                    },
                     new()
                     {
                         Key = nameof(LockScreenViewModel),

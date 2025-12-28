@@ -35,5 +35,6 @@ public class AppButton : Button
         MinHeight = 34;
         Padding = new(8);
         HorizontalAlignment = HorizontalAlignment.Left;
+        FontWeight = FontWeight.SemiBold;
     }
 }

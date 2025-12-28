@@ -58,7 +58,7 @@
                   </Border>
 
                   <TextBlock HorizontalAlignment="Center" Classes="h1">No Keys Created</TextBlock>
-                  <TextBlock HorizontalAlignment="Center" FontSize="16">Create your first key or import your existing keys to get started.</TextBlock>
+                  <TextBlock HorizontalAlignment="Center" Classes="txt-md">Create your first key or import your existing keys to get started.</TextBlock>
 
                   <Grid RowDefinitions="*" ColumnDefinitions="*, *" ColumnSpacing="20" Margin="0 60 0 0" IsEnabled="{Binding !$parent[UserControl].DataContext.IsSidePaneOpen}">
                     <common:AppButton Text="New Key"

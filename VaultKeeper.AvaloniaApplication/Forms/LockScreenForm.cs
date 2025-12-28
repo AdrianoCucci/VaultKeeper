@@ -1,8 +1,8 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using System.ComponentModel.DataAnnotations;
-using VaultKeeper.AvaloniaApplication.ViewModels.Common.Forms;
+using VaultKeeper.AvaloniaApplication.Forms.Common;
 
-namespace VaultKeeper.AvaloniaApplication.ViewModels.LockScreen;
+namespace VaultKeeper.AvaloniaApplication.Forms;
 
 public partial class LockScreenForm : Form
 {

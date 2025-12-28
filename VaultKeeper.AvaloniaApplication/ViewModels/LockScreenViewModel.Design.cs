@@ -1,4 +1,4 @@
-﻿namespace VaultKeeper.AvaloniaApplication.ViewModels.LockScreen;
+﻿namespace VaultKeeper.AvaloniaApplication.ViewModels;
 
 public partial class LockScreenViewModel : ViewModelBase
 {
