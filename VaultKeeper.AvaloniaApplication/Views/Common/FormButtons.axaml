@@ -1,0 +1,47 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:controls="using:VaultKeeper.AvaloniaApplication.Views.Common">
+
+  <!--
+  Additional resources
+  Using Control Themes:
+  https://docs.avaloniaui.net/docs/basics/user-interface/styling/control-themes
+  Using Theme Variants:
+  https://docs.avaloniaui.net/docs/guides/styles-and-resources/how-to-use-theme-variants
+  -->
+
+  <Design.PreviewWith>
+    <StackPanel Width="400" Spacing="10">
+      <StackPanel Background="{DynamicResource SystemRegionBrush}">
+        <controls:FormButtons />
+      </StackPanel>
+    </StackPanel>
+  </Design.PreviewWith>
+
+  <ControlTheme x:Key="{x:Type controls:FormButtons}" TargetType="controls:FormButtons">
+    <Setter Property="CancelButtonIcon" Value="{StaticResource IconX}"/>
+    <Setter Property="SubmitButtonIcon" Value="{StaticResource IconCheck}"/>
+
+    <Setter Property="Template">
+      <ControlTemplate>
+        <Grid Name="PART_Grid"
+              RowDefinitions="*"
+              ColumnDefinitions="*, *"
+              ColumnSpacing="12">
+          <controls:AppButton Name="PART_CancelButton"
+                              Text="{TemplateBinding CancelButtonText}"
+                              IconStart="{TemplateBinding CancelButtonIcon}"
+                              HorizontalAlignment="Stretch"
+                              Grid.Column="0"/>
+
+          <controls:AppButton Name="PART_SubmitButton"
+                              Text="{TemplateBinding SubmitButtonText}"
+                              IconStart="{TemplateBinding SubmitButtonIcon}"
+                              IsEnabled="{TemplateBinding IsSubmitButtonEnabled}"
+                              HorizontalAlignment="Stretch"
+                              Grid.Column="1"/>
+        </Grid>
+      </ControlTemplate>
+    </Setter>
+  </ControlTheme>
+</ResourceDictionary>

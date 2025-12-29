@@ -10,4 +10,10 @@ public partial class VaultItemViewModel(VaultItem vaultItem) : VaultItemViewMode
 
     [ObservableProperty]
     private bool _optionsMenuOpened = false;
+
+    [ObservableProperty]
+    private bool _isSelectable = false;
+
+    [ObservableProperty]
+    private bool _isSelected = false;
 }

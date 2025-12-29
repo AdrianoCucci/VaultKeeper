@@ -1,6 +1,6 @@
 <ResourceDictionary xmlns="https://github.com/avaloniaui"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-                    xmlns:converters="clr-namespace:Avalonia.Data.Converters;assembly=Avalonia.Base"
+                    xmlns:converters="using:Avalonia.Data.Converters"
                     xmlns:controls="using:VaultKeeper.AvaloniaApplication.Views.Common">
 
   <!--
@@ -28,8 +28,14 @@
   </Design.PreviewWith>
 
   <ControlTheme x:Key="{x:Type controls:AppButton}" TargetType="controls:AppButton">
+    <Setter Property="MinHeight" Value="34"/>
+    <Setter Property="Padding" Value="8"/>
+    <Setter Property="HorizontalAlignment" Value="Left"/>
+    <Setter Property="VerticalAlignment" Value="Top"/>
     <Setter Property="Background" Value="{DynamicResource SystemBaseLowColor}"/>
     <Setter Property="Foreground" Value="{DynamicResource SystemBaseHighColor}"/>
+    <Setter Property="FontWeight" Value="SemiBold"/>
+    <Setter Property="CornerRadius" Value="4"/>
     <Setter Property="Focusable" Value="False" />
 
     <Setter Property="Template">
@@ -46,7 +52,8 @@
                 HorizontalAlignment="{TemplateBinding HorizontalAlignment}"
                 VerticalAlignment="{TemplateBinding VerticalAlignment}"
                 Background="{TemplateBinding Background}"
-                Foreground="{TemplateBinding Foreground}">
+                Foreground="{TemplateBinding Foreground}"
+                CornerRadius="{TemplateBinding CornerRadius}">
           <StackPanel HorizontalAlignment="Center" Orientation="{TemplateBinding Orientation}" Spacing="{TemplateBinding Spacing}">
             <PathIcon Name="PART_IconStart"
                       Data="{TemplateBinding IconStart}"

@@ -1,28 +1,36 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
-using System.ComponentModel;
+using System.Collections.Generic;
 using VaultKeeper.AvaloniaApplication.Forms.Common;
 using VaultKeeper.AvaloniaApplication.ViewModels.VaultItems.Common;
+using VaultKeeper.Models.Groups;
 using VaultKeeper.Models.VaultItems;
 
 namespace VaultKeeper.AvaloniaApplication.ViewModels.VaultItems;
 
 public partial class VaultItemFormViewModel : VaultItemViewModelBase
 {
-    public const char PASSWORD_CHAR = '*';
-
     public VaultItemForm Form { get; }
 
-    [ObservableProperty]
+    [ObservableProperty, NotifyPropertyChangedFor(nameof(PasswordChar))]
     private bool _valueRevealed = false;
-
-    [ObservableProperty]
-    private char? _passwordChar = PASSWORD_CHAR;
 
     [ObservableProperty]
     private bool _isValueRevealToggleVisible = false;
 
+    [ObservableProperty, NotifyPropertyChangedFor(nameof(WillCreateGroup))]
+    private string? _groupInputText = null;
+
+    [ObservableProperty]
+    private IEnumerable<Group> _groupOptions = [];
+
+    [ObservableProperty, NotifyPropertyChangedFor(nameof(WillCreateGroup))]
+    private Group? _selectedGroup = null;
+
     [ObservableProperty]
     private bool _useVerticalLayout = false;
+
+    public char PasswordChar => ValueRevealed ? '\0' : '*';
+    public bool WillCreateGroup => SelectedGroup == null && !string.IsNullOrWhiteSpace(GroupInputText);
 
     public VaultItemFormViewModel(VaultItem vaultItem, FormMode formMode = FormMode.New) : base(vaultItem)
     {
@@ -39,15 +47,5 @@ public partial class VaultItemFormViewModel : VaultItemViewModelBase
                 ValueRevealed = false;
                 break;
         }
-    }
-
-    public VaultItemFormViewModel() : this(new()) { }
-
-    protected override void OnPropertyChanged(PropertyChangedEventArgs e)
-    {
-        if (e.PropertyName == nameof(ValueRevealed))
-            PasswordChar = ValueRevealed ? '\0' : PASSWORD_CHAR;
-
-        base.OnPropertyChanged(e);
     }
 }

@@ -1,4 +1,5 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -6,9 +7,11 @@ using System.Threading.Tasks;
 using VaultKeeper.AvaloniaApplication.Abstractions;
 using VaultKeeper.AvaloniaApplication.Forms.Common;
 using VaultKeeper.AvaloniaApplication.Forms.VaultItems;
+using VaultKeeper.AvaloniaApplication.ViewModels.Groups;
 using VaultKeeper.AvaloniaApplication.ViewModels.VaultItems;
 using VaultKeeper.AvaloniaApplication.ViewModels.VaultItems.Common;
 using VaultKeeper.Common.Results;
+using VaultKeeper.Models.Groups;
 using VaultKeeper.Models.VaultItems;
 using VaultKeeper.Models.VaultItems.Extensions;
 using VaultKeeper.Services.Abstractions;
@@ -17,43 +20,64 @@ namespace VaultKeeper.AvaloniaApplication.ViewModels;
 
 public partial class VaultPageViewModel(
     IVaultItemService vaultItemService,
+    IGroupService groupService,
     ISecurityService securityService,
     IPlatformService platformService) : ViewModelBase
 {
-    [ObservableProperty]
+    [ObservableProperty, NotifyPropertyChangedFor(nameof(IsToolbarVisible))]
     private ObservableCollection<VaultItemViewModelBase> _vaultItems = [];
 
     [ObservableProperty]
-    private VaultItemFormViewModel? _newVaultItemForm;
+    private ObservableCollection<GroupViewModel> _groups = [];
+
+    [ObservableProperty, NotifyPropertyChangedFor(nameof(IsToolbarVisible))]
+    private bool _isSidePaneOpen = false;
 
     [ObservableProperty]
-    private bool _isToolbarVisible = false;
+    private string? _sidePaneTitle;
 
     [ObservableProperty]
-    public bool _isSidePaneOpen = false;
+    private object? _sidePaneContent;
+
+    public bool IsToolbarVisible => VaultItems.Count > 0 && !IsSidePaneOpen;
+
+    public virtual async Task LoadDataAsync() => await Task.WhenAll(LoadVaultItemsAsync(), LoadGroupsAsync());
 
     public async Task LoadVaultItemsAsync()
     {
-        Result<IEnumerable<VaultItem>> loadResult = await vaultItemService.LoadAllAsync();
+        Result<IEnumerable<VaultItem>> loadResult = await vaultItemService.GetManyAsync();
         if (!loadResult.IsSuccessful)
-        {
-            // TODO: Handle error.
-        }
+            throw new Exception($"{nameof(VaultPageViewModel)}: Failed to load items - {loadResult.Message}", loadResult.Exception);
 
         SetVaultItems(loadResult.Value!);
+    }
+
+    public async Task LoadGroupsAsync()
+    {
+        Result<IEnumerable<Group>> loadResult = await groupService.GetManyAsync();
+        if (!loadResult.IsSuccessful)
+            throw new Exception($"{nameof(VaultPageViewModel)}: Failed to load groups - {loadResult.Message}", loadResult.Exception);
+
+        SetGroups(loadResult.Value!);
     }
 
     public void SetVaultItems(IEnumerable<VaultItem> vaultItems)
     {
         IEnumerable<VaultItemViewModel> viewModels = vaultItems.Select(x => new VaultItemViewModel(x));
-
         VaultItems = [.. viewModels];
+    }
+
+    public void SetGroups(IEnumerable<Group> groups)
+    {
+        IEnumerable<GroupViewModel> viewModels = groups.Select(x => new GroupViewModel(x));
+        Groups = [.. viewModels];
     }
 
     public void ShowVaultItemCreateForm()
     {
-        NewVaultItemForm = null;
-        NewVaultItemForm = new(new(), FormMode.New);
+        SidePaneContent = null;
+        SidePaneContent = new VaultItemFormViewModel(new(), FormMode.New) { GroupOptions = Groups.Select(x => x.Model) };
+        SidePaneTitle = "New Key";
         IsSidePaneOpen = true;
     }
 
@@ -62,7 +86,7 @@ public partial class VaultPageViewModel(
         IsSidePaneOpen = false;
 
         if (clearData)
-            NewVaultItemForm = null;
+            SidePaneContent = null;
     }
 
     public void ShowVaultItemEditForm(VaultItemViewModel vaultItem)
@@ -70,7 +94,10 @@ public partial class VaultPageViewModel(
         var index = VaultItems.IndexOf(vaultItem);
         if (index == -1) return;
 
-        VaultItems[index] = new VaultItemFormViewModel(vaultItem.Model, FormMode.Edit);
+        VaultItems[index] = new VaultItemFormViewModel(vaultItem.Model, FormMode.Edit)
+        {
+            GroupOptions = Groups.Select(x => x.Model)
+        };
     }
 
     public void HideVaultItemEditForm(VaultItemFormViewModel vaultItem)
@@ -86,12 +113,8 @@ public partial class VaultPageViewModel(
         if (!VaultItems.Contains(vaultItem)) return;
 
         Result deleteResult = await vaultItemService.DeleteAsync(vaultItem.Model);
-
         if (!deleteResult.IsSuccessful)
-        {
-            // TODO: Handle error
-            return;
-        }
+            throw new Exception($"{nameof(VaultPageViewModel)}: Failed to delete item - {deleteResult.Message}", deleteResult.Exception);
 
         VaultItems.Remove(vaultItem);
     }
@@ -122,7 +145,7 @@ public partial class VaultPageViewModel(
         switch (formEvent.Action)
         {
             case VaultItemFormAction.Cancel:
-                if (formEvent.ViewModel == NewVaultItemForm)
+                if (formEvent.ViewModel == SidePaneContent)
                     HideVaultItemCreateForm();
                 else
                     HideVaultItemEditForm(formEvent.ViewModel);
@@ -149,10 +172,7 @@ public partial class VaultPageViewModel(
                 {
                     Result<VaultItem> addResult = await vaultItemService.AddAsync(formModel.ToNewVaultItem(), shouldEncrypt);
                     if (!addResult.IsSuccessful)
-                    {
-                        // TODO: handle error.
-                        break;
-                    }
+                        throw new Exception($"{nameof(VaultPageViewModel)}: Failed to add item - {addResult.Message}", addResult.Exception);
 
                     HideVaultItemCreateForm();
                     await LoadVaultItemsAsync();
@@ -163,10 +183,7 @@ public partial class VaultPageViewModel(
                 {
                     Result<VaultItem> updateResult = await vaultItemService.UpdateAsync(formModel, shouldEncrypt);
                     if (!updateResult.IsSuccessful)
-                    {
-                        // TODO: handle error.
-                        break;
-                    }
+                        throw new Exception($"{nameof(VaultPageViewModel)}: Failed to update item - {updateResult.Message}", updateResult.Exception);
 
                     formEvent.ViewModel.UpdateModel(_ => updateResult.Value!);
                     HideVaultItemEditForm(formEvent.ViewModel);

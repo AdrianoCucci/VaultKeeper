@@ -22,7 +22,7 @@
         </Transitions>
       </Setter>
     </Style>
-    
+
     <Style Selector=".focused Border#GridBorder SplitButton">
       <Setter Property="Opacity" Value="1"></Setter>
     </Style>
@@ -30,9 +30,12 @@
 
   <Border Name="GridBorder" BorderThickness="0 0 0 1" BorderBrush="{DynamicResource SystemAccentColor}">
 
-    <Grid RowDefinitions="Auto" ColumnDefinitions="*, Auto">
-      <TextBlock Text="{Binding Model.Name}" Padding="12,6" VerticalAlignment="Center" Grid.Column="0"></TextBlock>
-      <SplitButton Click="ActionCopyValue_Click" Grid.Column="1">
+    <Grid RowDefinitions="Auto" ColumnDefinitions="Auto, *, Auto">
+      <CheckBox IsVisible="{Binding IsSelectable}" IsChecked="{Binding IsSelected}" Margin="12 0 0 0" Grid.Column="0"/>
+
+      <TextBlock Text="{Binding Model.Name}" Padding="12, 6" VerticalAlignment="Center" Grid.Column="1"></TextBlock>
+
+      <SplitButton Click="ActionCopyValue_Click" Grid.Column="2">
         <SplitButton.Styles>
           <Style Selector="SplitButton /template/ Button#PART_PrimaryButton">
             <Setter Property="ToolTip.Tip" Value="Copy value" />

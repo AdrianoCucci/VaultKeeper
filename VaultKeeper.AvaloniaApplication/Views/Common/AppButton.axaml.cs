@@ -29,12 +29,4 @@ public class AppButton : Button
     public Geometry? IconEnd { get => GetValue(IconEndProperty); set => SetValue(IconEndProperty, value); }
     public double? IconEndSize { get => GetValue(IconEndSizeProperty); set => SetValue(IconEndSizeProperty, value); }
     public double? Spacing { get => GetValue(SpacingProperty); set => SetValue(SpacingProperty, value); }
-
-    public AppButton()
-    {
-        MinHeight = 34;
-        Padding = new(8);
-        HorizontalAlignment = HorizontalAlignment.Left;
-        FontWeight = FontWeight.SemiBold;
-    }
 }

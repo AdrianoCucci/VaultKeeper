@@ -1,6 +1,7 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using VaultKeeper.AvaloniaApplication.Forms.Common;
+using VaultKeeper.Models.Groups;
 using VaultKeeper.Models.VaultItems;
 
 namespace VaultKeeper.AvaloniaApplication.ViewModels.VaultItems.Common;
@@ -13,9 +14,13 @@ public partial class VaultItemForm(VaultItem vaultItem, FormMode mode = FormMode
     [ObservableProperty]
     private string? _value = vaultItem.Value;
 
+    [ObservableProperty]
+    private Group? _group = null;
+
     public override VaultItem GetModel() => vaultItem with
     {
         Name = Name ?? string.Empty,
-        Value = Value ?? string.Empty
+        Value = Value ?? string.Empty,
+        GroupId = Group?.Id
     };
 }

@@ -25,13 +25,13 @@ public partial class VaultItemFormView : VaultItemViewBase<VaultItemFormViewMode
 
     private void ActionToggleRevealValue_Click(object? sender, RoutedEventArgs e) => RaiseEvent(VaultItemFormAction.ToggleRevealValue);
 
-    private void ActionCancel_Click(object? sender, RoutedEventArgs e) => RaiseEvent(VaultItemFormAction.Cancel);
+    private void FormButtons_Cancelled(object? sender, RoutedEventArgs e) => RaiseEvent(VaultItemFormAction.Cancel);
 
-    private void ActionSave_Click(object? sender, RoutedEventArgs e)
+    private void FormButtons_Submitted(object? sender, RoutedEventArgs e)
     {
         Model?.Form?.Validate();
         RaiseEvent(VaultItemFormAction.Submit);
     }
 
-    private void Root_LayoutUpdated(object? sender, EventArgs e) => UpdateModel(x => x.UseVerticalLayout = Root.Bounds.Width < 500);
+    private void Root_LayoutUpdated(object? sender, EventArgs e) => UpdateModel(x => x.UseVerticalLayout = Root.Bounds.Width < 800);
 }

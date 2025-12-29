@@ -4,7 +4,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:vm="using:VaultKeeper.AvaloniaApplication.ViewModels.VaultItems"
-             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             mc:Ignorable="d" d:DesignWidth="1920" d:DesignHeight="450"
              x:Class="VaultKeeper.AvaloniaApplication.Views.VaultItems.VaultItemFormView"
              x:DataType="vm:VaultItemFormViewModel"
              Name="Root"
@@ -12,43 +12,53 @@
              Classes.vertical-layout="{Binding UseVerticalLayout}">
 
   <Design.DataContext>
-    <vm:VaultItemFormViewModel/>
+    <x:Static Member="vm:VaultItemFormViewModel.Design"/>
   </Design.DataContext>
 
   <UserControl.Styles>
-    <Style Selector=":not(.vertical-layout) StackPanel.PART_NamePanel">
+    <Style Selector=":not(.vertical-layout) StackPanel#PART_NamePanel">
       <Setter Property="Grid.ColumnSpan" Value="1"></Setter>
     </Style>
-    <Style Selector=":not(.vertical-layout) StackPanel.PART_ValuePanel">
+    <Style Selector=":not(.vertical-layout) StackPanel#PART_ValuePanel">
       <Setter Property="Grid.Row" Value="0"></Setter>
       <Setter Property="Grid.Column" Value="1"></Setter>
       <Setter Property="Grid.ColumnSpan" Value="1"></Setter>
     </Style>
-    <Style Selector=":not(.vertical-layout) Grid.PART_ActionsGrid">
-      <Setter Property="HorizontalAlignment" Value="Right"></Setter>
-      <Setter Property="Grid.Row" Value="1"></Setter>
-      <Setter Property="Grid.Column" Value="1"></Setter>
+    <Style Selector=":not(.vertical-layout) StackPanel#PART_GroupPanel">
+      <Setter Property="Grid.Row" Value="0"></Setter>
+      <Setter Property="Grid.Column" Value="2"></Setter>
       <Setter Property="Grid.ColumnSpan" Value="1"></Setter>
     </Style>
-
-    <Style Selector=".vertical-layout StackPanel.PART_NamePanel">
-      <Setter Property="Grid.ColumnSpan" Value="2"></Setter>
-    </Style>
-    <Style Selector=".vertical-layout StackPanel.PART_ValuePanel">
+    <Style Selector=":not(.vertical-layout) common|FormButtons">
+      <Setter Property="HorizontalAlignment" Value="Right"></Setter>
       <Setter Property="Grid.Row" Value="1"></Setter>
       <Setter Property="Grid.Column" Value="0"></Setter>
-      <Setter Property="Grid.ColumnSpan" Value="2"></Setter>
+      <Setter Property="Grid.ColumnSpan" Value="3"></Setter>
     </Style>
-    <Style Selector=".vertical-layout Grid.PART_ActionsGrid">
-      <Setter Property="HorizontalAlignment" Value="Stretch"></Setter>
+
+    <Style Selector=".vertical-layout StackPanel#PART_NamePanel">
+      <Setter Property="Grid.ColumnSpan" Value="3"></Setter>
+    </Style>
+    <Style Selector=".vertical-layout StackPanel#PART_ValuePanel">
+      <Setter Property="Grid.Row" Value="1"></Setter>
+      <Setter Property="Grid.Column" Value="0"></Setter>
+      <Setter Property="Grid.ColumnSpan" Value="3"></Setter>
+    </Style>
+    <Style Selector=".vertical-layout StackPanel#PART_GroupPanel">
       <Setter Property="Grid.Row" Value="2"></Setter>
       <Setter Property="Grid.Column" Value="0"></Setter>
-      <Setter Property="Grid.ColumnSpan" Value="2"></Setter>
+      <Setter Property="Grid.ColumnSpan" Value="4"></Setter>
+    </Style>
+    <Style Selector=".vertical-layout common|FormButtons">
+      <Setter Property="HorizontalAlignment" Value="Stretch"></Setter>
+      <Setter Property="Grid.Row" Value="3"></Setter>
+      <Setter Property="Grid.Column" Value="0"></Setter>
+      <Setter Property="Grid.ColumnSpan" Value="3"></Setter>
     </Style>
   </UserControl.Styles>
 
-  <Grid RowDefinitions="Auto, Auto, Auto" ColumnDefinitions="*, *" RowSpacing="12" ColumnSpacing="12">
-    <StackPanel Classes="PART_NamePanel" Grid.Row="0" Grid.Column="0">
+  <Grid RowDefinitions="Auto, Auto, Auto, Auto" ColumnDefinitions="*, *, *" RowSpacing="12" ColumnSpacing="12">
+    <StackPanel Name="PART_NamePanel" Grid.Row="0" Grid.Column="0">
       <Label Target="InputName">Name</Label>
       <TextBox Name="InputName"
                Text="{Binding Form.Name}"
@@ -64,7 +74,7 @@
       </ItemsControl>
     </StackPanel>
 
-    <StackPanel Classes="PART_ValuePanel">
+    <StackPanel Name="PART_ValuePanel">
       <Label Target="InputValue">Value</Label>
       <TextBox Name="InputValue"
                MinHeight="35"
@@ -100,23 +110,31 @@
       </TextBox>
     </StackPanel>
 
-    <Grid Classes="PART_ActionsGrid"
-          RowDefinitions="*"
-          ColumnDefinitions="*, *"
-          Margin="0 20 0 0"
-          ColumnSpacing="12">
-      <common:AppButton Text="Cancel"
-                        IconStart="{StaticResource IconX}"
-                        Click="ActionCancel_Click"
-                        HorizontalAlignment="Stretch"
-                        Grid.Column="0"/>
+    <StackPanel Name="PART_GroupPanel">
+      <Label Target="GroupAutoComplete">Group</Label>
 
-      <common:AppButton Text="Save"
-                        IconStart="{StaticResource IconCheck}"
-                        IsEnabled="{Binding !Form.HasErrors}"
-                        Click="ActionSave_Click"
-                        HorizontalAlignment="Stretch"
-                        Grid.Column="1"/>
-    </Grid>
+      <AutoCompleteBox Name="GroupAutoComplete"
+                       MinHeight="35"
+                       ItemsSource="{Binding GroupOptions}"
+                       SelectedItem="{Binding SelectedGroup}"
+                       ValueMemberBinding="{Binding Name}"
+                       Text="{Binding GroupInputText}"
+                       FilterMode="StartsWith"/>
+
+      <TextBlock Margin="0 10 0 0"
+                 MaxWidth="400"
+                 TextWrapping="Wrap"
+                 HorizontalAlignment="Left"
+                 Foreground="{DynamicResource SystemAccentColor}"
+                 IsVisible="{Binding WillCreateGroup}">
+        Create new "<Run Text="{Binding GroupInputText}" FontWeight="Bold"/>" group.
+      </TextBlock>
+
+    </StackPanel>
+
+    <common:FormButtons Margin="0 20 0 0"
+                        SubmitButtonText="Save"
+                        Cancelled="FormButtons_Cancelled"
+                        Submitted="FormButtons_Submitted"/>
   </Grid>
 </UserControl>

@@ -18,17 +18,18 @@
     <Border Padding="20">
       <Grid RowDefinitions="Auto, *" ColumnDefinitions="*">
         <Panel Height="80" Grid.Row="0" Focusable="False">
-          <Panel Name="TOOLBAR" IsVisible="{Binding !#List.IsEmpty}" Focusable="False">
-            <common:AppButton Text="New"
-                              HorizontalAlignment="Right"
-                              VerticalAlignment="Top"
+          <StackPanel IsVisible="{Binding IsToolbarVisible}"
+                      Orientation="Horizontal"
+                      HorizontalAlignment="Right"
+                      VerticalAlignment="Top"
+                      Focusable="False">
+            <common:AppButton Text="New Key"
                               IconStart="{StaticResource IconPlus}"
-                              IsVisible="{Binding !IsSidePaneOpen}"
                               Click="ButtonNew_Click"/>
-          </Panel>
+          </StackPanel>
         </Panel>
 
-        <common:ListView Name="List" ItemsSource="{Binding VaultItems}" Grid.Row="1">
+        <common:ListView Name="KeyList" ItemsSource="{Binding VaultItems}" Grid.Row="1">
           <common:ListView.ItemTemplate>
             <DataTemplate DataType="vaultitems:VaultItemViewModelBase">
               <TransitioningContentControl Content="{Binding .}" Padding="20 10 20 10">
@@ -82,11 +83,11 @@
     </Border>
 
     <SplitView.Pane>
-      <Border Padding="20" IsVisible="{Binding NewVaultItemForm, Converter={x:Static converters:ObjectConverters.IsNotNull}}">
+      <Border Padding="20" IsVisible="{Binding SidePaneContent, Converter={x:Static converters:ObjectConverters.IsNotNull}}">
         <Grid RowDefinitions="Auto, *" ColumnDefinitions="*">
 
           <Grid RowDefinitions="Auto, Auto" ColumnDefinitions="*, Auto" Margin="0,0,0,10">
-            <TextBlock VerticalAlignment="Center" Margin="0" Classes="h2" Grid.Column="0">New Key</TextBlock>
+            <TextBlock Text="{Binding SidePaneTitle}" Margin="0" VerticalAlignment="Center" Classes="h2" Grid.Column="0"/>
 
             <common:AppButton IconStart="{StaticResource IconX}"
                               Width="34"
@@ -96,15 +97,13 @@
                               Grid.Column="1"
                               ToolTip.Tip="Close"/>
 
-            <Separator Margin="0 20 0 0" Grid.Row="1" Grid.ColumnSpan="2"></Separator>
+            <Separator Margin="0,20,0,0" Grid.Row="1" Grid.ColumnSpan="2"/>
           </Grid>
 
-          <ContentControl Content="{Binding NewVaultItemForm}" Padding="12" Grid.Row="1">
+          <ContentControl Content="{Binding SidePaneContent}" Padding="12" Grid.Row="1">
             <ContentControl.ContentTemplate>
               <DataTemplate DataType="vaultitems:VaultItemFormViewModel">
-                <uc:VaultItemFormView
-                ActionInvoked="VaultItemView_ActionInvoked"
-                FormActionInvoked="VaultItemFormView_FormActionInvoked"/>
+                <uc:VaultItemFormView ActionInvoked="VaultItemView_ActionInvoked" FormActionInvoked="VaultItemFormView_FormActionInvoked"/>
               </DataTemplate>
             </ContentControl.ContentTemplate>
           </ContentControl>

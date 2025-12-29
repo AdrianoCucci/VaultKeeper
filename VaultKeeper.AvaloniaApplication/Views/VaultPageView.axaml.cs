@@ -16,7 +16,7 @@ public partial class VaultPageView : ViewBase<VaultPageViewModel>
     protected override async void OnApplyTemplate(TemplateAppliedEventArgs e)
     {
         if (Model != null)
-            await Model.LoadVaultItemsAsync();
+            await Model.LoadDataAsync();
 
         base.OnApplyTemplate(e);
     }
@@ -43,6 +43,6 @@ public partial class VaultPageView : ViewBase<VaultPageViewModel>
     private async void SplitView_PaneClosed(object? sender, RoutedEventArgs e)
     {
         await Task.Delay(250);
-        UpdateModel(x => x.NewVaultItemForm = null);
+        UpdateModel(x => x.SidePaneContent = null);
     }
 }
