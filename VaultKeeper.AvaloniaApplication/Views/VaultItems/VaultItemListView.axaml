@@ -21,8 +21,8 @@
     <StackPanel>
       <ContentControl Content="{Binding Group}" IsVisible="{Binding HasGroup}">
         <ContentControl.ContentTemplate>
-          <DataTemplate DataType="groupVMs:GroupViewModel">
-            <groups:GroupView Margin="0 0 0 10" ActionInvoked="GroupView_ActionInvoked" />
+          <DataTemplate x:DataType="groupVMs:GroupShellViewModel">
+            <groups:GroupShellView Margin="0 0 0 10" ActionInvoked="GroupView_ActionInvoked"/>
           </DataTemplate>
         </ContentControl.ContentTemplate>
       </ContentControl>

@@ -6,13 +6,13 @@ using VaultKeeper.AvaloniaApplication.ViewModels.Groups;
 
 namespace VaultKeeper.AvaloniaApplication.ViewModels.VaultItems;
 
-public partial class VaultItemListViewModel(ObservableCollection<VaultItemViewModelBase> vaultItems, GroupViewModel? group) : ViewModelBase
+public partial class VaultItemListViewModel(ObservableCollection<VaultItemViewModelBase> vaultItems, GroupShellViewModel? group) : ViewModelBase
 {
     [ObservableProperty]
     private ObservableCollection<VaultItemViewModelBase> _vaultItems = vaultItems;
 
     [ObservableProperty, NotifyPropertyChangedFor(nameof(HasGroup), nameof(BorderThickness))]
-    private GroupViewModel? _group = group;
+    private GroupShellViewModel? _group = group;
 
     [ObservableProperty]
     private ScrollBarVisibility _horizontalScrollBarVisibility = ScrollBarVisibility.Auto;

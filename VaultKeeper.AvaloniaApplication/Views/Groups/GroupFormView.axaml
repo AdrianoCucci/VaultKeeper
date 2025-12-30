@@ -9,8 +9,29 @@
              x:DataType="groups:GroupFormViewModel">
 
   <StackPanel>
-    <Label Target="InputName">Name</Label>
-    <TextBox Name="InputName" Text="{Binding Form.Name}"/>
+    <TextBox Name="InputName" Text="{Binding Form.Name}" VerticalAlignment="Center">
+      <TextBox.InnerLeftContent>
+        <StackPanel Orientation="Horizontal">
+          <common:AppButton IconStart="{StaticResource IconX}"
+                            Background="Transparent"
+                            Foreground="{DynamicResource ColorGray500}"
+                            ToolTip.Tip="Cancel"
+                            Click="ButtonCancel_Clicked"/>
+
+          <common:AppButton IconStart="{StaticResource IconCheck}"
+                            Background="Transparent"
+                            Foreground="{DynamicResource SystemControlForegroundAccentBrush}"
+                            ToolTip.Tip="Save"
+                            Click="ButtonSave_Clicked"/>
+        </StackPanel>
+      </TextBox.InnerLeftContent>
+
+      <TextBox.Styles>
+        <Style Selector="TextBox /template/ DockPanel#PART_InnerDockPanel">
+          <Setter Property="VerticalAlignment" Value="Center" />
+        </Style>
+      </TextBox.Styles>
+    </TextBox>
 
     <ItemsControl ItemsSource="{Binding #InputName.(DataValidationErrors.Errors)}">
       <ItemsControl.ItemTemplate>
@@ -19,12 +40,5 @@
         </DataTemplate>
       </ItemsControl.ItemTemplate>
     </ItemsControl>
-
-    <common:FormButtons Margin="0 20 0 0"
-                        SubmitButtonText="Save"
-                        IsSubmitButtonEnabled="{Binding !Form.HasErrors}"
-                        Cancelled="FormButtons_Cancelled"
-                        Submitted="FormButtons_Submitted"/>
-
   </StackPanel>
 </UserControl>

@@ -1,5 +1,6 @@
 using Avalonia.Interactivity;
 using System;
+using VaultKeeper.AvaloniaApplication.Extensions;
 using VaultKeeper.AvaloniaApplication.Forms.VaultItems;
 using VaultKeeper.AvaloniaApplication.ViewModels.VaultItems;
 
@@ -11,10 +12,8 @@ public partial class VaultItemFormView : VaultItemViewBase<VaultItemFormViewMode
 
     protected override void OnLoaded(RoutedEventArgs e)
     {
-        InputName.Focus();
-        InputName.CaretIndex = InputName.Text?.Length ?? 0;
-
         base.OnLoaded(e);
+        InputName.FocusEnd();
     }
 
     private void RaiseEvent(VaultItemFormAction action)

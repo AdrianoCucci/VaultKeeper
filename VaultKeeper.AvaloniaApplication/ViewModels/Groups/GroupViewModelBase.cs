@@ -2,4 +2,4 @@
 
 namespace VaultKeeper.AvaloniaApplication.ViewModels.Groups;
 
-public partial class GroupViewModel(Group group) : GroupViewModelBase(group);
+public abstract class GroupViewModelBase(Group group) : ViewModelBase<Group>(group);

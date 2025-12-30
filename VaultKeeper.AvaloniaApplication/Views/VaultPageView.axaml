@@ -19,7 +19,13 @@
 
   <SplitView DisplayMode="Inline" PanePlacement="Right" OpenPaneLength="500" IsPaneOpen="{Binding IsSidePaneOpen}" PaneClosed="SplitView_PaneClosed">
     <Grid RowDefinitions="Auto, *" ColumnDefinitions="*">
-      <Border Height="80" Padding="20" Focusable="False" Grid.Row="0">
+      <Border Height="80"
+              Padding="20"
+              Focusable="False"
+              Background="{DynamicResource SystemControlBackgroundListLowBrush}"
+              BorderBrush="{DynamicResource SystemControlBackgroundBaseLowBrush}"
+              BorderThickness="0 0 0 2"
+              Grid.Row="0">
         <StackPanel IsVisible="{Binding IsToolbarVisible}"
                     Orientation="Horizontal"
                     HorizontalAlignment="Right"
@@ -31,55 +37,57 @@
         </StackPanel>
       </Border>
 
-      <ScrollViewer Padding="20" Grid.Row="1">
-        <ContentControl Content="{Binding MainContent}">
-          <ContentControl.DataTemplates>
-            <DataTemplate x:DataType="vaultitems:ObservableVaultItemViewModels">
-              <ItemsControl ItemsSource="{Binding .}">
-                <ItemsControl.ItemTemplate>
-                  <DataTemplate>
-                    <uc:VaultItemListView DataContext="{Binding .}"
-                                          Margin="0 0 0 40"
-                                          ItemActionInvoked="VaultItem_ActionInvoked"
-                                          ItemFormActionInvoked="VaultItem_FormActionInvoked"
-                                          GroupActionInvoked="Group_ActionInvoked"/>
-                  </DataTemplate>
-                </ItemsControl.ItemTemplate>
-              </ItemsControl>
-            </DataTemplate>
+      <Border Grid.Row="1">
+        <ScrollViewer>
+          <ContentControl Margin="20" Content="{Binding MainContent}">
+            <ContentControl.DataTemplates>
+              <DataTemplate x:DataType="vaultitems:ObservableVaultItemViewModels">
+                <ItemsControl ItemsSource="{Binding .}">
+                  <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                      <uc:VaultItemListView DataContext="{Binding .}"
+                                            Margin="0 0 0 40"
+                                            ItemActionInvoked="VaultItem_ActionInvoked"
+                                            ItemFormActionInvoked="VaultItem_FormActionInvoked"
+                                            GroupActionInvoked="Group_ActionInvoked"/>
+                    </DataTemplate>
+                  </ItemsControl.ItemTemplate>
+                </ItemsControl>
+              </DataTemplate>
 
-            <DataTemplate DataType="commonVMs:EmptyViewModel">
-              <StackPanel HorizontalAlignment="Center">
-                <Border HorizontalAlignment="Center"
-                        Padding="30"
-                        CornerRadius="10"
-                        BorderThickness="6"
-                        Background="{DynamicResource SystemAccentColor}"
-                        BorderBrush="{DynamicResource SystemControlBackgroundAltHighBrush}">
-                  <PathIcon Data="{StaticResource IconVault}" Foreground="{DynamicResource SystemControlBackgroundAltHighBrush}" Width="100" Height="100"/>
-                </Border>
+              <DataTemplate DataType="commonVMs:EmptyViewModel">
+                <StackPanel HorizontalAlignment="Center">
+                  <Border HorizontalAlignment="Center"
+                          Padding="30"
+                          CornerRadius="10"
+                          BorderThickness="6"
+                          Background="{DynamicResource SystemAccentColor}"
+                          BorderBrush="{DynamicResource SystemControlBackgroundAltHighBrush}">
+                    <PathIcon Data="{StaticResource IconVault}" Foreground="{DynamicResource SystemControlBackgroundAltHighBrush}" Width="100" Height="100"/>
+                  </Border>
 
-                <TextBlock HorizontalAlignment="Center" Classes="h1">No Keys Created</TextBlock>
-                <TextBlock HorizontalAlignment="Center" Classes="txt-md">Create your first key or import your existing keys to get started.</TextBlock>
+                  <TextBlock HorizontalAlignment="Center" Classes="h1">No Keys Created</TextBlock>
+                  <TextBlock HorizontalAlignment="Center" Classes="txt-md">Create your first key or import your existing keys to get started.</TextBlock>
 
-                <Grid RowDefinitions="*" ColumnDefinitions="*, *" ColumnSpacing="20" Margin="0 60 0 0" IsEnabled="{Binding !$parent[UserControl].DataContext.IsSidePaneOpen}">
-                  <common:AppButton Text="New Key"
-                                    HorizontalAlignment="Center"
-                                    IconStart="{StaticResource IconPlus}"
-                                    Click="ButtonNew_Click"
-                                    Grid.Column="0"/>
+                  <Grid RowDefinitions="*" ColumnDefinitions="*, *" ColumnSpacing="20" Margin="0 60 0 0" IsEnabled="{Binding !$parent[UserControl].DataContext.IsSidePaneOpen}">
+                    <common:AppButton Text="New Key"
+                                      HorizontalAlignment="Center"
+                                      IconStart="{StaticResource IconPlus}"
+                                      Click="ButtonNew_Click"
+                                      Grid.Column="0"/>
 
-                  <common:AppButton Text="Import Keys"
-                                    HorizontalAlignment="Center"
-                                    IconStart="{StaticResource IconPlus}"
-                                    Click="ButtonNew_Click"
-                                    Grid.Column="1"/>
-                </Grid>
-              </StackPanel>
-            </DataTemplate>
-          </ContentControl.DataTemplates>
-        </ContentControl>
-      </ScrollViewer>
+                    <common:AppButton Text="Import Keys"
+                                      HorizontalAlignment="Center"
+                                      IconStart="{StaticResource IconPlus}"
+                                      Click="ButtonNew_Click"
+                                      Grid.Column="1"/>
+                  </Grid>
+                </StackPanel>
+              </DataTemplate>
+            </ContentControl.DataTemplates>
+          </ContentControl>
+        </ScrollViewer>
+      </Border>
 
     </Grid>
 

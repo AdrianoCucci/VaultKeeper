@@ -1,5 +1,7 @@
+using Avalonia.Input;
 using Avalonia.Interactivity;
 using System;
+using VaultKeeper.AvaloniaApplication.Extensions;
 using VaultKeeper.AvaloniaApplication.ViewModels.Groups;
 using VaultKeeper.Models.Groups;
 
@@ -14,6 +16,26 @@ public partial class GroupFormView : ViewBase<GroupFormViewModel>
 
     public GroupFormView() => InitializeComponent();
 
+    protected override void OnLoaded(RoutedEventArgs e)
+    {
+        base.OnLoaded(e);
+        InputName.FocusEnd();
+    }
+
+    protected override void OnKeyDown(KeyEventArgs e)
+    {
+        base.OnKeyDown(e);
+        switch (e.Key)
+        {
+            case Key.Enter:
+                SubmitForm();
+                break;
+            case Key.Escape:
+                RaiseEvent(GroupAction.CancelEdit);
+                break;
+        }
+    }
+
     private void RaiseEvent(GroupAction action, Group? group = null)
     {
         if (Model == null) return;
@@ -25,11 +47,13 @@ public partial class GroupFormView : ViewBase<GroupFormViewModel>
         });
     }
 
-    private void FormButtons_Cancelled(object? sender, RoutedEventArgs e) => RaiseEvent(GroupAction.CancelEdit);
-
-    private void FormButtons_Submitted(object? sender, RoutedEventArgs e)
+    private void SubmitForm()
     {
         if (Model?.Form?.Validate() == true)
             RaiseEvent(GroupAction.ConfirmEdit, Model.Form.GetModel());
     }
+
+    private void ButtonCancel_Clicked(object? sender, RoutedEventArgs e) => RaiseEvent(GroupAction.CancelEdit);
+
+    private void ButtonSave_Clicked(object? sender, RoutedEventArgs e) => SubmitForm();
 }

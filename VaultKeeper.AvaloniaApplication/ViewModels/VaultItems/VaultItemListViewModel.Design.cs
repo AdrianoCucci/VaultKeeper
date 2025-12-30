@@ -25,7 +25,7 @@ public partial class VaultItemListViewModel : ViewModelBase
         GroupViewModel groupVM = new(group);
         ObservableCollection<VaultItemViewModelBase> itemVMs = [.. items.Select(x => new VaultItemViewModel(x))];
 
-        return new(itemVMs, groupVM);
+        return new(itemVMs, new(groupVM));
     });
 
     public static VaultItemListViewModel Design => _designLazy.Value;

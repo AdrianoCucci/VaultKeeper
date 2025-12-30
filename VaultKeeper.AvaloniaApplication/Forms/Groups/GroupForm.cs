@@ -9,7 +9,7 @@ public partial class GroupForm(Group group, FormMode formMode = FormMode.New) : 
 {
     [ObservableProperty, NotifyDataErrorInfo]
     [Required(ErrorMessage = "Name is required")]
-    private string? _name;
+    private string? _name = group.Name;
 
     public override Group GetModel() => group with
     {

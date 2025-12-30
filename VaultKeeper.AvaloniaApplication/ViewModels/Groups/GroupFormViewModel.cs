@@ -4,7 +4,7 @@ using VaultKeeper.Models.Groups;
 
 namespace VaultKeeper.AvaloniaApplication.ViewModels.Groups;
 
-public class GroupFormViewModel(Group group, FormMode formMode = FormMode.New) : ViewModelBase<Group>(group)
+public class GroupFormViewModel(Group group, FormMode formMode = FormMode.New) : GroupViewModelBase(group)
 {
     public GroupForm Form { get; } = new(group, formMode);
 }
