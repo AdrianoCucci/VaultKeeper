@@ -52,12 +52,9 @@
                 BorderThickness="{TemplateBinding BorderThickness}"
                 CornerRadius="{TemplateBinding CornerRadius}">
           <Panel>
-            <ScrollViewer IsVisible="{TemplateBinding HasItems}"
-                          HorizontalScrollBarVisibility="{TemplateBinding HorizontalScrollBarVisibility}"
-                          VerticalScrollBarVisibility="{TemplateBinding VerticalScrollBarVisibility}">
-              <ItemsControl ItemsSource="{TemplateBinding ItemsSource}"
-                            ItemTemplate="{TemplateBinding ItemTemplate}"/>
-            </ScrollViewer>
+            <ItemsControl IsVisible="{TemplateBinding HasItems}"
+                          ItemsSource="{TemplateBinding ItemsSource}"
+                          ItemTemplate="{TemplateBinding ItemTemplate}"/>
 
             <ContentPresenter ContentTemplate="{TemplateBinding EmptyTemplate}"
                               IsVisible="{TemplateBinding IsEmpty}"/>
