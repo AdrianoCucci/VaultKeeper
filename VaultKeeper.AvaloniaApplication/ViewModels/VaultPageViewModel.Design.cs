@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading.Tasks;
@@ -16,17 +17,23 @@ public partial class VaultPageViewModel
     {
         public override async Task LoadDataAsync()
         {
-            SetVaultItems(Enumerable.Range(1, 10).Select(x => new VaultItem
-            {
-                Name = $"Name {x}",
-                Value = $"Value {x}"
-            }));
+            const int groupsCount = 3;
 
-            SetGroups(Enumerable.Range(1, 10).Select(x => new Group
+            Group[] groups = [.. Enumerable.Range(1, groupsCount).Select(x => new Group
             {
                 Id = Guid.NewGuid(),
                 Name = $"Group {x}",
-            }));
+            })];
+
+            IEnumerable<VaultItem> vaultItems = Enumerable.Range(1, 10).Select(x => new VaultItem
+            {
+                Name = $"Name {x}",
+                Value = $"Value {x}",
+                GroupId = groups[x % groupsCount].Id
+            });
+
+            SetGroups(groups);
+            SetVaultItems(vaultItems);
         }
     }
 }

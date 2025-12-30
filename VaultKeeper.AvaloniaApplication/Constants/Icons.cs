@@ -14,6 +14,7 @@ public static class Icons
     public const string X = $"{_prefix}X";
     public const string Plus = $"{_prefix}Plus";
     public const string ArrowRight = $"{_prefix}ArrowRight";
+    public const string EllipsisVertical = $"{_prefix}EllipsisVertical";
 
     private const string _prefix = "Icon";
 }

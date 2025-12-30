@@ -1,0 +1,62 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:common="using:VaultKeeper.AvaloniaApplication.Views.Common"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:groupVMs="using:VaultKeeper.AvaloniaApplication.ViewModels.Groups"
+             xmlns:groups="using:VaultKeeper.AvaloniaApplication.Views.Groups"
+             xmlns:local="using:VaultKeeper.AvaloniaApplication.Views.VaultItems"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vaultitems="using:VaultKeeper.AvaloniaApplication.ViewModels.VaultItems"
+             mc:Ignorable="d" d:DesignWidth="1920" d:DesignHeight="1080"
+             x:Class="VaultKeeper.AvaloniaApplication.Views.VaultItems.VaultItemListView"
+             x:DataType="vaultitems:VaultItemListViewModel">
+
+  <Design.DataContext>
+    <x:Static Member="vaultitems:VaultItemListViewModel.Design"/>
+  </Design.DataContext>
+
+  <Border BorderBrush="{DynamicResource SystemAccentColor}"
+          BorderThickness="{Binding BorderThickness}"
+          CornerRadius="6">
+    <StackPanel>
+      <ContentControl Content="{Binding Group}" IsVisible="{Binding HasGroup}">
+        <ContentControl.ContentTemplate>
+          <DataTemplate DataType="groupVMs:GroupViewModel">
+            <groups:GroupView Margin="0 0 0 10" ActionInvoked="GroupView_ActionInvoked" />
+          </DataTemplate>
+        </ContentControl.ContentTemplate>
+      </ContentControl>
+
+      <common:ListView ItemsSource="{Binding VaultItems}"
+                       HorizontalScrollBarVisibility="{Binding HorizontalScrollBarVisibility}"
+                       VerticalScrollBarVisibility="{Binding VerticalScrollBarVisibility}">
+        <common:ListView.ItemTemplate>
+          <DataTemplate DataType="vaultitems:VaultItemViewModelBase">
+            <Border Margin="20 10 20 10" BorderThickness="0 0 0 1" BorderBrush="{DynamicResource SystemAccentColor}">
+              <TransitioningContentControl Content="{Binding .}">
+                <ContentControl.DataTemplates>
+                  <DataTemplate DataType="vaultitems:VaultItemViewModel">
+                    <local:VaultItemView ActionInvoked="VaultItemView_ActionInvoked"/>
+                  </DataTemplate>
+                  <DataTemplate DataType="vaultitems:VaultItemFormViewModel">
+                    <local:VaultItemFormView ActionInvoked="VaultItemView_ActionInvoked" FormActionInvoked="VaultItemFormView_FormActionInvoked"/>
+                  </DataTemplate>
+                </ContentControl.DataTemplates>
+              </TransitioningContentControl>
+            </Border>
+          </DataTemplate>
+        </common:ListView.ItemTemplate>
+
+        <common:ListView.EmptyTemplate>
+          <DataTemplate>
+            <TextBlock Padding="20 10"
+                       Text="(Empty)"
+                       Foreground="{StaticResource ColorGray400}"
+                       FontWeight="SemiBold"
+                       FontStyle="Italic"/>
+          </DataTemplate>
+        </common:ListView.EmptyTemplate>
+      </common:ListView>
+    </StackPanel>
+  </Border>
+</UserControl>

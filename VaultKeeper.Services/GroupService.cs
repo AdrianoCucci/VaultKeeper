@@ -1,7 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using VaultKeeper.Common.Extensions;
 using VaultKeeper.Common.Models.Queries;
@@ -21,16 +20,8 @@ public class GroupService(IRepository<Group> repository, ILogger<GroupService> l
 
         try
         {
-            var mocks = Enumerable.Range(1, 10).Select(x => new Group
-            {
-                Id = Guid.Empty,
-                Name = $"Group {x}"
-            });
-
-            return mocks.ToOkResult().Logged(logger);
-
-            //var items = await repository.GetManyAsync(query);
-            //return items.ToOkResult().Logged(logger);
+            var items = await repository.GetManyAsync(query);
+            return items.ToOkResult().Logged(logger);
         }
         catch (Exception ex)
         {

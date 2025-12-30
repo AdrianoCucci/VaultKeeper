@@ -10,6 +10,19 @@
     <local:ViewLocator/>
   </Application.DataTemplates>
 
+  <Application.Resources>
+    <ResourceDictionary>
+      <ResourceDictionary.MergedDictionaries>
+        <ResourceInclude Source="/Theme/Colors.axaml"/>
+        <ResourceInclude Source="/Theme/Icons.axaml"/>
+        <ResourceInclude Source="/Theme/Controls.axaml"/>
+      </ResourceDictionary.MergedDictionaries>
+
+      <sys:String x:Key="AppName">Vault Keeper</sys:String>
+      <StaticResource x:Key="AppIconData" ResourceKey="IconVault"/>
+    </ResourceDictionary>
+  </Application.Resources>
+
   <Application.Styles>
     <FluentTheme>
       <FluentTheme.Palettes>
@@ -20,16 +33,4 @@
 
     <StyleInclude Source="/Theme/Styles.axaml"/>
   </Application.Styles>
-
-  <Application.Resources>
-    <ResourceDictionary>
-      <ResourceDictionary.MergedDictionaries>
-        <ResourceInclude Source="/Theme/Icons.axaml"/>
-        <ResourceInclude Source="/Theme/Controls.axaml"/>
-      </ResourceDictionary.MergedDictionaries>
-
-      <sys:String x:Key="AppName">Vault Keeper</sys:String>
-      <StaticResource x:Key="AppIconData" ResourceKey="IconVault"/>
-    </ResourceDictionary>
-  </Application.Resources>
 </Application>

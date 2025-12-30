@@ -3,8 +3,11 @@
 public enum GroupAction
 {
     Edit,
+    AddItem,
     Delete,
-    DeleteWithChildren,
     CancelEdit,
-    ConfirmEdit
+    ConfirmEdit,
+    CancelDelete,
+    ConfirmDelete,
+    ConfirmDeleteWithChildren
 }

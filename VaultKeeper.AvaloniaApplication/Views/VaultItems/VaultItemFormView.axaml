@@ -2,6 +2,7 @@
              xmlns:common="using:VaultKeeper.AvaloniaApplication.Views.Common"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:groups="using:VaultKeeper.Models.Groups"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:vm="using:VaultKeeper.AvaloniaApplication.ViewModels.VaultItems"
              mc:Ignorable="d" d:DesignWidth="1920" d:DesignHeight="450"
@@ -108,6 +109,14 @@
           </Button>
         </TextBox.InnerLeftContent>
       </TextBox>
+
+      <ItemsControl ItemsSource="{Binding #InputValue.(DataValidationErrors.Errors)}">
+        <ItemsControl.ItemTemplate>
+          <DataTemplate>
+            <TextBlock Text="{Binding}" Margin="0 6 0 0" Foreground="Red"></TextBlock>
+          </DataTemplate>
+        </ItemsControl.ItemTemplate>
+      </ItemsControl>
     </StackPanel>
 
     <StackPanel Name="PART_GroupPanel">
@@ -115,24 +124,25 @@
 
       <AutoCompleteBox Name="GroupAutoComplete"
                        MinHeight="35"
-                       ItemsSource="{Binding GroupOptions}"
-                       SelectedItem="{Binding SelectedGroup}"
+                       ItemsSource="{Binding Form.GroupOptions}"
+                       SelectedItem="{Binding Form.SelectedGroup}"
                        ValueMemberBinding="{Binding Name}"
-                       Text="{Binding GroupInputText}"
-                       FilterMode="StartsWith"/>
+                       Text="{Binding Form.GroupName}"
+                       FilterMode="Contains">
+      </AutoCompleteBox>
 
       <TextBlock Margin="0 10 0 0"
                  MaxWidth="400"
                  TextWrapping="Wrap"
                  HorizontalAlignment="Left"
                  Foreground="{DynamicResource SystemAccentColor}"
-                 IsVisible="{Binding WillCreateGroup}">
-        Create new "<Run Text="{Binding GroupInputText}" FontWeight="Bold"/>" group.
+                 IsVisible="{Binding Form.WillCreateGroup}">
+        Create new "<Run Text="{Binding Form.GroupName}" FontWeight="Bold"/>" group.
       </TextBlock>
 
     </StackPanel>
 
-    <common:FormButtons Margin="0 20 0 0"
+    <common:FormButtons Margin="0 20"
                         SubmitButtonText="Save"
                         Cancelled="FormButtons_Cancelled"
                         Submitted="FormButtons_Submitted"/>
