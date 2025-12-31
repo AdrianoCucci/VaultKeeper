@@ -1,4 +1,5 @@
 using Avalonia.Controls.Primitives;
+using Avalonia.Input;
 using Avalonia.Interactivity;
 using System.Threading.Tasks;
 using VaultKeeper.AvaloniaApplication.Forms.VaultItems;
@@ -14,11 +15,17 @@ public partial class VaultPageView : ViewBase<VaultPageViewModel>
 
     protected override async void OnApplyTemplate(TemplateAppliedEventArgs e)
     {
+        base.OnApplyTemplate(e);
+        await LoadDataAsync();
+    }
+
+    private async Task LoadDataAsync()
+    {
         if (Model != null)
             await Model.LoadDataAsync();
-
-        base.OnApplyTemplate(e);
     }
+
+    private async void SearchBox_Debounce(object? sender, TextInputEventArgs e) => await LoadDataAsync();
 
     private void ButtonNew_Click(object? sender, RoutedEventArgs e) => Model?.ShowVaultItemCreateForm();
 

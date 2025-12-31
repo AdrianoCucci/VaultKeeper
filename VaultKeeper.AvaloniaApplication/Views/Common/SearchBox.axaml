@@ -1,0 +1,29 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:controls="using:VaultKeeper.AvaloniaApplication.Views.Common">
+
+  <Design.PreviewWith>
+    <StackPanel Width="400" Spacing="10">
+      <StackPanel Background="{DynamicResource SystemRegionBrush}">
+        <controls:SearchBox />
+      </StackPanel>
+    </StackPanel>
+  </Design.PreviewWith>
+
+  <ControlTheme x:Key="{x:Type controls:SearchBox}" TargetType="controls:SearchBox">
+    <Setter Property="Template">
+      <ControlTemplate>
+        <TextBox Name="PART_TextBox"
+                 Text="{Binding Text, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}"
+                 Watermark="{TemplateBinding Watermark}"
+                 FontWeight="SemiBold"
+                 VerticalContentAlignment="Center"
+                 CornerRadius="6">
+          <TextBox.InnerLeftContent>
+            <PathIcon Data="{StaticResource IconMagnifyingGlass}" Margin="10 0 0 0" Opacity="0.5"/>
+          </TextBox.InnerLeftContent>
+        </TextBox>
+      </ControlTemplate>
+    </Setter>
+  </ControlTheme>
+</ResourceDictionary>

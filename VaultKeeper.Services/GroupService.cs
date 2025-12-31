@@ -1,6 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
 using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using VaultKeeper.Common.Extensions;
 using VaultKeeper.Common.Models.Queries;
@@ -14,18 +13,18 @@ namespace VaultKeeper.Services;
 
 public class GroupService(IRepository<Group> repository, ILogger<GroupService> logger) : IGroupService
 {
-    public async Task<Result<IEnumerable<Group>>> GetManyAsync(ReadQuery<Group>? query = null)
+    public async Task<Result<CountedData<Group>>> GetManyCountedAsync(ReadQuery<Group>? query = null)
     {
-        logger.LogInformation(nameof(GetManyAsync));
+        logger.LogInformation(nameof(GetManyCountedAsync));
 
         try
         {
-            var items = await repository.GetManyAsync(query);
+            CountedData<Group> items = await repository.GetManyCountedAsync(query);
             return items.ToOkResult().Logged(logger);
         }
         catch (Exception ex)
         {
-            return ex.ToFailedResult<IEnumerable<Group>>().Logged(logger);
+            return ex.ToFailedResult<CountedData<Group>>().Logged(logger);
         }
     }
 

@@ -6,6 +6,7 @@
     <ResourceInclude Source="/Views/Common/AppButton.axaml"/>
     <ResourceInclude Source="/Views/Common/ListView.axaml"/>
     <ResourceInclude Source="/Views/Common/FormButtons.axaml"/>
+    <ResourceInclude Source="/Views/Common/SearchBox.axaml"/>
   </ResourceDictionary.MergedDictionaries>
 
 </ResourceDictionary>

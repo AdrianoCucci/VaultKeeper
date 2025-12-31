@@ -33,8 +33,8 @@ public partial class VaultPageViewModel
                 GroupId = groups[x % groupsCount].Id
             });
 
-            _groupData = groups;
-            _vaultItemData = vaultItems;
+            _groupData = new(groups, groupsCount);
+            _vaultItemData = new(vaultItems, itemsCount);
 
             if (refreshUI)
                 UpdateMainContent();

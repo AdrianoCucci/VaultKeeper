@@ -3,14 +3,6 @@
                     xmlns:converters="using:Avalonia.Data.Converters"
                     xmlns:controls="using:VaultKeeper.AvaloniaApplication.Views.Common">
 
-  <!--
-  Additional resources
-  Using Control Themes:
-  https://docs.avaloniaui.net/docs/basics/user-interface/styling/control-themes
-  Using Theme Variants:
-  https://docs.avaloniaui.net/docs/guides/styles-and-resources/how-to-use-theme-variants
-  -->
-
   <Design.PreviewWith>
     <StackPanel Background="{DynamicResource SystemRegionBrush}" Spacing="10" Width="300">
       <controls:AppButton Text="Text"/>
