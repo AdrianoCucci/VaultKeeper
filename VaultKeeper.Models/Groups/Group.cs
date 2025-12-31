@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace VaultKeeper.Models;
+namespace VaultKeeper.Models.Groups;
 
 public record Group
 {

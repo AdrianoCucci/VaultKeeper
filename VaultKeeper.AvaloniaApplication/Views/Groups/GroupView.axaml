@@ -1,0 +1,53 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:common="using:VaultKeeper.AvaloniaApplication.DataTemplates.Common"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:groups="using:VaultKeeper.AvaloniaApplication.ViewModels.Groups"
+             xmlns:local="using:VaultKeeper.AvaloniaApplication.Views.Groups"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="200"
+             x:Class="VaultKeeper.AvaloniaApplication.Views.Groups.GroupView"
+             x:DataType="groups:GroupViewModel">
+  <Design.DataContext>
+    <x:Static Member="groups:GroupViewModel.Design"/>
+  </Design.DataContext>
+
+  <Grid RowDefinitions="Auto" ColumnDefinitions="*, Auto">
+    <TextBlock Foreground="{DynamicResource SystemControlForegroundAccentBrush}"
+               Text="{Binding Model.Name}"
+               VerticalAlignment="Center"
+               Classes="h4"
+               Margin="0"
+               Grid.Column="0"/>
+
+    <Button MinWidth="32"
+            MinHeight="32"
+            Width="32"
+            Height="32"
+            Classes="btn-text"
+            Grid.Column="1">
+      <PathIcon Data="{StaticResource IconEllipsisVertical}" />
+      <Button.Flyout>
+        <MenuFlyout>
+          <MenuItem Header="Rename Group" Click="ActionEdit_Click">
+            <MenuItem.Icon>
+              <PathIcon Data="{StaticResource IconPen}" Background="Transparent"/>
+            </MenuItem.Icon>
+          </MenuItem>
+          <MenuItem Header="Add Key" Click="ActionAddKey_Click">
+            <MenuItem.Icon>
+              <PathIcon Data="{StaticResource IconPlus}" Background="Transparent"/>
+            </MenuItem.Icon>
+          </MenuItem>
+          <Separator Background="{DynamicResource ColorGray400}"/>
+          <MenuItem Header="Delete Group" Click="ActionDelete_Click">
+            <MenuItem.Icon>
+              <PathIcon Data="{StaticResource IconTrash}" Background="Transparent"/>
+            </MenuItem.Icon>
+          </MenuItem>
+        </MenuFlyout>
+      </Button.Flyout>
+    </Button>
+
+  </Grid>
+</UserControl>

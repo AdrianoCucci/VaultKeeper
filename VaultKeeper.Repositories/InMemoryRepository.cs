@@ -14,12 +14,19 @@ public class InMemoryRepository<T> : IRepository<T>
     public Task<IEnumerable<T>> GetManyAsync(ReadQuery<T>? query = null) =>
         Task.FromResult<IEnumerable<T>>([.. _items.FromReadQuery(query)]);
 
+    public async Task<CountedData<T>> GetManyCountedAsync(ReadQuery<T>? query = null)
+    {
+        IEnumerable<T> items = await GetManyAsync(query);
+        long totalCount = await CountAsync();
+
+        return new(items, totalCount);
+    }
+
     public Task<T?> GetFirstOrDefaultAsync(ReadQuery<T>? query = null, T? defaultValue = default) =>
         Task.FromResult(_items.FromReadQuery(query).FirstOrDefault(defaultValue));
 
     public Task<long> CountAsync(ReadQuery<T>? query = null) =>
         Task.FromResult(_items.FromReadQuery(query).LongCount());
-
 
     public Task<bool> HasAnyAsync(ReadQuery<T>? query = null) =>
         Task.FromResult(_items.FromReadQuery(query).Any());

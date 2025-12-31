@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using VaultKeeper.Common.Models.Queries;
 
@@ -21,6 +23,32 @@ public static class EnumerableExtensions
 
     public static T? FirstOrDefaultByIndex<T>(this IList<T>? list, int index, T? defaultValue = default) =>
         HasIndex(list, index) ? list![index] : defaultValue;
+
+    public static int FindIndex<T>(this IList<T> list, Func<T, bool> predicate)
+    {
+        T? item = list.FirstOrDefault(predicate);
+        return item != null ? list.IndexOf(item) : -1;
+    }
+
+    public static ObservableCollection<T> AddRange<T>(this ObservableCollection<T> collection, IEnumerable<T> items)
+    {
+        foreach (var item in items)
+        {
+            collection.Add(item);
+        }
+
+        return collection;
+    }
+
+    public static ObservableCollection<T> RemoveRange<T>(this ObservableCollection<T> collection, IEnumerable<T> items)
+    {
+        foreach (var item in items)
+        {
+            collection.Remove(item);
+        }
+
+        return collection;
+    }
 
     public static IEnumerable<T> FromReadQuery<T>(this IEnumerable<T> enumerable, ReadQuery<T>? query)
     {

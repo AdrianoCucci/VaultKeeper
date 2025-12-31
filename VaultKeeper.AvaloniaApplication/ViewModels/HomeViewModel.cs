@@ -1,8 +1,10 @@
-﻿using Avalonia.Controls;
+﻿using Avalonia;
+using Avalonia.Media;
 using CommunityToolkit.Mvvm.ComponentModel;
 using System.Collections.ObjectModel;
 using VaultKeeper.AvaloniaApplication.Abstractions.Navigation;
 using VaultKeeper.AvaloniaApplication.Constants;
+using VaultKeeper.AvaloniaApplication.Extensions;
 using VaultKeeper.AvaloniaApplication.ViewModels.Common;
 using VaultKeeper.Models.Navigation;
 
@@ -27,30 +29,14 @@ public partial class HomeViewModel : ViewModelBase
             new(new()
             {
                 Key = nameof(VaultPageViewModel),
-                NavContent = CreateControl<StackPanel>(panel =>
-                {
-                    panel.Orientation = Avalonia.Layout.Orientation.Horizontal;
-                    panel.Children.Add(CreateControl<PathIcon>(x =>
-                    {
-                        x.Margin = new(0, 0, 6, 0);
-                        x.Bind(PathIcon.DataProperty, x.Resources.GetResourceObservable(Icons.Vault));
-                    }));
-                    panel.Children.Add(CreateControl<TextBlock>(x => x.Text = "Vault"));
-                }),
+                Label = "Vault",
+                Icon = Application.Current?.GetResourceOrDefault<Geometry>(Icons.Vault)
             }),
             new(new()
             {
                 Key = "SettingsPageViewModel",
-                NavContent = CreateControl<StackPanel>(panel =>
-                {
-                    panel.Orientation = Avalonia.Layout.Orientation.Horizontal;
-                    panel.Children.Add(CreateControl<PathIcon>(x =>
-                    {
-                        x.Margin = new(0, 0, 6, 0);
-                        x.Bind(PathIcon.DataProperty, x.Resources.GetResourceObservable(Icons.Gear));
-                    }));
-                    panel.Children.Add(CreateControl<TextBlock>(x => x.Text = "Settings"));
-                })
+                Label = "Settings",
+                Icon = Application.Current?.GetResourceOrDefault<Geometry>(Icons.Gear)
             }),
         ];
 

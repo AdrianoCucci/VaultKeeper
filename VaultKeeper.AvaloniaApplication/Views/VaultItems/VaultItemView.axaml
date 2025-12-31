@@ -14,7 +14,7 @@
   </Design.DataContext>
 
   <UserControl.Styles>
-    <Style Selector="Border#GridBorder SplitButton">
+    <Style Selector="Grid SplitButton#SplitButton">
       <Setter Property="Opacity" Value="0"></Setter>
       <Setter Property="Transitions">
         <Transitions>
@@ -22,56 +22,56 @@
         </Transitions>
       </Setter>
     </Style>
-    
-    <Style Selector=".focused Border#GridBorder SplitButton">
+
+    <Style Selector=".focused Grid SplitButton#SplitButton">
       <Setter Property="Opacity" Value="1"></Setter>
     </Style>
   </UserControl.Styles>
 
-  <Border Name="GridBorder" BorderThickness="0 0 0 1" BorderBrush="{DynamicResource SystemAccentColor}">
+  <Grid RowDefinitions="Auto" ColumnDefinitions="Auto, *, Auto">
+    <CheckBox IsVisible="{Binding IsSelectable}" IsChecked="{Binding IsSelected}" Margin="12 0 0 0" Grid.Column="0"/>
 
-    <Grid RowDefinitions="Auto" ColumnDefinitions="*, Auto">
-      <TextBlock Text="{Binding Model.Name}" Padding="12,6" VerticalAlignment="Center" Grid.Column="0"></TextBlock>
-      <SplitButton Click="ActionCopyValue_Click" Grid.Column="1">
-        <SplitButton.Styles>
-          <Style Selector="SplitButton /template/ Button#PART_PrimaryButton">
-            <Setter Property="ToolTip.Tip" Value="Copy value" />
-          </Style>
-        </SplitButton.Styles>
+    <TextBlock Text="{Binding Model.Name}" Padding="12, 6" VerticalAlignment="Center" Grid.Column="1"></TextBlock>
 
-        <PathIcon Data="{StaticResource IconCopy}"></PathIcon>
-        <SplitButton.Flyout>
-          <MenuFlyout Placement="BottomEdgeAlignedRight" Opened="MenuFlyout_Opened" Closed="MenuFlyout_Closed">
-            <MenuItem Header="Copy name" Click="ActionCopyName_Click">
-              <MenuItem.Icon>
-                <PathIcon Data="{StaticResource IconCopy}"></PathIcon>
-              </MenuItem.Icon>
-            </MenuItem>
-            <MenuItem Header="Copy value" Click="ActionCopyValue_Click">
-              <MenuItem.Icon>
-                <PathIcon Data="{StaticResource IconCopy}"></PathIcon>
-              </MenuItem.Icon>
-            </MenuItem>
-            <Separator/>
-            <MenuItem Header="Edit" Click="ActionEdit_Click">
-              <MenuItem.Icon>
-                <PathIcon Data="{StaticResource IconPen}"></PathIcon>
-              </MenuItem.Icon>
-            </MenuItem>
-            <MenuItem Header="Group" Click="ActionGroup_Click">
-              <MenuItem.Icon>
-                <PathIcon Data="{StaticResource IconList}"></PathIcon>
-              </MenuItem.Icon>
-            </MenuItem>
-            <Separator/>
-            <MenuItem Header="Delete" Click="ActionDelete_Click">
-              <MenuItem.Icon>
-                <PathIcon Data="{StaticResource IconTrash}"></PathIcon>
-              </MenuItem.Icon>
-            </MenuItem>
-          </MenuFlyout>
-        </SplitButton.Flyout>
-      </SplitButton>
-    </Grid>
-  </Border>
+    <SplitButton Name="SplitButton" Click="ActionCopyValue_Click" Grid.Column="2">
+      <SplitButton.Styles>
+        <Style Selector="SplitButton /template/ Button#PART_PrimaryButton">
+          <Setter Property="ToolTip.Tip" Value="Copy value" />
+        </Style>
+      </SplitButton.Styles>
+
+      <PathIcon Data="{StaticResource IconCopy}"></PathIcon>
+      <SplitButton.Flyout>
+        <MenuFlyout Placement="BottomEdgeAlignedRight" Opened="MenuFlyout_Opened" Closed="MenuFlyout_Closed">
+          <MenuItem Header="Copy name" Click="ActionCopyName_Click">
+            <MenuItem.Icon>
+              <PathIcon Data="{StaticResource IconCopy}"></PathIcon>
+            </MenuItem.Icon>
+          </MenuItem>
+          <MenuItem Header="Copy value" Click="ActionCopyValue_Click">
+            <MenuItem.Icon>
+              <PathIcon Data="{StaticResource IconCopy}"></PathIcon>
+            </MenuItem.Icon>
+          </MenuItem>
+          <Separator/>
+          <MenuItem Header="Edit" Click="ActionEdit_Click">
+            <MenuItem.Icon>
+              <PathIcon Data="{StaticResource IconPen}"></PathIcon>
+            </MenuItem.Icon>
+          </MenuItem>
+          <MenuItem Header="Group" Click="ActionGroup_Click">
+            <MenuItem.Icon>
+              <PathIcon Data="{StaticResource IconList}"></PathIcon>
+            </MenuItem.Icon>
+          </MenuItem>
+          <Separator/>
+          <MenuItem Header="Delete" Click="ActionDelete_Click">
+            <MenuItem.Icon>
+              <PathIcon Data="{StaticResource IconTrash}"></PathIcon>
+            </MenuItem.Icon>
+          </MenuItem>
+        </MenuFlyout>
+      </SplitButton.Flyout>
+    </SplitButton>
+  </Grid>
 </UserControl>

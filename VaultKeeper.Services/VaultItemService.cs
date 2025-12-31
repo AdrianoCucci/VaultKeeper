@@ -1,6 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
 using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using VaultKeeper.Common.Extensions;
 using VaultKeeper.Common.Models.Queries;
@@ -14,33 +13,18 @@ namespace VaultKeeper.Services;
 
 public class VaultItemService(IRepository<VaultItem> repository, ISecurityService securityService, ILogger<VaultItemService> logger) : IVaultItemService
 {
-    public async Task<Result<IEnumerable<VaultItem>>> LoadAllAsync()
+    public async Task<Result<CountedData<VaultItem>>> GetManyCountedAsync(ReadQuery<VaultItem>? query = null)
     {
-        logger.LogInformation(nameof(LoadAllAsync));
+        logger.LogInformation(nameof(GetManyCountedAsync));
 
         try
         {
-            IEnumerable<VaultItem> items = await repository.GetManyAsync();
+            CountedData<VaultItem> items = await repository.GetManyCountedAsync(query);
             return items.ToOkResult().Logged(logger);
         }
         catch (Exception ex)
         {
-            return ex.ToFailedResult<IEnumerable<VaultItem>>().Logged(logger);
-        }
-    }
-
-    public async Task<Result<IEnumerable<VaultItem>>> GetManyAsync(ReadQuery<VaultItem>? query = null)
-    {
-        logger.LogInformation(nameof(GetManyAsync));
-
-        try
-        {
-            var items = await repository.GetManyAsync(query);
-            return items.ToOkResult().Logged(logger);
-        }
-        catch (Exception ex)
-        {
-            return ex.ToFailedResult<IEnumerable<VaultItem>>().Logged(logger);
+            return ex.ToFailedResult<CountedData<VaultItem>>().Logged(logger);
         }
     }
 

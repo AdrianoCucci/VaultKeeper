@@ -25,7 +25,10 @@
               Grid.Row="1">
       <TabStrip.ItemTemplate>
         <DataTemplate x:DataType="common:NavItemViewModel">
-          <ContentControl Content="{Binding NavContent}"></ContentControl>
+          <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
+            <PathIcon Data="{Binding Icon}"/>
+            <TextBlock Text="{Binding Label}"/>
+          </StackPanel>
         </DataTemplate>
       </TabStrip.ItemTemplate>
     </TabStrip>

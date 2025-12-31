@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using VaultKeeper.Models;
 using VaultKeeper.Models.ApplicationData;
+using VaultKeeper.Models.Groups;
 using VaultKeeper.Models.VaultItems;
 using VaultKeeper.Repositories.Extensions.DependencyInjection;
 using VaultKeeper.Services.Abstractions;
@@ -27,6 +27,7 @@ public static class ServiceCollectionExtensions
             .AddSingleton<IFileService, FileService>()
             .AddSingleton<IAppDataService, AppDataService>()
             .AddScoped<IVaultItemService, VaultItemService>()
+            .AddScoped<IGroupService, GroupService>()
 
             .AddInMemoryCache<UserData>()
             .AddInMemoryRepository<VaultItem>()

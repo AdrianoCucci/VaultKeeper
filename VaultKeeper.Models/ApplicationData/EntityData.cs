@@ -1,4 +1,5 @@
 ﻿using System;
+using VaultKeeper.Models.Groups;
 using VaultKeeper.Models.VaultItems;
 
 namespace VaultKeeper.Models.ApplicationData;

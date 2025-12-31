@@ -1,5 +1,6 @@
 using Avalonia.Interactivity;
 using System;
+using VaultKeeper.AvaloniaApplication.Extensions;
 using VaultKeeper.AvaloniaApplication.Forms.VaultItems;
 using VaultKeeper.AvaloniaApplication.ViewModels.VaultItems;
 
@@ -11,10 +12,8 @@ public partial class VaultItemFormView : VaultItemViewBase<VaultItemFormViewMode
 
     protected override void OnLoaded(RoutedEventArgs e)
     {
-        InputName.Focus();
-        InputName.CaretIndex = InputName.Text?.Length ?? 0;
-
         base.OnLoaded(e);
+        InputName.FocusEnd();
     }
 
     private void RaiseEvent(VaultItemFormAction action)
@@ -25,13 +24,13 @@ public partial class VaultItemFormView : VaultItemViewBase<VaultItemFormViewMode
 
     private void ActionToggleRevealValue_Click(object? sender, RoutedEventArgs e) => RaiseEvent(VaultItemFormAction.ToggleRevealValue);
 
-    private void ActionCancel_Click(object? sender, RoutedEventArgs e) => RaiseEvent(VaultItemFormAction.Cancel);
+    private void FormButtons_Cancelled(object? sender, RoutedEventArgs e) => RaiseEvent(VaultItemFormAction.Cancel);
 
-    private void ActionSave_Click(object? sender, RoutedEventArgs e)
+    private void FormButtons_Submitted(object? sender, RoutedEventArgs e)
     {
         Model?.Form?.Validate();
         RaiseEvent(VaultItemFormAction.Submit);
     }
 
-    private void Root_LayoutUpdated(object? sender, EventArgs e) => UpdateModel(x => x.UseVerticalLayout = Root.Bounds.Width < 500);
+    private void Root_LayoutUpdated(object? sender, EventArgs e) => UpdateModel(x => x.UseVerticalLayout = Root.Bounds.Width < 800);
 }

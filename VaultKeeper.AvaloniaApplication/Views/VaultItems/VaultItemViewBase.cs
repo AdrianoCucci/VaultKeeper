@@ -1,10 +1,8 @@
 ﻿using Avalonia.Interactivity;
 using System;
-using VaultKeeper.AvaloniaApplication.Forms.Common;
 using VaultKeeper.AvaloniaApplication.Forms.VaultItems;
 using VaultKeeper.AvaloniaApplication.ViewModels.VaultItems;
 using VaultKeeper.AvaloniaApplication.ViewModels.VaultItems.Common;
-using VaultKeeper.Models.VaultItems;
 
 namespace VaultKeeper.AvaloniaApplication.Views.VaultItems;
 
@@ -20,9 +18,18 @@ public abstract class VaultItemViewBase<T> : ViewBase<T> where T : VaultItemView
 
     public event EventHandler<VaultItemFormActionEventArgs> FormActionInvoked { add => AddHandler(FormActionInvokedEvent, value); remove => RemoveHandler(FormActionInvokedEvent, value); }
 
-    protected void RaiseEvent(VaultItemAction action) => RaiseEvent(new VaultItemActionEventArgs(ActionInvokedEvent, action));
+    protected void RaiseEvent(VaultItemAction action)
+    {
+        if (Model == null) return;
 
-    protected void RaiseEvent(VaultItemFormAction action, Form<VaultItem> form)
+        RaiseEvent(new VaultItemActionEventArgs(ActionInvokedEvent)
+        {
+            Action = action,
+            ViewModel = Model
+        });
+    }
+
+    protected void RaiseEvent(VaultItemFormAction action, VaultItemForm form)
     {
         if (Model is not VaultItemFormViewModel formVM) return;
 

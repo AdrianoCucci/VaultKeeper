@@ -1,0 +1,44 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:common="using:VaultKeeper.AvaloniaApplication.Views.Common"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:groups="using:VaultKeeper.AvaloniaApplication.ViewModels.Groups"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="VaultKeeper.AvaloniaApplication.Views.Groups.GroupFormView"
+             x:DataType="groups:GroupFormViewModel">
+
+  <StackPanel>
+    <TextBox Name="InputName" Text="{Binding Form.Name}" VerticalAlignment="Center">
+      <TextBox.InnerLeftContent>
+        <StackPanel Orientation="Horizontal">
+          <common:AppButton IconStart="{StaticResource IconX}"
+                            Background="Transparent"
+                            Foreground="{DynamicResource ColorGray500}"
+                            ToolTip.Tip="Cancel"
+                            Click="ButtonCancel_Clicked"/>
+
+          <common:AppButton IconStart="{StaticResource IconCheck}"
+                            Background="Transparent"
+                            Foreground="{DynamicResource SystemControlForegroundAccentBrush}"
+                            ToolTip.Tip="Save"
+                            Click="ButtonSave_Clicked"/>
+        </StackPanel>
+      </TextBox.InnerLeftContent>
+
+      <TextBox.Styles>
+        <Style Selector="TextBox /template/ DockPanel#PART_InnerDockPanel">
+          <Setter Property="VerticalAlignment" Value="Center" />
+        </Style>
+      </TextBox.Styles>
+    </TextBox>
+
+    <ItemsControl ItemsSource="{Binding #InputName.(DataValidationErrors.Errors)}">
+      <ItemsControl.ItemTemplate>
+        <DataTemplate>
+          <TextBlock Text="{Binding}" Margin="0 6 0 0" Foreground="Red"></TextBlock>
+        </DataTemplate>
+      </ItemsControl.ItemTemplate>
+    </ItemsControl>
+  </StackPanel>
+</UserControl>

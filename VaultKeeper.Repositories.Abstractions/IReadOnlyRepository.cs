@@ -8,6 +8,8 @@ public interface IReadOnlyRepository<T>
 {
     Task<IEnumerable<T>> GetManyAsync(ReadQuery<T>? query = null);
 
+    Task<CountedData<T>> GetManyCountedAsync(ReadQuery<T>? query = null);
+
     Task<T?> GetFirstOrDefaultAsync(ReadQuery<T>? query = null, T? defaultValue = default);
 
     Task<long> CountAsync(ReadQuery<T>? query = null);

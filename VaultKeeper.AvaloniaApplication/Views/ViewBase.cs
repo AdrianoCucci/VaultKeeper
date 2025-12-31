@@ -1,10 +1,13 @@
 ﻿using Avalonia.Controls;
 using System;
 using System.Threading.Tasks;
+using VaultKeeper.AvaloniaApplication.ViewModels;
 
 namespace VaultKeeper.AvaloniaApplication.Views;
 
-public abstract class ViewBase<TModel> : UserControl where TModel : class
+public abstract class ViewBase : UserControl;
+
+public abstract class ViewBase<TModel> : ViewBase where TModel : ViewModelBase
 {
     public TModel? Model => DataContext as TModel;
 

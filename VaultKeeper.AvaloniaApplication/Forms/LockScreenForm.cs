@@ -6,7 +6,8 @@ namespace VaultKeeper.AvaloniaApplication.Forms;
 
 public partial class LockScreenForm : Form
 {
-    [ObservableProperty, NotifyDataErrorInfo, Required(ErrorMessage = "Password is required.")]
+    [ObservableProperty, NotifyDataErrorInfo]
+    [Required(ErrorMessage = "Password is required.")]
     private string? _passwordInput;
 
     [ObservableProperty]

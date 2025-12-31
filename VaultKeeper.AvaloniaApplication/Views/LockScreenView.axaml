@@ -39,6 +39,7 @@
           <TextBox Name="InputPassword"
                    PasswordChar="*"
                    TextAlignment="Center"
+                   VerticalAlignment="Center"
                    Text="{Binding Form.PasswordInput}"
                    KeyDown="InputPassword_KeyDown">
             <TextBox.InnerRightContent>
