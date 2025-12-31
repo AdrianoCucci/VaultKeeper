@@ -27,13 +27,27 @@ public class PlatformService(ILogger<PlatformService> logger, IApplicationLifeti
     {
         logger.LogInformation(nameof(OpenFilePickerAsync));
 
+        IStorageProvider storageProvider = GetStorageProviderOrThrow();
+        return storageProvider.OpenFilePickerAsync(options);
+    }
+
+    public Task<IReadOnlyList<IStorageFolder>> OpenFolderPickerAsync(FolderPickerOpenOptions options)
+    {
+        logger.LogInformation(nameof(OpenFolderPickerAsync));
+
+        IStorageProvider storageProvider = GetStorageProviderOrThrow();
+        return storageProvider.OpenFolderPickerAsync(options);
+    }
+
+    private IStorageProvider GetStorageProviderOrThrow()
+    {
         IStorageProvider? storageProvider = applicationLifetime is IClassicDesktopStyleApplicationLifetime desktop
             ? desktop.MainWindow?.StorageProvider
             : null;
 
         if (storageProvider == null || !storageProvider.CanOpen)
-            throw new InvalidOperationException("Unable to access file picker for the current platform state.");
+            throw new InvalidOperationException("Unable to access storage provider for the current platform state.");
 
-        return storageProvider.OpenFilePickerAsync(options);
+        return storageProvider;
     }
 }

@@ -9,4 +9,5 @@ public interface IPlatformService
 {
     IClipboard GetClipboard();
     Task<IReadOnlyList<IStorageFile>> OpenFilePickerAsync(FilePickerOpenOptions options);
+    Task<IReadOnlyList<IStorageFolder>> OpenFolderPickerAsync(FolderPickerOpenOptions options);
 }

@@ -34,7 +34,7 @@ public partial class HomeViewModel : ViewModelBase
             }),
             new(new()
             {
-                Key = "SettingsPageViewModel",
+                Key = nameof(SettingsPageViewModel),
                 Label = "Settings",
                 Icon = Application.Current?.GetResourceOrDefault<Geometry>(Icons.Gear)
             }),

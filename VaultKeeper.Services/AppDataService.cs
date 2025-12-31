@@ -22,7 +22,8 @@ public class AppDataService(
     ISecurityService securityService,
     IRepository<VaultItem> vaultItemRepository,
     IRepository<Group> groupRepository,
-    ICache<UserData> userDataCache) : IAppDataService
+    ICache<UserData> userDataCache,
+    IUserSettingsService userSettingsService) : IAppDataService
 {
     private const string _dataExtension = ".dat";
     private const string _backupExtension = ".bak";
@@ -197,10 +198,7 @@ public class AppDataService(
                 Metadata = new() { Version = _saveDataVersion }
             };
 
-            string filePath = string.IsNullOrWhiteSpace(relatedUserData?.CustomEntitiesDataPath)
-                ? CreateSaveDataPath(AppFileType.Entities)
-                : relatedUserData.CustomEntitiesDataPath;
-
+            string filePath = CreateSaveDataPath(AppFileType.Entities);
             Result saveResult = SaveDataInternal(filePath, savedData);
 
             return saveResult.WithValue(savedData).Logged(logger);
@@ -211,10 +209,12 @@ public class AppDataService(
         }
     }
 
-    public async Task<Result<SavedData<BackupData>?>> SaveBackupAsync(string? filePath = null)
+    public async Task<Result<SavedData<BackupData>?>> SaveBackupAsync(string? directory = null)
     {
-        filePath ??= CreateSaveDataPath(AppFileType.Backup);
-        logger.LogInformation($"{nameof(SaveBackupAsync)} | {nameof(filePath)}: \"{{filePath}}\"", filePath);
+        directory ??= userSettingsService.GetUserSettingsOrDefault().Backup?.BackupDirectory;
+        string filePath = CreateSaveDataPath(AppFileType.Backup, directory);
+
+        logger.LogInformation($"{nameof(SaveBackupAsync)} | {nameof(directory)}: \"{{directory}}\"", directory);
 
         try
         {
@@ -249,7 +249,12 @@ public class AppDataService(
 
     public async Task<Result<SavedData<BackupData>?>> LoadBackupAsync(string? filePath = null)
     {
-        filePath ??= CreateSaveDataPath(AppFileType.Backup);
+        if (string.IsNullOrWhiteSpace(filePath))
+        {
+            string? directory = userSettingsService.GetUserSettingsOrDefault().Backup?.BackupDirectory;
+            filePath = CreateSaveDataPath(AppFileType.Backup, directory);
+        }
+
         logger.LogInformation($"{nameof(LoadBackupAsync)} | {nameof(filePath)}: \"{{filePath}}\"", filePath);
 
         try
@@ -338,9 +343,11 @@ public class AppDataService(
         return dataDeserializeResult;
     }
 
-    private string CreateSaveDataPath(AppFileType fileType)
+    private string CreateSaveDataPath(AppFileType fileType, string? directory = null)
     {
         AppFileDefinition definition = _fileDefinitionsDict[fileType];
-        return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), DataDirectory, definition.FullName);
+        directory ??= Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+
+        return Path.Combine(directory, DataDirectory, definition.FullName);
     }
 }

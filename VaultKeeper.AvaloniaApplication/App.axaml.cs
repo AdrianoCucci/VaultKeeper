@@ -11,6 +11,7 @@ using VaultKeeper.AvaloniaApplication.Services;
 using VaultKeeper.AvaloniaApplication.ViewModels;
 using VaultKeeper.AvaloniaApplication.Views;
 using VaultKeeper.Models.Navigation;
+using VaultKeeper.Models.Settings;
 using VaultKeeper.Services.Abstractions;
 using VaultKeeper.Services.Extensions.DependencyInjection;
 
@@ -44,7 +45,15 @@ public partial class App : Application
     private void ShutdownRequested(object? sender, ShutdownRequestedEventArgs e)
     {
         IAppDataService? appDataService = _serviceProvider?.GetRequiredService<IAppDataService>();
-        appDataService?.SaveAllDataAsync().Wait();
+        if (appDataService == null) return;
+
+        appDataService.SaveAllDataAsync().Wait();
+
+        IUserSettingsService? userSettingsService = _serviceProvider?.GetService<IUserSettingsService>();
+        BackupSettings? backupSettings = userSettingsService?.GetUserSettingsOrDefault().Backup;
+
+        if (backupSettings?.AutoBackupOnShutdown == true)
+            appDataService.SaveBackupAsync(backupSettings?.BackupDirectory).Wait();
     }
 
     private static void DisableAvaloniaDataAnnotationValidation()
@@ -66,11 +75,12 @@ public partial class App : Application
             .AddVaultKeeperServices()
             .AddSingleton<IPlatformService, PlatformService>()
 
-            .AddScoped<MainWindowViewModel>()
-            .AddScoped<SetupViewModel>()
-            .AddScoped<LockScreenViewModel>()
-            .AddScoped<HomeViewModel>()
-            .AddScoped<VaultPageViewModel>();
+            .AddSingleton<MainWindowViewModel>()
+            .AddSingleton<SetupViewModel>()
+            .AddSingleton<LockScreenViewModel>()
+            .AddSingleton<HomeViewModel>()
+            .AddSingleton<VaultPageViewModel>()
+            .AddSingleton<SettingsPageViewModel>();
 
         if (ApplicationLifetime != null)
             services.AddSingleton(ApplicationLifetime);
@@ -111,8 +121,8 @@ public partial class App : Application
                     },
                     new()
                     {
-                        Key = "SettingsPageViewModel",
-                        Content = () => "CONTENT"
+                        Key = nameof(SettingsPageViewModel),
+                        Content = sp.GetRequiredService<SettingsPageViewModel>
                     }
                 ]
             }

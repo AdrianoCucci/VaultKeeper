@@ -63,7 +63,7 @@ public partial class MainWindowViewModel : ViewModelBase
     {
         UserData userData = _userDataCache.Get() ?? throw new InvalidOperationException($"{nameof(MainWindowViewModel)} failed to load user data - {nameof(UserData)} cache has no value.");
 
-        Result<SavedData<EntityData>?> loadEntitiesResult = await _appDataService.LoadEntityDataAsync(userData.CustomEntitiesDataPath, forUserId: userData.UserId, updateRepositories: true);
+        Result<SavedData<EntityData>?> loadEntitiesResult = await _appDataService.LoadEntityDataAsync(forUserId: userData.UserId, updateRepositories: true);
         if (!loadEntitiesResult.IsSuccessful)
             throw new Exception($"{nameof(MainWindowViewModel)} failed to load saved entity data: {loadEntitiesResult.Message}", loadEntitiesResult.Exception);
     }

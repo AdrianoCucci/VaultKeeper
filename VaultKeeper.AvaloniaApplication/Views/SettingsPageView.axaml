@@ -1,0 +1,60 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:common="using:VaultKeeper.AvaloniaApplication.Views.Common"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="using:VaultKeeper.AvaloniaApplication.ViewModels"
+             mc:Ignorable="d" d:DesignWidth="1920" d:DesignHeight="1080"
+             x:Class="VaultKeeper.AvaloniaApplication.Views.SettingsPageView"
+             x:DataType="vm:SettingsPageViewModel">
+  <Design.DataContext>
+    <x:Static Member="vm:SettingsPageViewModel.Design"/>
+  </Design.DataContext>
+
+  <ScrollViewer>
+    <StackPanel Margin="20">
+
+      <StackPanel>
+        <StackPanel Orientation="Horizontal" Spacing="10">
+          <PathIcon Data="{StaticResource IconArrowsRotate}" Height="30" Width="30" Margin="10" />
+          <TextBlock Classes="h2">Backup And Restore</TextBlock>
+        </StackPanel>
+        <Separator Margin="0"/>
+      </StackPanel>
+
+      <StackPanel Margin="20" Spacing="20">
+
+        <StackPanel>
+          <Label Target="PART_BackupDirectoryInput">Backup Directory</Label>
+          <TextBox Name="PART_BackupDirectoryInput" Text="{Binding Model.Backup.BackupDirectory}">
+            <TextBox.InnerRightContent>
+              <common:AppButton IconStart="{StaticResource IconFolder}"
+                                Click="SelectDirectoryButton_Click"
+                                ToolTip.Tip="Select Directory" />
+            </TextBox.InnerRightContent>
+          </TextBox>
+        </StackPanel>
+
+        <StackPanel>
+          <Label Target="PART_MaxBackupsInput">Max Backups</Label>
+          <NumericUpDown Name="PART_MaxBackupsInput"
+                         Value="{Binding Model.Backup.MaxBackups}"
+                         Minimum="1"
+                         Maximum="100"
+                         FormatString="0"/>
+        </StackPanel>
+
+        <StackPanel Orientation="Horizontal">
+          <CheckBox IsChecked="{Binding Model.Backup.AutoBackupOnShutdown}"/>
+          <TextBlock VerticalAlignment="Center">Automatically create backup when <Run Text="{StaticResource AppName}"/> shuts down.</TextBlock>
+        </StackPanel>
+
+        <common:AppButton Text="Backup Now"
+                          IconStart="{StaticResource IconDownload}"
+                          Click="BackupNowButton_Click"/>
+
+      </StackPanel>
+
+    </StackPanel>
+  </ScrollViewer>
+</UserControl>
