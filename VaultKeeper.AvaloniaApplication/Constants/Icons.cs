@@ -22,6 +22,7 @@ public static class Icons
     public const string ArrowUpAZ = $"{_prefix}ArrowUpAZ";
     public const string Folder = $"{_prefix}Folder";
     public const string ArrowsRotate = $"{_prefix}ArrowsRotate";
+    public const string Palette = $"{_prefix}Palette";
 
     private const string _prefix = "Icon";
 }

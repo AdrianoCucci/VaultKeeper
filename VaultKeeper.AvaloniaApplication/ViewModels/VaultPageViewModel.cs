@@ -1,5 +1,4 @@
-﻿using Avalonia;
-using Avalonia.Media;
+﻿using Avalonia.Media;
 using CommunityToolkit.Mvvm.ComponentModel;
 using System;
 using System.Collections.Generic;
@@ -28,7 +27,8 @@ public partial class VaultPageViewModel(
     IVaultItemService vaultItemService,
     IGroupService groupService,
     ISecurityService securityService,
-    IPlatformService platformService) : ViewModelBase
+    IPlatformService platformService,
+    IApplicationService applicationService) : ViewModelBase
 {
     [ObservableProperty, NotifyPropertyChangedFor(nameof(IsEmpty), nameof(EmptyTemplateTitle), nameof(EmptyTemplateDescription))]
     private ObservableVaultItemViewModels _groupedVaultItems = [];
@@ -50,8 +50,8 @@ public partial class VaultPageViewModel(
 
     public bool IsEmpty => _vaultItemData.TotalCount < 1 && _groupData.TotalCount < 1;
     public Geometry? SortIcon => SortInput == SortDirection.Ascending
-        ? Application.Current?.GetResourceOrDefault<StreamGeometry>(Icons.ArrowUpAZ)
-        : Application.Current?.GetResourceOrDefault<StreamGeometry>(Icons.ArrowDownAZ);
+        ? applicationService.GetApplication().GetResourceOrDefault<StreamGeometry>(Icons.ArrowUpAZ)
+        : applicationService.GetApplication().GetResourceOrDefault<StreamGeometry>(Icons.ArrowDownAZ);
     public string EmptyTemplateTitle => IsEmpty ? "No Keys Created" : "No Keys Found";
     public string EmptyTemplateDescription => IsEmpty ? "Create your first key or import your existing keys to get started." : "Search returned no results.";
 

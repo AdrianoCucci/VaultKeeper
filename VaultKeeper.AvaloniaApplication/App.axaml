@@ -20,6 +20,8 @@
 
       <sys:String x:Key="AppName">Vault Keeper</sys:String>
       <StaticResource x:Key="AppIconData" ResourceKey="IconVault"/>
+
+      <x:Double x:Key="ControlContentThemeFontSize">14</x:Double>
     </ResourceDictionary>
   </Application.Resources>
 

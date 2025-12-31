@@ -10,7 +10,11 @@ public class UserSettingsService(ILogger<UserSettingsService> logger, ICache<Use
 {
     private readonly Lazy<UserSettings> _defaultSettingsLazy = new(() => new()
     {
-        AppTheme = AppThemeType.Default,
+        Theme = new()
+        {
+            ThemeType = AppThemeType.System,
+            FontSize = 14
+        },
         Backup = new()
         {
             BackupDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
@@ -44,10 +48,10 @@ public class UserSettingsService(ILogger<UserSettingsService> logger, ICache<Use
         return GetUserSettings() ?? GetDefaultUserSettings();
     }
 
-    public UserSettings SetAppTheme(AppThemeType value)
+    public UserSettings SetAppTheme(AppThemeSettings value)
     {
         logger.LogInformation(nameof(SetAppTheme));
-        return UpdateUserSettings(settings => settings with { AppTheme = value });
+        return UpdateUserSettings(settings => settings with { Theme = value });
     }
 
     public UserSettings SetBackupSettings(BackupSettings value)

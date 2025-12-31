@@ -2,10 +2,12 @@
 using Avalonia.Media;
 using CommunityToolkit.Mvvm.ComponentModel;
 using System.Collections.ObjectModel;
+using VaultKeeper.AvaloniaApplication.Abstractions;
 using VaultKeeper.AvaloniaApplication.Abstractions.Navigation;
 using VaultKeeper.AvaloniaApplication.Constants;
 using VaultKeeper.AvaloniaApplication.Extensions;
 using VaultKeeper.AvaloniaApplication.ViewModels.Common;
+using VaultKeeper.AvaloniaApplication.ViewModels.Settings;
 using VaultKeeper.Models.Navigation;
 
 namespace VaultKeeper.AvaloniaApplication.ViewModels;
@@ -22,21 +24,23 @@ public partial class HomeViewModel : ViewModelBase
     [ObservableProperty]
     private object? _content;
 
-    public HomeViewModel(INavigatorFactory navFactory)
+    public HomeViewModel(INavigatorFactory navFactory, IApplicationService applicationService)
     {
+        Application application = applicationService.GetApplication();
+
         TabNavItems =
         [
             new(new()
             {
                 Key = nameof(VaultPageViewModel),
                 Label = "Vault",
-                Icon = Application.Current?.GetResourceOrDefault<Geometry>(Icons.Vault)
+                Icon = application.GetResourceOrDefault<Geometry>(Icons.Vault)
             }),
             new(new()
             {
                 Key = nameof(SettingsPageViewModel),
                 Label = "Settings",
-                Icon = Application.Current?.GetResourceOrDefault<Geometry>(Icons.Gear)
+                Icon = application.GetResourceOrDefault<Geometry>(Icons.Gear)
             }),
         ];
 

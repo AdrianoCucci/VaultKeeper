@@ -5,10 +5,9 @@ using Avalonia.Markup.Xaml;
 using Microsoft.Extensions.DependencyInjection;
 using System.Collections.Generic;
 using System.Linq;
-using VaultKeeper.AvaloniaApplication.Abstractions;
 using VaultKeeper.AvaloniaApplication.Extensions.DependencyInjection;
-using VaultKeeper.AvaloniaApplication.Services;
 using VaultKeeper.AvaloniaApplication.ViewModels;
+using VaultKeeper.AvaloniaApplication.ViewModels.Settings;
 using VaultKeeper.AvaloniaApplication.Views;
 using VaultKeeper.Models.Navigation;
 using VaultKeeper.Models.Settings;
@@ -73,7 +72,7 @@ public partial class App : Application
     {
         var services = new ServiceCollection()
             .AddVaultKeeperServices()
-            .AddSingleton<IPlatformService, PlatformService>()
+            .AddAvaloniaServices()
 
             .AddSingleton<MainWindowViewModel>()
             .AddSingleton<SetupViewModel>()

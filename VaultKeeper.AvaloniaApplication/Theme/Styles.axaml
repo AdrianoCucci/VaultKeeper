@@ -33,6 +33,7 @@
   <Style Selector="TextBlock">
     <Setter Property="FontFamily" Value="Inter"></Setter>
   </Style>
+
   <Style Selector="TextBlock.h1">
     <Setter Property="FontSize" Value="36"></Setter>
     <Setter Property="FontWeight" Value="Bold"></Setter>

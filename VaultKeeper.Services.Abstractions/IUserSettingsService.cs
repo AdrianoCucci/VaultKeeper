@@ -7,7 +7,7 @@ public interface IUserSettingsService
     UserSettings? GetUserSettings();
     UserSettings GetDefaultUserSettings();
     UserSettings GetUserSettingsOrDefault();
-    UserSettings SetAppTheme(AppThemeType value);
+    UserSettings SetAppTheme(AppThemeSettings value);
     UserSettings SetBackupSettings(BackupSettings value);
     UserSettings SetKeyGenerationSettings(KeyGenerationSettings value);
 }

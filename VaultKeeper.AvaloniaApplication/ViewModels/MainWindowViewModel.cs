@@ -1,10 +1,12 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using System;
 using System.Threading.Tasks;
+using VaultKeeper.AvaloniaApplication.Abstractions;
 using VaultKeeper.AvaloniaApplication.Abstractions.Navigation;
 using VaultKeeper.Common.Results;
 using VaultKeeper.Models.ApplicationData;
 using VaultKeeper.Models.Navigation;
+using VaultKeeper.Models.Settings;
 using VaultKeeper.Services.Abstractions;
 
 namespace VaultKeeper.AvaloniaApplication.ViewModels;
@@ -19,12 +21,18 @@ public partial class MainWindowViewModel : ViewModelBase
 
     private readonly INavigator _navigator;
     private readonly IAppDataService _appDataService;
+    private readonly IThemeService _themeService;
     private readonly ICache<UserData> _userDataCache;
 
-    public MainWindowViewModel(INavigatorFactory navFactory, IAppDataService appDataService, ICache<UserData> userDataCache)
+    public MainWindowViewModel(
+        INavigatorFactory navFactory,
+        IAppDataService appDataService,
+        IThemeService themeService,
+        ICache<UserData> userDataCache)
     {
         _navigator = navFactory.GetRequiredNavigator(nameof(MainWindowViewModel));
         _appDataService = appDataService;
+        _themeService = themeService;
         _userDataCache = userDataCache;
         _navigator.Navigated += Navigator_Navigated;
         Content = _navigator.CurrentRoute.Content;
@@ -43,6 +51,13 @@ public partial class MainWindowViewModel : ViewModelBase
                 throw new Exception($"{nameof(MainWindowViewModel)} failed to load user data: {loadUserDataResult.Message}", loadUserDataResult.Exception);
 
             SavedData<UserData>? userData = loadUserDataResult.Value;
+            AppThemeSettings? themeSettings = userData?.Data.Settings?.Theme;
+
+            if (themeSettings != null)
+            {
+                _themeService.SetTheme(themeSettings.ThemeType);
+                _themeService.SetBaseFontSize(themeSettings.FontSize);
+            }
 
             if (userData == null)
                 NavigateToSetup();

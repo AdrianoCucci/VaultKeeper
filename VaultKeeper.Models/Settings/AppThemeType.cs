@@ -2,7 +2,8 @@
 
 public enum AppThemeType
 {
-    Default,
+    System,
     Light,
-    Dark
+    Dark,
+    HighContrast
 }
