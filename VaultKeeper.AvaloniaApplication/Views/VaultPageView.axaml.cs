@@ -27,6 +27,8 @@ public partial class VaultPageView : ViewBase<VaultPageViewModel>
 
     private async void SearchBox_Debounce(object? sender, TextInputEventArgs e) => await LoadDataAsync();
 
+    private void SortButton_Click(object? sender, RoutedEventArgs e) => Model?.ToggleSortDirection();
+
     private void ButtonNew_Click(object? sender, RoutedEventArgs e) => Model?.ShowVaultItemCreateForm();
 
     private void ButtonCloseSidePane_Click(object? sender, RoutedEventArgs e) => Model?.HideVaultItemCreateForm();

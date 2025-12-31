@@ -1,10 +1,14 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+﻿using Avalonia;
+using Avalonia.Media;
+using CommunityToolkit.Mvvm.ComponentModel;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 using VaultKeeper.AvaloniaApplication.Abstractions;
+using VaultKeeper.AvaloniaApplication.Constants;
+using VaultKeeper.AvaloniaApplication.Extensions;
 using VaultKeeper.AvaloniaApplication.Forms.Common;
 using VaultKeeper.AvaloniaApplication.Forms.VaultItems;
 using VaultKeeper.AvaloniaApplication.ViewModels.Groups;
@@ -26,13 +30,16 @@ public partial class VaultPageViewModel(
     ISecurityService securityService,
     IPlatformService platformService) : ViewModelBase
 {
-    [ObservableProperty, NotifyPropertyChangedFor(nameof(IsEmpty), nameof(IsToolbarVisible), nameof(EmptyTemplateTitle), nameof(EmptyTemplateDescription))]
+    [ObservableProperty, NotifyPropertyChangedFor(nameof(IsEmpty), nameof(EmptyTemplateTitle), nameof(EmptyTemplateDescription))]
     private ObservableVaultItemViewModels _groupedVaultItems = [];
 
     [ObservableProperty]
     private string? _searchInput;
 
-    [ObservableProperty, NotifyPropertyChangedFor(nameof(IsToolbarVisible))]
+    [ObservableProperty, NotifyPropertyChangedFor(nameof(SortIcon))]
+    private SortDirection _sortInput = SortDirection.Ascending;
+
+    [ObservableProperty]
     private bool _isSidePaneOpen = false;
 
     [ObservableProperty]
@@ -42,7 +49,9 @@ public partial class VaultPageViewModel(
     private object? _sidePaneContent;
 
     public bool IsEmpty => _vaultItemData.TotalCount < 1 && _groupData.TotalCount < 1;
-    public bool IsToolbarVisible => !IsEmpty && !IsSidePaneOpen;
+    public Geometry? SortIcon => SortInput == SortDirection.Ascending
+        ? Application.Current?.GetResourceOrDefault<StreamGeometry>(Icons.ArrowUpAZ)
+        : Application.Current?.GetResourceOrDefault<StreamGeometry>(Icons.ArrowDownAZ);
     public string EmptyTemplateTitle => IsEmpty ? "No Keys Created" : "No Keys Found";
     public string EmptyTemplateDescription => IsEmpty ? "Create your first key or import your existing keys to get started." : "Search returned no results.";
 
@@ -90,6 +99,15 @@ public partial class VaultPageViewModel(
             UpdateMainContent();
 
         return _groupData;
+    }
+
+    public void ToggleSortDirection()
+    {
+        SortInput = SortInput == SortDirection.Ascending
+            ? SortDirection.Descending
+            : SortDirection.Ascending;
+
+        UpdateMainContent();
     }
 
     public void ShowVaultItemCreateForm(VaultItem? vaultItem = null)
@@ -287,11 +305,12 @@ public partial class VaultPageViewModel(
         IEnumerable<VaultItem>? vaultItemData = null,
         IEnumerable<Group>? groupData = null,
         string? search = null,
-        SortDirection sortDirection = SortDirection.Ascending)
+        SortDirection? sortDirection = null)
     {
         vaultItemData ??= _vaultItemData.Items;
         groupData ??= _groupData.Items;
         search ??= SearchInput;
+        sortDirection ??= SortInput;
 
         IEnumerable<VaultItemListViewModel> existingGroupedItemVMs = GroupedVaultItems.AsEnumerable();
         IEnumerable<VaultItemListViewModel> updatedGroupItemVMs = [];

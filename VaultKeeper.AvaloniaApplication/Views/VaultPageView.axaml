@@ -21,7 +21,6 @@
     <Grid RowDefinitions="Auto, *" ColumnDefinitions="*">
       <Border Height="80"
               Padding="20"
-              Focusable="False"
               Background="{DynamicResource SystemControlBackgroundListLowBrush}"
               BorderBrush="{DynamicResource SystemControlBackgroundBaseLowBrush}"
               BorderThickness="0 0 0 2"
@@ -30,23 +29,31 @@
         <Grid RowDefinitions="Auto"
               ColumnDefinitions="*, Auto"
               ColumnSpacing="20"
-              IsVisible="{Binding IsToolbarVisible}"
-              Focusable="False">
+              IsVisible="{Binding !IsEmpty}"
+              IsEnabled="{Binding !IsSidePaneOpen}">
 
-          <common:SearchBox Text="{Binding SearchInput}"
-                            Debounce="SearchBox_Debounce"
-                            Grid.Column="0"/>
+          <Grid RowDefinitions="Auto" ColumnDefinitions="Auto, *" ColumnSpacing="20" Grid.Column="0">
+            <common:AppButton IconStart="{Binding SortIcon}"
+                              Click="SortButton_Click"
+                              Grid.Column="0"
+                              ToolTip.Tip="Sort"/>
+
+            <common:SearchBox Text="{Binding SearchInput}"
+                              Debounce="SearchBox_Debounce"
+                              Grid.Column="1"/>
+          </Grid>
 
           <StackPanel Orientation="Horizontal"
-                      Spacing="6"
-                      Focusable="False"
+                      Spacing="-1"
                       Grid.Column="1">
 
             <common:AppButton Text="New Key"
                               IconStart="{StaticResource IconPlus}"
+                              CornerRadius="6 0 0 6"
                               Click="ButtonNew_Click"/>
             <common:AppButton Text="Import Keys"
                               IconStart="{StaticResource IconUpload}"
+                              CornerRadius="0 6 6 0"
                               Click="ButtonNew_Click"/>
           </StackPanel>
         </Grid>
