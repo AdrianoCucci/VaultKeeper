@@ -2,7 +2,14 @@
 
 public record UserSettings
 {
-    public AppThemeSettings? Theme { get; set; }
-    public BackupSettings? Backup { get; set; }
-    public KeyGenerationSettings? KeyGeneration { get; set; }
+    public static UserSettings Default => new()
+    {
+        Theme = AppThemeSettings.Default,
+        Backup = BackupSettings.Default,
+        KeyGeneration = KeyGenerationSettings.Default
+    };
+
+    public required AppThemeSettings Theme { get; set; }
+    public required BackupSettings Backup { get; set; }
+    public required KeyGenerationSettings KeyGeneration { get; set; }
 }

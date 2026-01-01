@@ -1,8 +1,9 @@
 ﻿using Avalonia.Platform.Storage;
 using CommunityToolkit.Mvvm.ComponentModel;
+using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using VaultKeeper.AvaloniaApplication.Abstractions;
 using VaultKeeper.AvaloniaApplication.Abstractions.Models;
@@ -15,35 +16,156 @@ public partial class SettingsPageViewModel(
     IUserSettingsService settingsService,
     IPlatformService platformService,
     IAppDataService appDataService,
-    IThemeService themeService) : ViewModelBase
+    IThemeService themeService,
+    ICharSetService charSetService) : ViewModelBase
 {
     [ObservableProperty]
-    private UserSettings _model = settingsService?.GetUserSettingsOrDefault() ?? new();
+    private UserSettings _model = UserSettings.Default;
 
-    [ObservableProperty]
-    private IEnumerable<AppThemeDefinition> _themeDefinitions = themeService?.GetThemeDefinitions() ?? [];
-
-    [ObservableProperty]
-    private AppThemeDefinition? _currentThemeDefinition;
-
-    [ObservableProperty]
-    private int _currentFontSize = 14;
-
-    [ObservableProperty]
-    private bool _isBackupDirectoryInvalid = false;
-
-    public UserSettings DefaultSettings => settingsService?.GetDefaultUserSettings() ?? new();
-
-    public virtual void Initialize()
+    private string _backupDirectory = string.Empty;
+    public string BackupDirectory
     {
-        Model = settingsService?.GetUserSettingsOrDefault() ?? new();
+        get => _backupDirectory;
+        set
+        {
+            SetProperty(ref _backupDirectory, value);
+            Model.Backup = (Model.Backup ?? BackupSettings.Default) with { BackupDirectory = value };
 
-        AppThemeSettings themeSettings = Model.Theme ?? DefaultSettings.Theme!;
+            settingsService?.SetBackupSettings(Model.Backup);
 
-        CurrentThemeDefinition = themeService?.GetThemeDefinitionByType(themeSettings.ThemeType);
+            OnPropertyChanged(nameof(IsBackupDirectoryInvalid));
+        }
+    }
+
+    private int _maxBackups = 1;
+    public int MaxBackups
+    {
+        get => _maxBackups;
+        set
+        {
+            SetProperty(ref _maxBackups, value);
+            Model.Backup = (Model.Backup ?? BackupSettings.Default) with { MaxBackups = value };
+
+            settingsService?.SetBackupSettings(Model.Backup);
+        }
+    }
+
+    [ObservableProperty]
+    private IEnumerable<AppThemeDefinition> _themeDefinitions = [];
+
+    private AppThemeDefinition? _currentThemeDefinition;
+    public AppThemeDefinition? CurrentThemeDefinition
+    {
+        get => _currentThemeDefinition;
+        set
+        {
+            SetProperty(ref _currentThemeDefinition, value);
+
+            if (value != null)
+            {
+                Model.Theme = (Model.Theme ?? AppThemeSettings.Default) with { ThemeType = value.ThemeType };
+
+                settingsService?.SetAppThemeSettings(Model.Theme);
+                themeService?.SetTheme(value.ThemeType);
+            }
+        }
+    }
+
+    private int _currentFontSize = 14;
+    public int CurrentFontSize
+    {
+        get => _currentFontSize;
+        set
+        {
+            SetProperty(ref _currentFontSize, value);
+            Model.Theme = (Model.Theme ?? AppThemeSettings.Default) with { FontSize = value };
+
+            settingsService?.SetAppThemeSettings(Model.Theme);
+            themeService?.SetBaseFontSize(value);
+        }
+    }
+
+
+    [ObservableProperty]
+    private IEnumerable<CharSet> _charSets = [];
+
+    private CharSet _currentCharSet = CharSet.Default;
+    public CharSet CurrentCharSet
+    {
+        get => _currentCharSet;
+        set
+        {
+            SetProperty(ref _currentCharSet, value);
+            Model.KeyGeneration = (Model.KeyGeneration ?? KeyGenerationSettings.Default) with { CharSet = value };
+
+            settingsService?.SetKeyGenerationSettings(Model.KeyGeneration);
+        }
+    }
+
+    private int _keyGenMinLength = 1;
+    public int KeyGenMinLength
+    {
+        get => _keyGenMinLength;
+        set
+        {
+            SetProperty(ref _keyGenMinLength, Math.Clamp(value, 1, _keyGenMaxLength));
+            Model.KeyGeneration = (Model.KeyGeneration ?? KeyGenerationSettings.Default) with { MinLength = value };
+
+            settingsService?.SetKeyGenerationSettings(Model.KeyGeneration);
+        }
+    }
+
+    private int _keyGenMaxLength = 1;
+    public int KeyGenMaxLength
+    {
+        get => _keyGenMaxLength;
+        set
+        {
+            SetProperty(ref _keyGenMaxLength, value);
+            Model.KeyGeneration = (Model.KeyGeneration ?? KeyGenerationSettings.Default) with { MaxLength = value };
+
+            settingsService?.SetKeyGenerationSettings(Model.KeyGeneration);
+
+            if (value < _keyGenMinLength)
+                KeyGenMinLength = value;
+        }
+    }
+
+    public bool IsBackupDirectoryInvalid => !Directory.Exists(_backupDirectory);
+
+    public virtual void LoadSavedSettings()
+    {
+        Model = settingsService?.GetUserSettingsOrDefault() ?? UserSettings.Default;
+        
+        BackupSettings backupSettings = Model.Backup ?? BackupSettings.Default;
+        BackupDirectory = backupSettings.BackupDirectory;
+        MaxBackups = backupSettings.MaxBackups;
+
+        AppThemeSettings themeSettings = Model.Theme ?? AppThemeSettings.Default;
+        ThemeDefinitions = themeService?.GetThemeDefinitions() ?? [];
+        CurrentThemeDefinition = ThemeDefinitions.FirstOrDefault(x => x.ThemeType == themeSettings.ThemeType);
         CurrentFontSize = themeSettings.FontSize;
 
-        UpdateIsBackupDirectoryInvalid();
+        KeyGenerationSettings keyGenerationSettings = Model.KeyGeneration ?? KeyGenerationSettings.Default;
+        CharSets = charSetService?.GetCharSets() ?? [];
+        CurrentCharSet = CharSets.FirstOrDefault(x => x.Type == keyGenerationSettings.CharSet?.Type) ?? CharSet.Default;
+        KeyGenMaxLength = keyGenerationSettings.MaxLength;
+        KeyGenMinLength = keyGenerationSettings.MinLength;
+    }
+
+    public void SaveSettings()
+    {
+        if (settingsService != null)
+            Model = settingsService.SetUserSettings(Model);
+    }
+
+    public void RestoreDefaultSettings()
+    {
+        if (settingsService == null)
+            return;
+
+        settingsService.RestoreDefaultSettings();
+        LoadSavedSettings();
     }
 
     public async Task SetBackupDirectoryFromFolderPickerAsync()
@@ -57,60 +179,12 @@ public partial class SettingsPageViewModel(
             return;
 
         IStorageFolder selectedFolder = storageFolders[0];
-        var backupDirectory = selectedFolder.Path.AbsolutePath;
-
-        BackupSettings settings = Model.Backup ?? DefaultSettings.Backup!;
-        Model = settingsService.SetBackupSettings(settings with { BackupDirectory = backupDirectory });
-
-        UpdateIsBackupDirectoryInvalid();
-    }
-
-    public void UpdateIsBackupDirectoryInvalid()
-    {
-        string? backupDirectory = Model.Backup?.BackupDirectory;
-        IsBackupDirectoryInvalid = !Directory.Exists(backupDirectory);
+        BackupDirectory = selectedFolder.Path.AbsolutePath;
     }
 
     public async Task CreateBackupAsync()
     {
         string? backupDirectory = Model.Backup?.BackupDirectory;
         await appDataService.SaveBackupAsync(backupDirectory);
-    }
-
-    protected override void OnPropertyChanged(PropertyChangedEventArgs e)
-    {
-        base.OnPropertyChanged(e);
-
-        switch (e.PropertyName)
-        {
-            case nameof(CurrentThemeDefinition):
-                {
-                    if (CurrentThemeDefinition != null)
-                    {
-                        AppThemeSettings themeSettings = (Model.Theme ?? DefaultSettings.Theme!) with { ThemeType = CurrentThemeDefinition.ThemeType };
-
-                        settingsService.SetAppTheme(themeSettings);
-                        themeService.SetTheme(themeSettings.ThemeType);
-                    }
-                    break;
-                }
-            case nameof(CurrentFontSize):
-                {
-                    AppThemeSettings themeSettings = (Model.Theme ?? DefaultSettings.Theme!) with { FontSize = CurrentFontSize };
-
-                    settingsService.SetAppTheme(themeSettings);
-                    themeService.SetBaseFontSize(themeSettings.FontSize);
-
-                    break;
-                }
-        }
-
-        if (e.PropertyName == nameof(CurrentThemeDefinition) && CurrentThemeDefinition != null)
-        {
-            AppThemeSettings themeSettings = (Model.Theme ?? DefaultSettings.Theme!) with { ThemeType = CurrentThemeDefinition.ThemeType };
-
-            settingsService.SetAppTheme(themeSettings);
-            themeService.SetTheme(themeSettings.ThemeType);
-        }
     }
 }

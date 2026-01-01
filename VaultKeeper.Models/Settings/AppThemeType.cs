@@ -5,5 +5,4 @@ public enum AppThemeType
     System,
     Light,
     Dark,
-    HighContrast
 }

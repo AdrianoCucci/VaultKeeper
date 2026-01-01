@@ -5,7 +5,7 @@
              xmlns:local="using:VaultKeeper.AvaloniaApplication.Views.Settings"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:vm="using:VaultKeeper.AvaloniaApplication.ViewModels.Settings"
-             mc:Ignorable="d" d:DesignWidth="1920" d:DesignHeight="1080"
+             mc:Ignorable="d" d:DesignWidth="1920" d:DesignHeight="2000"
              x:Class="VaultKeeper.AvaloniaApplication.Views.Settings.SettingsPageView"
              x:DataType="vm:SettingsPageViewModel">
   <Design.DataContext>
@@ -14,18 +14,22 @@
 
   <ScrollViewer>
     <StackPanel Margin="20">
+      <common:AppButton Margin="0 0 0 10" Text="Restore Default Settings"
+                        HorizontalAlignment="Right"
+                        Click="RestoreDefaultSettingsButton_Click"/>
 
       <local:SettingsSectionShell HeaderText="Theming" HeaderIcon="{StaticResource IconPalette}">
         <StackPanel Spacing="20">
 
           <StackPanel Spacing="10">
             <Label>Theme Color</Label>
+
             <ListBox ItemsSource="{Binding ThemeDefinitions}"
                      SelectedItem="{Binding CurrentThemeDefinition}"
                      HorizontalAlignment="Left">
               <ListBox.ItemsPanel>
                 <ItemsPanelTemplate>
-                  <StackPanel Orientation="Horizontal"  Margin="10" />
+                  <StackPanel Orientation="Horizontal" Margin="10" />
                 </ItemsPanelTemplate>
               </ListBox.ItemsPanel>
 
@@ -39,10 +43,11 @@
                         <Border Margin="10 3 0 0" Width="25" Height="4" Background="{Binding BackgroundBrush}" HorizontalAlignment="Left"/>
                       </StackPanel>
                     </Border>
-                    <TextBlock Margin="0 10 0 0" FontWeight="SemiBold" Text="{Binding ThemeType}"/>
+                    <TextBlock Margin="0 10 0 0" FontWeight="SemiBold" Text="{Binding ThemeName}"/>
                   </StackPanel>
                 </DataTemplate>
               </ListBox.ItemTemplate>
+
             </ListBox>
           </StackPanel>
 
@@ -65,9 +70,8 @@
           <StackPanel>
             <Label Target="PART_BackupDirectoryInput">Backup Directory</Label>
             <TextBox Name="PART_BackupDirectoryInput"
-                     Text="{Binding Model.Backup.BackupDirectory}"
-                     VerticalContentAlignment="Center"
-                     TextChanged="BackupDirectoryInput_TextChanged">
+                     Text="{Binding BackupDirectory}"
+                     VerticalContentAlignment="Center">
               <TextBox.InnerRightContent>
                 <common:AppButton IconStart="{StaticResource IconFolder}"
                                   Click="SelectDirectoryButton_Click"
@@ -84,7 +88,7 @@
           <StackPanel>
             <Label Target="PART_MaxBackupsInput">Max Backups</Label>
             <NumericUpDown Name="PART_MaxBackupsInput"
-                           Value="{Binding Model.Backup.MaxBackups}"
+                           Value="{Binding MaxBackups}"
                            VerticalContentAlignment="Center"
                            Minimum="1"
                            Maximum="100"
@@ -98,7 +102,6 @@
             </Label>
           </Grid>
 
-
           <StackPanel Orientation="Horizontal" Spacing="10">
             <common:AppButton Text="Backup Now"
                               IconStart="{StaticResource IconDownload}"
@@ -107,6 +110,58 @@
             <common:AppButton Text="Load Backup"
                               IconStart="{StaticResource IconUpload}"
                               />
+          </StackPanel>
+
+        </StackPanel>
+      </local:SettingsSectionShell>
+
+      <local:SettingsSectionShell HeaderText="Default Key Generation Settings" HeaderIcon="{StaticResource IconVault}">
+        <StackPanel Spacing="20">
+
+          <UniformGrid Rows="1" Columns="2" ColumnSpacing="20">
+            <StackPanel>
+              <Label Target="PART_KeyGenMinCharLengthInput">Minimum Character Length</Label>
+              <NumericUpDown Name="PART_KeyGenMinCharLengthInput"
+                             Value="{Binding KeyGenMinLength}"
+                             Minimum="1"
+                             Maximum="{Binding KeyGenMaxLength}"
+                             FormatString="0"/>
+            </StackPanel>
+
+            <StackPanel>
+              <Label Target="PART_KeyGenMaxCharLengthInput">Maximum Character Length</Label>
+              <NumericUpDown Name="PART_KeyGenMaxCharLengthInput"
+                             Value="{Binding KeyGenMaxLength}"
+                             Minimum="1"
+                             Maximum="100"
+                             FormatString="0"/>
+            </StackPanel>
+          </UniformGrid>
+
+          <StackPanel Spacing="10">
+            <Label>Character Set</Label>
+
+            <ListBox ItemsSource="{Binding CharSets}"
+                     SelectedItem="{Binding CurrentCharSet}"
+                     SelectedValueBinding="{Binding Type}">
+              <ListBox.ItemsPanel>
+                <ItemsPanelTemplate>
+                  <StackPanel Margin="10" />
+                </ItemsPanelTemplate>
+              </ListBox.ItemsPanel>
+
+              <ListBox.ItemTemplate>
+                <DataTemplate>
+                  <UniformGrid RowSpacing="0" Rows="1" Columns="2">
+                    <TextBlock Text="{Binding Name}"/>
+                    <TextBox Text="{Binding Chars}"
+                             IsReadOnly="True"
+                             Focusable="False" />
+                  </UniformGrid>
+
+                </DataTemplate>
+              </ListBox.ItemTemplate>
+            </ListBox>
           </StackPanel>
 
         </StackPanel>

@@ -5,7 +5,7 @@ namespace VaultKeeper.Services.Abstractions;
 
 public interface ICharSetService
 {
-    IEnumerable<CharSet> GetAllCharSets();
+    IEnumerable<CharSet> GetCharSets();
     CharSet GetDefaultCharSet();
     CharSet GetCharSetByType(CharSetType type);
 }

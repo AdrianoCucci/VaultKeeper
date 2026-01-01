@@ -7,6 +7,5 @@ public enum CharSetType
     NumbersAndSymbols,
     LettersOnly,
     NumbersOnly,
-    SymbolsOnly,
-    Custom
+    SymbolsOnly
 }

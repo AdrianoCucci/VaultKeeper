@@ -1,6 +1,7 @@
 using Avalonia;
-using Avalonia.Controls;
+using Avalonia.Controls.Primitives;
 using Avalonia.Interactivity;
+using Avalonia.LogicalTree;
 using VaultKeeper.AvaloniaApplication.ViewModels.Settings;
 
 namespace VaultKeeper.AvaloniaApplication.Views.Settings;
@@ -9,10 +10,21 @@ public partial class SettingsPageView : ViewBase<SettingsPageViewModel>
 {
     public SettingsPageView() => InitializeComponent();
 
+    protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
+    {
+        base.OnApplyTemplate(e);
+    }
+
     protected override void OnAttachedToVisualTree(VisualTreeAttachmentEventArgs e)
     {
         base.OnAttachedToVisualTree(e);
-        Model?.Initialize();
+        Model?.LoadSavedSettings();
+    }
+
+    protected override void OnDetachedFromVisualTree(VisualTreeAttachmentEventArgs e)
+    {
+        base.OnDetachedFromVisualTree(e);
+        Model?.SaveSettings();
     }
 
     private async void SelectDirectoryButton_Click(object? sender, RoutedEventArgs e)
@@ -27,5 +39,5 @@ public partial class SettingsPageView : ViewBase<SettingsPageViewModel>
             await Model.CreateBackupAsync();
     }
 
-    private void BackupDirectoryInput_TextChanged(object? sender, TextChangedEventArgs e) => Model?.UpdateIsBackupDirectoryInvalid();
+    private void RestoreDefaultSettingsButton_Click(object? sender, RoutedEventArgs e) => Model?.RestoreDefaultSettings();
 }

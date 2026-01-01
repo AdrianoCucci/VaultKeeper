@@ -8,7 +8,7 @@ namespace VaultKeeper.Services;
 
 public class UserSettingsService(ILogger<UserSettingsService> logger, ICache<UserData> userDataCache, ICharSetService charSetService) : IUserSettingsService
 {
-    private readonly Lazy<UserSettings> _defaultSettingsLazy = new(() => new()
+    private UserSettings DefaultSettings => new()
     {
         Theme = new()
         {
@@ -26,7 +26,7 @@ public class UserSettingsService(ILogger<UserSettingsService> logger, ICache<Use
             MinLength = 32,
             MaxLength = 32
         }
-    });
+    };
 
     public UserSettings? GetUserSettings()
     {
@@ -39,7 +39,7 @@ public class UserSettingsService(ILogger<UserSettingsService> logger, ICache<Use
     public UserSettings GetDefaultUserSettings()
     {
         logger.LogInformation(nameof(GetDefaultUserSettings));
-        return _defaultSettingsLazy.Value;
+        return DefaultSettings;
     }
 
     public UserSettings GetUserSettingsOrDefault()
@@ -48,9 +48,21 @@ public class UserSettingsService(ILogger<UserSettingsService> logger, ICache<Use
         return GetUserSettings() ?? GetDefaultUserSettings();
     }
 
-    public UserSettings SetAppTheme(AppThemeSettings value)
+    public UserSettings RestoreDefaultSettings()
     {
-        logger.LogInformation(nameof(SetAppTheme));
+        logger.LogInformation(nameof(RestoreDefaultSettings));
+        return UpdateUserSettings(_ => DefaultSettings);
+    }
+
+    public UserSettings SetUserSettings(UserSettings value)
+    {
+        logger.LogInformation(nameof(SetUserSettings));
+        return UpdateUserSettings(_ => value);
+    }
+
+    public UserSettings SetAppThemeSettings(AppThemeSettings value)
+    {
+        logger.LogInformation(nameof(SetAppThemeSettings));
         return UpdateUserSettings(settings => settings with { Theme = value });
     }
 
@@ -69,7 +81,7 @@ public class UserSettingsService(ILogger<UserSettingsService> logger, ICache<Use
     private UserSettings UpdateUserSettings(Func<UserSettings, UserSettings> updateFunc)
     {
         UserData userData = userDataCache.Get() ?? new();
-        UserSettings settings = userData.Settings ?? new();
+        UserSettings settings = GetUserSettingsOrDefault();
 
         userData = userData with { Settings = updateFunc.Invoke(settings) };
         userDataCache.Set(userData);

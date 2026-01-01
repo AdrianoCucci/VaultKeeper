@@ -1,4 +1,6 @@
 ﻿using Avalonia.Media;
+using System;
+using System.Linq;
 using VaultKeeper.Models.Settings;
 
 namespace VaultKeeper.AvaloniaApplication.ViewModels.Settings;
@@ -7,40 +9,23 @@ public partial class SettingsPageViewModel : ViewModelBase
 {
     public static DesignContext Design { get; } = new()
     {
-        Model = new()
-        {
-            Theme = new()
-            {
-                ThemeType = AppThemeType.System,
-                FontSize = 14
-            },
-            Backup = new()
-            {
-                BackupDirectory = "/path/to/backups",
-                MaxBackups = 3
-            },
-            KeyGeneration = new()
-            {
-                CharSet = new()
-                {
-                    Type = CharSetType.AlphaNumericAndSymbols,
-                    Chars = "abc123!@#"
-                },
-                MinLength = 10,
-                MaxLength = 10
-            }
-        },
+        Model = UserSettings.Default,
         ThemeDefinitions =
         [
-            new() { ThemeType = AppThemeType.System, BackgroundBrush = new SolidColorBrush(Colors.DarkGreen), ForegroundBrush = new SolidColorBrush(Colors.LightGreen) },
-            new() { ThemeType = AppThemeType.Light, BackgroundBrush = new SolidColorBrush(Colors.WhiteSmoke), ForegroundBrush = new SolidColorBrush(Colors.DarkGray) },
-            new() { ThemeType = AppThemeType.Dark, BackgroundBrush = new SolidColorBrush(Colors.DarkGray), ForegroundBrush = new SolidColorBrush(Colors.WhiteSmoke) },
-            new() { ThemeType = AppThemeType.HighContrast, BackgroundBrush = new SolidColorBrush(Colors.Black), ForegroundBrush = new SolidColorBrush(Colors.White) }
-        ]
+            new() { ThemeType = AppThemeType.System, ThemeName = "System", BackgroundBrush = new SolidColorBrush(Colors.DarkGreen), ForegroundBrush = new SolidColorBrush(Colors.LightGreen) },
+            new() { ThemeType = AppThemeType.Light, ThemeName = "Light", BackgroundBrush = new SolidColorBrush(Colors.WhiteSmoke), ForegroundBrush = new SolidColorBrush(Colors.DarkGray) },
+            new() { ThemeType = AppThemeType.Dark, ThemeName = "Dark", BackgroundBrush = new SolidColorBrush(Colors.DarkGray), ForegroundBrush = new SolidColorBrush(Colors.WhiteSmoke) }
+        ],
+        CurrentFontSize = 14,
+        MaxBackups = 5,
+        BackupDirectory = "/path/to/backup",
+        CharSets = Enum.GetValues<CharSetType>().Select(x => new CharSet { Type = x, Name = x.ToString(), Chars = $"{x} ABC" }),
+        KeyGenMinLength = 10,
+        KeyGenMaxLength = 20
     };
 
-    public class DesignContext() : SettingsPageViewModel(null!, null!, null!, null!)
+    public class DesignContext() : SettingsPageViewModel(null!, null!, null!, null!, null!)
     {
-        public override void Initialize() { }
+        public override void LoadSavedSettings() { }
     }
 }

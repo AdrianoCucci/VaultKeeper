@@ -1,5 +1,4 @@
 ﻿using Microsoft.Extensions.Logging;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using VaultKeeper.Models.Settings;
@@ -13,50 +12,57 @@ public class CharSetService(ILogger<CharSetService> logger) : ICharSetService
     private const string _numbersCharSet = "0123456789";
     private const string _symbolsCharSet = "`~!@#$%^&*()-_=+[{]}\\|;:'\",<.>/?";
 
-    private static readonly Dictionary<CharSetType, IEnumerable<char>> _charsDict = new()
-    {
-        { CharSetType.AlphaNumericAndSymbols, _lettersCharSet.Concat(_numbersCharSet).Concat(_symbolsCharSet) },
-        { CharSetType.AlphaNumeric, _lettersCharSet.Concat(_numbersCharSet) },
-        { CharSetType.NumbersAndSymbols, _lettersCharSet.Concat(_numbersCharSet).Concat(_symbolsCharSet) },
-        { CharSetType.LettersOnly, _lettersCharSet },
-        { CharSetType.NumbersOnly, _numbersCharSet },
-        { CharSetType.SymbolsOnly, _symbolsCharSet },
-        { CharSetType.Custom, string.Empty }
-    };
-
-    private static readonly Lazy<CharSet> _defaultCharSetLazy = new(() =>
-    {
-        CharSetType charSetType = CharSetType.AlphaNumericAndSymbols;
-        return new()
+    private static readonly HashSet<CharSet> _charSets =
+    [
+        new()
         {
-            Type = charSetType,
-            Chars = _charsDict[charSetType]
-        };
-    });
-
-    public IEnumerable<CharSet> GetAllCharSets()
-    {
-        logger.LogInformation(nameof(GetAllCharSets));
-        return _charsDict.Select(kvp => new CharSet
+            Type = CharSetType.AlphaNumericAndSymbols,
+            Name = "Alpha-Numeric + Symbols",
+            Chars = $"{_lettersCharSet}{_numbersCharSet}{_symbolsCharSet}"
+        },
+        new()
         {
-            Type = kvp.Key,
-            Chars = kvp.Value
-        });
+            Type = CharSetType.AlphaNumeric,
+            Name = "Alpha-Numeric",
+            Chars = $"{_lettersCharSet}{_numbersCharSet}"
+        },
+        new()
+        {
+            Type = CharSetType.NumbersAndSymbols,
+            Name = "Numbers + Symbols",
+            Chars = $"{_numbersCharSet}{_symbolsCharSet}"
+        },
+        new()
+        {
+            Type = CharSetType.LettersOnly,
+            Name = "Letters Only",
+            Chars = _lettersCharSet
+        },
+        new()
+        {
+            Type = CharSetType.NumbersOnly,
+            Name = "Numbers Only",
+            Chars = _numbersCharSet
+        }
+    ];
+
+    private static readonly CharSet _defaultCharSet = _charSets.First();
+
+    public IEnumerable<CharSet> GetCharSets()
+    {
+        logger.LogInformation(nameof(GetCharSets));
+        return [.. _charSets];
     }
 
     public CharSet GetDefaultCharSet()
     {
         logger.LogInformation(nameof(GetDefaultCharSet));
-        return _defaultCharSetLazy.Value;
+        return _defaultCharSet with { };
     }
 
     public CharSet GetCharSetByType(CharSetType type)
     {
         logger.LogInformation($"{nameof(GetCharSetByType)} | type: {{type}}", type);
-        return new()
-        {
-            Type = type,
-            Chars = _charsDict[type]
-        };
+        return _charSets.First(x => x.Type == type);
     }
 }
