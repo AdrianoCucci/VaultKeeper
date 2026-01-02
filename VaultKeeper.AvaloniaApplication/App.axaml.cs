@@ -10,7 +10,6 @@ using VaultKeeper.AvaloniaApplication.ViewModels;
 using VaultKeeper.AvaloniaApplication.ViewModels.Settings;
 using VaultKeeper.AvaloniaApplication.Views;
 using VaultKeeper.Models.Navigation;
-using VaultKeeper.Models.Settings;
 using VaultKeeper.Services.Abstractions;
 using VaultKeeper.Services.Extensions.DependencyInjection;
 
@@ -43,16 +42,10 @@ public partial class App : Application
 
     private void ShutdownRequested(object? sender, ShutdownRequestedEventArgs e)
     {
-        IAppDataService? appDataService = _serviceProvider?.GetRequiredService<IAppDataService>();
-        if (appDataService == null) return;
+        IAppSessionService? appSessionService = _serviceProvider?.GetRequiredService<IAppSessionService>();
+        if (appSessionService == null) return;
 
-        appDataService.SaveAllDataAsync().Wait();
-
-        IUserSettingsService? userSettingsService = _serviceProvider?.GetService<IUserSettingsService>();
-        BackupSettings? backupSettings = userSettingsService?.GetUserSettingsOrDefault().Backup;
-
-        if (backupSettings?.AutoBackupOnShutdown == true)
-            appDataService.SaveBackupAsync(backupSettings).Wait();
+        appSessionService.LogoutAsync().Wait();
     }
 
     private static void DisableAvaloniaDataAnnotationValidation()

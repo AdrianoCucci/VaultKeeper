@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using VaultKeeper.Models.ApplicationData;
 using VaultKeeper.Models.Groups;
 using VaultKeeper.Models.Navigation;
+using VaultKeeper.Models.Settings;
 using VaultKeeper.Models.VaultItems;
 using VaultKeeper.Repositories.Extensions.DependencyInjection;
 using VaultKeeper.Services.Abstractions;
@@ -40,6 +41,7 @@ public static class ServiceCollectionExtensions
             .AddScoped<IGroupService, GroupService>()
 
             .AddInMemoryCache<UserData>()
+            .AddInMemoryCache<UserSettings>()
             .AddInMemoryRepository<VaultItem>()
             .AddInMemoryRepository<Group>();
 

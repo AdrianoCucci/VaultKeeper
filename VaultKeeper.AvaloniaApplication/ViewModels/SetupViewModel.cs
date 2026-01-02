@@ -26,7 +26,7 @@ public class SetupViewModel(IAppDataService appDataService, ISecurityService sec
             MainPasswordHash = hashPasswordResult.Value!
         };
 
-        Result<SavedData<UserData>?> saveUserDataResult = await appDataService.SaveUserDataAsync(userData, updateUserCache: true);
+        Result<SavedData<UserData>?> saveUserDataResult = await appDataService.SaveUserDataAsync(userData, updateCaches: true);
         if (!saveUserDataResult.IsSuccessful)
             throw new Exception($"{nameof(SetupViewModel)}: Failed to submit form: {hashPasswordResult.Message}", saveUserDataResult.Exception);
 

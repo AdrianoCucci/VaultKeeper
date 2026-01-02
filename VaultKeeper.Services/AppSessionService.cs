@@ -1,10 +1,10 @@
 ﻿using Microsoft.Extensions.Logging;
 using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using VaultKeeper.Common.Extensions;
 using VaultKeeper.Common.Results;
 using VaultKeeper.Models.ApplicationData;
+using VaultKeeper.Models.Settings;
 using VaultKeeper.Services.Abstractions;
 using VaultKeeper.Services.Abstractions.Navigation;
 
@@ -13,10 +13,13 @@ namespace VaultKeeper.Services;
 public class AppSessionService(
     ILogger<AppSessionService> logger,
     ICache<UserData> userDataCache,
+    ICache<UserSettings> userSettingsCache,
     IAppDataService appDataService,
     ISecurityService securityService,
     INavigatorFactory? navFactory = null) : IAppSessionService
 {
+    private bool _isLoggedIn = false;
+
     public async Task<Result> LoginAsync(UserData userData)
     {
         logger.LogInformation(nameof(LoginAsync));
@@ -25,6 +28,9 @@ public class AppSessionService(
         {
             userDataCache.Set(userData);
             Result<SavedData<EntityData>?> loadEntitiesResult = await appDataService.LoadEntityDataAsync(forUserId: userData.UserId, updateRepositories: true);
+
+            if (loadEntitiesResult.IsSuccessful)
+                _isLoggedIn = true;
 
             return loadEntitiesResult.WithoutValue().Logged(logger);
         }
@@ -73,29 +79,39 @@ public class AppSessionService(
     {
         logger.LogInformation(nameof(LogoutAsync));
 
+        if (!_isLoggedIn)
+        {
+            logger.LogInformation("User is already not logged in - skipping logout process.");
+            return Result.Ok().Logged(logger);
+        }
+
         try
         {
-            userDataCache.Clear();
+            Result saveDataResult = await appDataService.SaveAllDataAsync();
+            if (!saveDataResult.IsSuccessful)
+                return saveDataResult.Logged(logger);
 
-            Result clearDataResult = await appDataService.ClearEntityDataAsync();
+            BackupSettings? backupSettings = userSettingsCache.Get()?.Backup;
+            if (backupSettings?.AutoBackupOnLogout == true)
+            {
+                var backupResult = await appDataService.SaveBackupAsync(backupSettings);
+                if (!backupResult.IsSuccessful)
+                    return backupResult.Logged(logger);
+            }
+
+            userDataCache.Clear();
+            userSettingsCache.Clear();
+
+            Result clearDataResult = await appDataService.ClearCachedEntityDataAsync();
             if (!clearDataResult.IsSuccessful)
                 return clearDataResult.Logged(logger);
 
-            if (navFactory != null)
+            if (navRedirect.HasValue && navFactory != null)
             {
-                IEnumerable<INavigator> navigators = navFactory.GetAllNavigators();
-                foreach (INavigator navigator in navigators)
-                {
-                    navigator.NavigateToDefaultRoute();
-                }
+                (string scope, string route) = navRedirect.Value;
 
-                if (navRedirect.HasValue)
-                {
-                    (string scope, string route) = navRedirect.Value;
-
-                    INavigator? navigator = navFactory.GetNavigator(scope);
-                    navigator?.Navigate(route);
-                }
+                INavigator? navigator = navFactory.GetNavigator(scope);
+                navigator?.Navigate(route);
             }
 
             return Result.Ok().Logged(logger);

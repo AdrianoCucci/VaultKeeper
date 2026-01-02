@@ -12,7 +12,7 @@ public class CharSetService(ILogger<CharSetService> logger) : ICharSetService
     private const string _numbersCharSet = "0123456789";
     private const string _symbolsCharSet = "`~!@#$%^&*()-_=+[{]}\\|;:'\",<.>/?";
 
-    private static readonly HashSet<CharSet> _charSets =
+    private static HashSet<CharSet> CharSets =>
     [
         new()
         {
@@ -43,26 +43,32 @@ public class CharSetService(ILogger<CharSetService> logger) : ICharSetService
             Type = CharSetType.NumbersOnly,
             Name = "Numbers Only",
             Chars = _numbersCharSet
+        },
+        new()
+        {
+            Type = CharSetType.SymbolsOnly,
+            Name = "Symbols Only",
+            Chars = _symbolsCharSet
         }
     ];
 
-    private static readonly CharSet _defaultCharSet = _charSets.First();
+    private static CharSet DefaultCharSet => CharSets.First();
 
     public IEnumerable<CharSet> GetCharSets()
     {
         logger.LogInformation(nameof(GetCharSets));
-        return [.. _charSets];
+        return CharSets;
     }
 
     public CharSet GetDefaultCharSet()
     {
         logger.LogInformation(nameof(GetDefaultCharSet));
-        return _defaultCharSet with { };
+        return DefaultCharSet;
     }
 
     public CharSet GetCharSetByType(CharSetType type)
     {
         logger.LogInformation($"{nameof(GetCharSetByType)} | type: {{type}}", type);
-        return _charSets.First(x => x.Type == type);
+        return CharSets.First(x => x.Type == type);
     }
 }

@@ -19,7 +19,7 @@ public partial class SettingsPageViewModel : ViewModelBase
         FontSize = 14,
         MaxBackups = 5,
         BackupDirectory = "/path/to/backup",
-        AutoBackupOnShutdown = true,
+        AutoBackupOnLogout = true,
         CharSets = Enum.GetValues<CharSetType>().Select(x => new CharSet { Type = x, Name = x.ToString(), Chars = $"{x} ABC" }),
         KeyGenMinLength = 10,
         KeyGenMaxLength = 20

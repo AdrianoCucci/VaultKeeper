@@ -32,7 +32,7 @@ public partial class SettingsPageViewModel(
     private int _maxBackups = 1;
 
     [ObservableProperty]
-    private bool _autoBackupOnShutdown = false;
+    private bool _autoBackupOnLogout = false;
 
     [ObservableProperty]
     private IEnumerable<AppThemeDefinition> _themeDefinitions = [];
@@ -78,16 +78,16 @@ public partial class SettingsPageViewModel(
         BackupSettings backupSettings = Model.Backup ?? BackupSettings.Default;
         BackupDirectory = backupSettings.BackupDirectory;
         MaxBackups = backupSettings.MaxBackups;
-        AutoBackupOnShutdown = backupSettings.AutoBackupOnShutdown;
+        AutoBackupOnLogout = backupSettings.AutoBackupOnLogout;
 
         AppThemeSettings themeSettings = Model.Theme ?? AppThemeSettings.Default;
         ThemeDefinitions = themeService?.GetThemeDefinitions() ?? [];
-        CurrentThemeDefinition = ThemeDefinitions.FirstOrDefault(x => x.ThemeType == themeSettings.ThemeType);
+        CurrentThemeDefinition = ThemeDefinitions.FirstOrDefault(x => x.ThemeType == themeSettings.ThemeType) ?? ThemeDefinitions.FirstOrDefault();
         FontSize = themeSettings.FontSize;
 
         KeyGenerationSettings keyGenerationSettings = Model.KeyGeneration ?? KeyGenerationSettings.Default;
         CharSets = charSetService?.GetCharSets() ?? [];
-        CurrentCharSet = CharSets.FirstOrDefault(x => x.Type == keyGenerationSettings.CharSet?.Type) ?? CharSet.Default;
+        CurrentCharSet = CharSets.FirstOrDefault(x => x.Type == keyGenerationSettings.CharSet?.Type) ?? CharSets.FirstOrDefault() ?? CharSet.Default;
         KeyGenMaxLength = keyGenerationSettings.MaxLength;
         KeyGenMinLength = keyGenerationSettings.MinLength;
 
@@ -145,6 +145,10 @@ public partial class SettingsPageViewModel(
             return;
         }
 
+        UserSettings? settings = loadResult.Value?.UserData?.Settings;
+        if (settings != null)
+            UpdateServices(settings);
+
         await appSessionService.LogoutAsync((nameof(MainWindowViewModel), nameof(LockScreenViewModel)));
     }
 
@@ -184,7 +188,7 @@ public partial class SettingsPageViewModel(
     {
         BackupDirectory = BackupDirectory,
         MaxBackups = MaxBackups,
-        AutoBackupOnShutdown = AutoBackupOnShutdown
+        AutoBackupOnLogout = AutoBackupOnLogout
     };
 
     private KeyGenerationSettings CreateKeyGenreationSettings() => new()

@@ -1,12 +1,11 @@
 ﻿using Microsoft.Extensions.Logging;
 using System;
-using VaultKeeper.Models.ApplicationData;
 using VaultKeeper.Models.Settings;
 using VaultKeeper.Services.Abstractions;
 
 namespace VaultKeeper.Services;
 
-public class UserSettingsService(ILogger<UserSettingsService> logger, ICache<UserData> userDataCache, ICharSetService charSetService) : IUserSettingsService
+public class UserSettingsService(ILogger<UserSettingsService> logger, ICache<UserSettings> userSettingsCache, ICharSetService charSetService) : IUserSettingsService
 {
     private UserSettings DefaultSettings => new()
     {
@@ -31,9 +30,7 @@ public class UserSettingsService(ILogger<UserSettingsService> logger, ICache<Use
     public UserSettings? GetUserSettings()
     {
         logger.LogInformation(nameof(GetUserSettings));
-
-        UserData? userData = userDataCache.Get();
-        return userData?.Settings;
+        return userSettingsCache.Get();
     }
 
     public UserSettings GetDefaultUserSettings()
@@ -80,12 +77,11 @@ public class UserSettingsService(ILogger<UserSettingsService> logger, ICache<Use
 
     private UserSettings UpdateUserSettings(Func<UserSettings, UserSettings> updateFunc)
     {
-        UserData userData = userDataCache.Get() ?? new();
-        UserSettings settings = GetUserSettingsOrDefault();
+        UserSettings settings = userSettingsCache.Get() ?? DefaultSettings;
+        UserSettings updatedSettings = updateFunc.Invoke(settings);
 
-        userData = userData with { Settings = updateFunc.Invoke(settings) };
-        userDataCache.Set(userData);
+        userSettingsCache.Set(updatedSettings);
 
-        return userData.Settings;
+        return settings;
     }
 }

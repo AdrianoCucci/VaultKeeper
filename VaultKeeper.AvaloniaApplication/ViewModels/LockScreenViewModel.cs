@@ -9,6 +9,12 @@ public partial class LockScreenViewModel(IAppSessionService appSessionService) :
 {
     public LockScreenForm Form { get; } = new();
 
+    public void Initialize()
+    {
+        Form.PasswordInput = null;
+        Form.ClearErrors();
+    }
+
     public async Task<bool> SubmitFormAsync()
     {
         Form.SubmissionError = null;

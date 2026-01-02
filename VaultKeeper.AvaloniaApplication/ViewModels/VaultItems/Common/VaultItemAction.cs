@@ -5,6 +5,5 @@ public enum VaultItemAction
     CopyValue,
     CopyName,
     Edit,
-    Group,
     Delete
 }

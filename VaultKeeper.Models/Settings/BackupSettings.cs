@@ -6,10 +6,10 @@ public record BackupSettings
     {
         BackupDirectory = string.Empty,
         MaxBackups = 3,
-        AutoBackupOnShutdown = false
+        AutoBackupOnLogout = false
     };
 
     public required string BackupDirectory { get; set; }
     public int MaxBackups { get; set; }
-    public bool AutoBackupOnShutdown { get; set; }
+    public bool AutoBackupOnLogout { get; set; }
 }

@@ -103,9 +103,9 @@
           </StackPanel>
 
           <Grid RowDefinitions="Auto" ColumnDefinitions="Auto, *">
-            <CheckBox Name="PART_AutoBackupCheckBox" IsChecked="{Binding AutoBackupOnShutdown}" Grid.Column="0"/>
+            <CheckBox Name="PART_AutoBackupCheckBox" IsChecked="{Binding AutoBackupOnLogout}" Grid.Column="0"/>
             <Label Target="PART_AutoBackupCheckBox" VerticalAlignment="Center" Grid.Column="1">
-              <TextBlock TextWrapping="Wrap" MaxLines="4">Automatically create backup when <Run Text="{StaticResource AppName}"/> shuts down.</TextBlock>
+              <TextBlock TextWrapping="Wrap" MaxLines="4">Automatically create backup on logout.</TextBlock>
             </Label>
           </Grid>
 

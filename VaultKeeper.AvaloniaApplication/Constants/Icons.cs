@@ -24,6 +24,7 @@ public static class Icons
     public const string ArrowsRotate = $"{_prefix}ArrowsRotate";
     public const string ArrowRotateRight = $"{_prefix}ArrowRotateRight";
     public const string Palette = $"{_prefix}Palette";
+    public const string RightFromBracket = $"{_prefix}RightFromBracket";
 
     private const string _prefix = "Icon";
 }

@@ -1,3 +1,4 @@
+using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
 using Avalonia.Interactivity;
@@ -17,6 +18,11 @@ public partial class MainWindow : Window
             await viewModel.InitializeContentAsync();
 
         base.OnApplyTemplate(e);
+    }
+
+    protected override void OnAttachedToVisualTree(VisualTreeAttachmentEventArgs e)
+    {
+        base.OnAttachedToVisualTree(e);
     }
 
     private void SetupView_SetupCompleted(object? sender, RoutedEventArgs e) => Model?.NavigateToLockscreen();

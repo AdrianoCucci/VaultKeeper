@@ -25,9 +25,7 @@ public partial class LockScreenView : ViewBase<LockScreenViewModel>
 
     protected override void OnLoaded(RoutedEventArgs e)
     {
-        if (!string.IsNullOrWhiteSpace(InputPassword.Text))
-            InputPassword.Clear();
-
+        Model?.Initialize();
         InputPassword.Focus();
     }
 

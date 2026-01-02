@@ -24,7 +24,8 @@ public class AppDataService(
     ISecurityService securityService,
     IRepository<VaultItem> vaultItemRepository,
     IRepository<Group> groupRepository,
-    ICache<UserData> userDataCache) : IAppDataService
+    ICache<UserData> userDataCache,
+    ICache<UserSettings> userSettingsCache) : IAppDataService
 {
     private const string _dataExtension = ".dat";
     private const string _backupExtension = ".bak";
@@ -82,10 +83,12 @@ public class AppDataService(
                 return saveUserDataResult.Logged(logger);
 
             UserData? userData = saveUserDataResult.Value?.Data;
-
-            Result<SavedData<EntityData>> saveEntitiesResult = await SaveEntityDataAsync(relatedUserData: userData);
-            if (!saveEntitiesResult.IsSuccessful)
-                return saveEntitiesResult.Logged(logger);
+            if (userData != null)
+            {
+                Result<SavedData<EntityData>> saveEntitiesResult = await SaveEntityDataAsync(relatedUserData: userData);
+                if (!saveEntitiesResult.IsSuccessful)
+                    return saveEntitiesResult.Logged(logger);
+            }
 
             return Result.Ok().Logged(logger);
         }
@@ -95,7 +98,7 @@ public class AppDataService(
         }
     }
 
-    public async Task<Result<SavedData<UserData>?>> SaveUserDataAsync(UserData? userData = null, bool updateUserCache = false)
+    public async Task<Result<SavedData<UserData>?>> SaveUserDataAsync(UserData? userData = null, UserSettings? userSettings = null, bool updateCaches = false)
     {
         logger.LogInformation(nameof(SaveUserDataAsync));
 
@@ -109,17 +112,19 @@ public class AppDataService(
                 return userData.ToOkResult().WithValue<SavedData<UserData>?>().Logged(logger);
             }
 
+            userSettings ??= userSettingsCache.Get();
+
             SavedData<UserData> savedData = new()
             {
-                Data = userData,
+                Data = userData with { Settings = userSettings },
                 Metadata = new() { Version = _saveDataVersion }
             };
 
             string userDataPath = CreateSaveDataPath(AppFileType.User);
             Result saveResult = SaveDataInternal(userDataPath, savedData);
 
-            if (saveResult.IsSuccessful && updateUserCache)
-                userDataCache.Set(userData);
+            if (saveResult.IsSuccessful && updateCaches)
+                UpdateUserCaches(userData, userSettings);
 
             return saveResult.WithValue(savedData).Logged(logger)!;
         }
@@ -129,7 +134,7 @@ public class AppDataService(
         }
     }
 
-    public async Task<Result<SavedData<UserData>?>> LoadUserDataAsync(bool updateUserCache = false)
+    public async Task<Result<SavedData<UserData>?>> LoadUserDataAsync(bool updateCaches = false)
     {
         logger.LogInformation(nameof(LoadUserDataAsync));
 
@@ -138,8 +143,13 @@ public class AppDataService(
             string userDataPath = CreateSaveDataPath(AppFileType.User);
             Result<SavedData<UserData>?> loadDataResult = LoadDataInternal<UserData>(userDataPath);
 
-            if (updateUserCache && loadDataResult.IsSuccessful && loadDataResult.Value != null)
-                userDataCache.Set(loadDataResult.Value.Data);
+            if (updateCaches && loadDataResult.IsSuccessful && loadDataResult.Value != null)
+            {
+                UserData userData = loadDataResult.Value.Data;
+                UserSettings? userSettings = userData.Settings;
+
+                UpdateUserCaches(userData, userSettings);
+            }
 
             return loadDataResult.Logged(logger);
         }
@@ -210,9 +220,9 @@ public class AppDataService(
         }
     }
 
-    public async Task<Result> ClearEntityDataAsync()
+    public async Task<Result> ClearCachedEntityDataAsync()
     {
-        logger.LogInformation(nameof(ClearEntityDataAsync));
+        logger.LogInformation(nameof(ClearCachedEntityDataAsync));
 
         try
         {
@@ -241,13 +251,15 @@ public class AppDataService(
                 return Result.Ok<SavedData<BackupData>?>(null).Logged(logger);
             }
 
+            UserSettings? userSettings = userSettingsCache.Get();
+
             EntityData entityData = await CreateEntityDataAsync();
 
             SavedData<BackupData> savedData = new()
             {
                 Data = new()
                 {
-                    UserData = userData,
+                    UserData = userData with { Settings = userSettings },
                     EntityData = entityData with { UserId = userData.UserId }
                 },
                 Metadata = new() { Version = _saveDataVersion }
@@ -287,13 +299,15 @@ public class AppDataService(
             SavedData<BackupData> loadedData = loadResult.Value!;
             UserData userData = loadedData.Data.UserData;
 
-            Result<SavedData<UserData>?> saveUserDataResult = await SaveUserDataAsync(userData, updateUserCache: true);
+            Result<SavedData<UserData>?> saveUserDataResult = await SaveUserDataAsync(userData, userData.Settings, updateCaches: true);
             if (!saveUserDataResult.IsSuccessful)
                 return saveUserDataResult.WithValue<SavedData<BackupData>?>().Logged(logger);
 
             Result<SavedData<EntityData>> saveEntityDataResult = await SaveEntityDataAsync(loadedData.Data.EntityData, userData);
             if (!saveEntityDataResult.IsSuccessful)
                 return saveEntityDataResult.WithValue<SavedData<BackupData>?>().Logged(logger);
+
+            await UpdateEntityRepositoriesAsync(saveEntityDataResult.Value!.Data);
 
             return loadResult.Logged(logger);
         }
@@ -342,14 +356,19 @@ public class AppDataService(
         };
     }
 
-    private async Task UpdateEntityRepositoriesAsync(EntityData entityData)
+    private void UpdateUserCaches(UserData userData, UserSettings? userSettings)
     {
-        if (!entityData.VaultItems.IsNullOrEmpty())
-            await vaultItemRepository.SetAllAsync(entityData.VaultItems!);
+        userDataCache.Set(userData);
 
-        if (!entityData.Groups.IsNullOrEmpty())
-            await groupRepository.SetAllAsync(entityData.Groups!);
+        if (userSettings == null)
+            userSettingsCache.Clear();
+        else
+            userSettingsCache.Set(userSettings);
     }
+
+    private async Task UpdateEntityRepositoriesAsync(EntityData entityData) => await Task.WhenAll(
+        vaultItemRepository.SetAllAsync(entityData.VaultItems ?? []),
+        groupRepository.SetAllAsync(entityData.Groups ?? []));
 
     private Result SaveDataInternal<T>(string filePath, SavedData<T> savedData)
     {

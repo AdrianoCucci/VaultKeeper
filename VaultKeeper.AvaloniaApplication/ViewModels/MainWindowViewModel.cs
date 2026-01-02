@@ -43,7 +43,7 @@ public partial class MainWindowViewModel : ViewModelBase
         {
             IsInitializing = true;
 
-            Result<SavedData<UserData>?> loadUserDataResult = await _appDataService.LoadUserDataAsync(updateUserCache: true);
+            Result<SavedData<UserData>?> loadUserDataResult = await _appDataService.LoadUserDataAsync(updateCaches: true);
             if (!loadUserDataResult.IsSuccessful)
                 throw new Exception($"{nameof(MainWindowViewModel)} failed to load user data: {loadUserDataResult.Message}", loadUserDataResult.Exception);
 
