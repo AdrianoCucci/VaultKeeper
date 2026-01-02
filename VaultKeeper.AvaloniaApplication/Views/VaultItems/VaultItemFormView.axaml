@@ -79,7 +79,11 @@
       <Label Target="InputValue">Value</Label>
       <TextBox Name="InputValue"
                MinHeight="35"
-               VerticalContentAlignment="Center"
+               MaxHeight="100"
+               AcceptsReturn="true"
+               TextWrapping="Wrap"
+               VerticalContentAlignment="Top"
+               ScrollViewer.VerticalScrollBarVisibility="Auto"
                Text="{Binding Form.Value}"
                PasswordChar="{Binding PasswordChar}"
                RevealPassword="{Binding ValueRevealed}"
