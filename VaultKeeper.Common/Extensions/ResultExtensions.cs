@@ -47,4 +47,23 @@ public static class ResultExtensions
 
         return result;
     }
+
+    public static Result<T> Logged<T>(this Result<T> result, ILogger logger, bool failedAsWarning = false)
+    {
+        if (result.IsSuccessful)
+        {
+            logger.LogInformation("Result OK | Value: {value} | Message: {message}", result.Value, result.Message);
+        }
+        else
+        {
+            const string template = "Result FAILED | Status: {status} | Value: {value} | Message: {message}";
+
+            if (failedAsWarning)
+                logger.LogWarning(result.Exception, template, result.FailureType, result.Value, result.Message);
+            else
+                logger.LogError(result.Exception, template, result.FailureType, result.Value, result.Message);
+        }
+
+        return result;
+    }
 }

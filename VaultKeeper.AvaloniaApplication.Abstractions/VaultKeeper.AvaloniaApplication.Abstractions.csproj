@@ -10,6 +10,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\VaultKeeper.Common\VaultKeeper.Common.csproj" />
     <ProjectReference Include="..\VaultKeeper.Models\VaultKeeper.Models.csproj" />
   </ItemGroup>
 

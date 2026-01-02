@@ -52,7 +52,7 @@ public partial class App : Application
         BackupSettings? backupSettings = userSettingsService?.GetUserSettingsOrDefault().Backup;
 
         if (backupSettings?.AutoBackupOnShutdown == true)
-            appDataService.SaveBackupAsync(backupSettings?.BackupDirectory).Wait();
+            appDataService.SaveBackupAsync(backupSettings).Wait();
     }
 
     private static void DisableAvaloniaDataAnnotationValidation()

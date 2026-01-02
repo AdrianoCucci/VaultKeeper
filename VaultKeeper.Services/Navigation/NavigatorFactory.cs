@@ -3,12 +3,12 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using VaultKeeper.AvaloniaApplication.Abstractions.Navigation;
 using VaultKeeper.Common.Extensions;
 using VaultKeeper.Common.Results;
 using VaultKeeper.Models.Navigation;
+using VaultKeeper.Services.Abstractions.Navigation;
 
-namespace VaultKeeper.AvaloniaApplication.Services.Navigation;
+namespace VaultKeeper.Services.Navigation;
 
 public class NavigatorFactory : INavigatorFactory
 {
@@ -70,5 +70,17 @@ public class NavigatorFactory : INavigatorFactory
     {
         _logger.LogInformation($"{nameof(GetRequiredNavigator)} | key: {{key}}", scopeKey);
         return GetNavigator(scopeKey) ?? throw new ArgumentException($"Scope key, \"{scopeKey}\" is not defined.", nameof(scopeKey));
+    }
+
+    public IEnumerable<INavigator> GetAllNavigators()
+    {
+        _logger.LogInformation(nameof(GetAllNavigators));
+
+        IEnumerable<INavigator> navigators = _routeScopesDict
+            .Select(x => x.Key)
+            .Select(GetNavigator)
+            .Where(nav => nav != null)!;
+
+        return navigators;
     }
 }

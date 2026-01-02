@@ -2,12 +2,14 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using VaultKeeper.Common.Extensions;
 using VaultKeeper.Common.Results;
 using VaultKeeper.Models.ApplicationData;
 using VaultKeeper.Models.ApplicationData.Files;
 using VaultKeeper.Models.Groups;
+using VaultKeeper.Models.Settings;
 using VaultKeeper.Models.VaultItems;
 using VaultKeeper.Repositories.Abstractions;
 using VaultKeeper.Services.Abstractions;
@@ -22,8 +24,7 @@ public class AppDataService(
     ISecurityService securityService,
     IRepository<VaultItem> vaultItemRepository,
     IRepository<Group> groupRepository,
-    ICache<UserData> userDataCache,
-    IUserSettingsService userSettingsService) : IAppDataService
+    ICache<UserData> userDataCache) : IAppDataService
 {
     private const string _dataExtension = ".dat";
     private const string _backupExtension = ".bak";
@@ -209,15 +210,30 @@ public class AppDataService(
         }
     }
 
-    public async Task<Result<SavedData<BackupData>?>> SaveBackupAsync(string? directory = null)
+    public async Task<Result> ClearEntityDataAsync()
     {
-        directory ??= userSettingsService.GetUserSettingsOrDefault().Backup?.BackupDirectory;
-        string filePath = CreateSaveDataPath(AppFileType.Backup, directory);
+        logger.LogInformation(nameof(ClearEntityDataAsync));
 
+        try
+        {
+            await Task.WhenAll(vaultItemRepository.RemoveAllAsync(), groupRepository.RemoveAllAsync());
+            return Result.Ok().Logged(logger);
+        }
+        catch (Exception ex)
+        {
+            return ex.ToFailedResult().Logged(logger);
+        }
+    }
+
+    public async Task<Result<SavedData<BackupData>?>> SaveBackupAsync(BackupSettings backupSettings)
+    {
+        string directory = backupSettings.BackupDirectory;
         logger.LogInformation($"{nameof(SaveBackupAsync)} | {nameof(directory)}: \"{{directory}}\"", directory);
 
         try
         {
+            string filePath = CreateSaveDataPath(AppFileType.Backup, directory, DateTime.UtcNow.ToString("_yyyMMdd_HHmmss"));
+
             UserData? userData = userDataCache.Get();
             if (userData == null)
             {
@@ -239,6 +255,13 @@ public class AppDataService(
 
             Result saveResult = SaveDataInternal(filePath, savedData);
 
+            if (saveResult.IsSuccessful)
+            {
+                FileInfo[] existingBackups = GetBackupFiles(directory);
+                if (existingBackups.Length > backupSettings.MaxBackups)
+                    DeleteOldestFilesUpToCount(existingBackups, backupSettings.MaxBackups);
+            }
+
             return saveResult.WithValue<SavedData<BackupData>?>(savedData).Logged(logger);
         }
         catch (Exception ex)
@@ -247,18 +270,16 @@ public class AppDataService(
         }
     }
 
-    public async Task<Result<SavedData<BackupData>?>> LoadBackupAsync(string? filePath = null)
+    public async Task<Result<SavedData<BackupData>?>> LoadBackupAsync(string filePath)
     {
-        if (string.IsNullOrWhiteSpace(filePath))
-        {
-            string? directory = userSettingsService.GetUserSettingsOrDefault().Backup?.BackupDirectory;
-            filePath = CreateSaveDataPath(AppFileType.Backup, directory);
-        }
-
         logger.LogInformation($"{nameof(LoadBackupAsync)} | {nameof(filePath)}: \"{{filePath}}\"", filePath);
 
         try
         {
+            var backupDefinition = _fileDefinitionsDict[AppFileType.Backup];
+            if (filePath?.EndsWith(backupDefinition.Extension) != true)
+                return Result.Failed<SavedData<BackupData>?>(ResultFailureType.BadRequest, $"File path does not point to a valid backup file: \"{filePath}\"").Logged(logger);
+
             Result<SavedData<BackupData>?> loadResult = LoadDataInternal<BackupData>(filePath);
             if (!loadResult.IsSuccessful)
                 return loadResult.Logged(logger);
@@ -279,6 +300,33 @@ public class AppDataService(
         catch (Exception ex)
         {
             return ex.ToFailedResult<SavedData<BackupData>?>().Logged(logger);
+        }
+    }
+
+    private FileInfo[] GetBackupFiles(string directory)
+    {
+        logger.LogInformation($"{nameof(GetBackupFiles)} | directory: {{directory}}", directory);
+
+        AppFileDefinition backupDefinition = _fileDefinitionsDict[AppFileType.Backup];
+        FileInfo[] backups = [..Directory.EnumerateFiles(directory)
+            .Where(x => x.EndsWith(backupDefinition.Extension))
+            .Select(x => new FileInfo(x))];
+
+        return backups;
+    }
+
+    private void DeleteOldestFilesUpToCount(FileInfo[] files, int count)
+    {
+        logger.LogInformation($"{nameof(DeleteOldestFilesUpToCount)} | count: {{count}}", count);
+
+        if (files.Length < 1)
+            return;
+
+        IEnumerable<FileInfo> filesToDelete = files.OrderByDescending(x => x.CreationTimeUtc).Skip(count);
+
+        foreach (FileInfo file in filesToDelete)
+        {
+            File.Delete(file.FullName);
         }
     }
 
@@ -343,11 +391,17 @@ public class AppDataService(
         return dataDeserializeResult;
     }
 
-    private string CreateSaveDataPath(AppFileType fileType, string? directory = null)
+    private string CreateSaveDataPath(AppFileType fileType, string? directory = null, string? fileNameSuffix = null)
     {
         AppFileDefinition definition = _fileDefinitionsDict[fileType];
-        directory ??= Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+        directory ??= Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), DataDirectory);
+        string fileName = definition.Name;
 
-        return Path.Combine(directory, DataDirectory, definition.FullName);
+        if (!string.IsNullOrWhiteSpace(fileNameSuffix))
+            fileName = $"{fileName}{fileNameSuffix}";
+
+        fileName += definition.Extension;
+
+        return Path.Combine(directory, fileName).Replace('\\', '/');
     }
 }

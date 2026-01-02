@@ -3,12 +3,12 @@ using Avalonia.Media;
 using CommunityToolkit.Mvvm.ComponentModel;
 using System.Collections.ObjectModel;
 using VaultKeeper.AvaloniaApplication.Abstractions;
-using VaultKeeper.AvaloniaApplication.Abstractions.Navigation;
 using VaultKeeper.AvaloniaApplication.Constants;
 using VaultKeeper.AvaloniaApplication.Extensions;
 using VaultKeeper.AvaloniaApplication.ViewModels.Common;
 using VaultKeeper.AvaloniaApplication.ViewModels.Settings;
 using VaultKeeper.Models.Navigation;
+using VaultKeeper.Services.Abstractions.Navigation;
 
 namespace VaultKeeper.AvaloniaApplication.ViewModels;
 
@@ -63,6 +63,8 @@ public partial class HomeViewModel : ViewModelBase
         if (_navigator != null)
             _navigator.Navigated -= Navigator_Navigated;
     }
+
+    public void Initialize() => SelectedTab = TabNavItems[0];
 
     public void UpdateSelectedTabState()
     {

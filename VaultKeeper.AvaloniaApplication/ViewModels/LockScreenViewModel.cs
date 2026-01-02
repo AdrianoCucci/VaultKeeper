@@ -1,36 +1,35 @@
-﻿using System;
+﻿using System.Threading.Tasks;
 using VaultKeeper.AvaloniaApplication.Forms;
 using VaultKeeper.Common.Results;
-using VaultKeeper.Models.ApplicationData;
 using VaultKeeper.Services.Abstractions;
 
 namespace VaultKeeper.AvaloniaApplication.ViewModels;
 
-public partial class LockScreenViewModel(ISecurityService securityService, ICache<UserData> userDataCache) : ViewModelBase
+public partial class LockScreenViewModel(IAppSessionService appSessionService) : ViewModelBase
 {
-    private readonly ISecurityService _securityService = securityService;
-    private readonly ICache<UserData> _userDataCache = userDataCache;
-
     public LockScreenForm Form { get; } = new();
 
-    public bool SubmitForm()
+    public async Task<bool> SubmitFormAsync()
     {
         Form.SubmissionError = null;
         if (!Form.Validate())
             return false;
 
-        UserData userData = _userDataCache.Get() ?? throw new InvalidOperationException($"{nameof(LockScreenViewModel)}: {nameof(UserData)} not set in cache.");
-        string expectedPasswordHash = userData.MainPasswordHash ?? throw new InvalidOperationException($"{nameof(LockScreenViewModel)}: cached {nameof(UserData)} state is missing password hash.");
-        string inputPassword = Form.PasswordInput!;
+        Result<bool> loginResult = await appSessionService.TryLoginAsync(Form.PasswordInput!);
+        if (!loginResult.IsSuccessful)
+        {
+            // TODO: handle error.
+            if (loginResult.FailureType == ResultFailureType.Conflict)
+            {
+                // TODO: main password not set - inform user.
+            }
 
-        Result<bool> compareHashResult = _securityService.CompareHash(inputPassword, expectedPasswordHash);
-        if (!compareHashResult.IsSuccessful)
-            throw new Exception($"{nameof(LockScreenViewModel)}: Failed to verify password - {compareHashResult.Message}", compareHashResult.Exception);
+            return false;
+        }
 
-        bool isMatch = compareHashResult.Value;
-        if (!isMatch)
+        if (!loginResult.Value)
             Form.SubmissionError = "Password is invalid.";
 
-        return isMatch;
+        return loginResult.Value;
     }
 }

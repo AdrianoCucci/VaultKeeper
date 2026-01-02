@@ -17,7 +17,7 @@ public class UserSettingsService(ILogger<UserSettingsService> logger, ICache<Use
         },
         Backup = new()
         {
-            BackupDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
+            BackupDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments).Replace('\\', '/'),
             MaxBackups = 3
         },
         KeyGeneration = new()

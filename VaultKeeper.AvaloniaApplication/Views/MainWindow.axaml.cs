@@ -21,12 +21,5 @@ public partial class MainWindow : Window
 
     private void SetupView_SetupCompleted(object? sender, RoutedEventArgs e) => Model?.NavigateToLockscreen();
 
-    private async void LockScreenView_LoginSuccess(object? sender, RoutedEventArgs e)
-    {
-        if (Model != null)
-        {
-            await Model.LoadSavedDataAsync();
-            Model.NavigateToHome();
-        }
-    }
+    private async void LockScreenView_LoginSuccess(object? sender, RoutedEventArgs e) => Model?.NavigateToHome();
 }

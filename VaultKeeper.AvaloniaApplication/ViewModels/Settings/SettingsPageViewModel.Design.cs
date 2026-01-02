@@ -16,15 +16,16 @@ public partial class SettingsPageViewModel : ViewModelBase
             new() { ThemeType = AppThemeType.Light, ThemeName = "Light", BackgroundBrush = new SolidColorBrush(Colors.WhiteSmoke), ForegroundBrush = new SolidColorBrush(Colors.DarkGray) },
             new() { ThemeType = AppThemeType.Dark, ThemeName = "Dark", BackgroundBrush = new SolidColorBrush(Colors.DarkGray), ForegroundBrush = new SolidColorBrush(Colors.WhiteSmoke) }
         ],
-        CurrentFontSize = 14,
+        FontSize = 14,
         MaxBackups = 5,
         BackupDirectory = "/path/to/backup",
+        AutoBackupOnShutdown = true,
         CharSets = Enum.GetValues<CharSetType>().Select(x => new CharSet { Type = x, Name = x.ToString(), Chars = $"{x} ABC" }),
         KeyGenMinLength = 10,
         KeyGenMaxLength = 20
     };
 
-    public class DesignContext() : SettingsPageViewModel(null!, null!, null!, null!, null!)
+    public class DesignContext() : SettingsPageViewModel(null!, null!, null!, null!, null!, null!)
     {
         public override void LoadSavedSettings() { }
     }

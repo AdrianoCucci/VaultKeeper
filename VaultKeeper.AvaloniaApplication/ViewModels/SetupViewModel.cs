@@ -1,17 +1,14 @@
-﻿using Avalonia.Platform.Storage;
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.Threading.Tasks;
 using VaultKeeper.AvaloniaApplication.Abstractions;
 using VaultKeeper.AvaloniaApplication.Forms;
 using VaultKeeper.Common.Results;
 using VaultKeeper.Models.ApplicationData;
-using VaultKeeper.Models.ApplicationData.Files;
 using VaultKeeper.Services.Abstractions;
 
 namespace VaultKeeper.AvaloniaApplication.ViewModels;
 
-public class SetupViewModel(IAppDataService appDataService, ISecurityService securityService, IPlatformService platformService) : ViewModelBase
+public class SetupViewModel(IAppDataService appDataService, ISecurityService securityService, IBackupService backupService) : ViewModelBase
 {
     public SetupForm Form { get; } = new();
 
@@ -38,26 +35,7 @@ public class SetupViewModel(IAppDataService appDataService, ISecurityService sec
 
     public async Task<bool> ImportBackupDataAsync()
     {
-        AppFileDefinition backupFileDefinition = appDataService.GetFileDefinition(AppFileType.Backup);
-
-        IReadOnlyList<IStorageFile> files = await platformService.OpenFilePickerAsync(new()
-        {
-            Title = "Import Backup",
-            AllowMultiple = false,
-            FileTypeFilter =
-            [
-                new(backupFileDefinition.Name)
-                {
-                    Patterns = [$"*{backupFileDefinition.Extension}"]
-                }
-            ]
-        });
-
-        if (files.Count < 1)
-            return false;
-
-        string filePath = files[0].Path.AbsolutePath;
-        Result<SavedData<BackupData>?> loadBackupResult = await appDataService.LoadBackupAsync(filePath);
+        Result<BackupData?> loadBackupResult = await backupService.LoadBackupFromFilePickerAsync();
         if (!loadBackupResult.IsSuccessful)
             throw new Exception($"{nameof(SetupViewModel)}: Failed to load backup data: {loadBackupResult.Message}", loadBackupResult.Exception);
 
