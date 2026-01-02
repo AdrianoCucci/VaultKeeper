@@ -9,8 +9,11 @@ namespace VaultKeeper.AvaloniaApplication.Views;
 public partial class LockScreenView : ViewBase<LockScreenViewModel>
 {
     public static readonly RoutedEvent<RoutedEventArgs> LoginSuccessEvent = RoutedEvent.Register<RoutedEventArgs>(nameof(LoginSuccess), RoutingStrategies.Bubble, typeof(LockScreenView));
+    public static readonly RoutedEvent<RoutedEventArgs> ForgotPasswordClickedEvent = RoutedEvent.Register<RoutedEventArgs>(nameof(ForgotPasswordClicked), RoutingStrategies.Bubble, typeof(LockScreenView));
 
     public event EventHandler<RoutedEventArgs> LoginSuccess { add => AddHandler(LoginSuccessEvent, value); remove => RemoveHandler(LoginSuccessEvent, value); }
+
+    public event EventHandler<RoutedEventArgs> ForgotPasswordClicked { add => AddHandler(ForgotPasswordClickedEvent, value); remove => RemoveHandler(ForgotPasswordClickedEvent, value); }
 
     public LockScreenView() => InitializeComponent();
 
@@ -36,4 +39,6 @@ public partial class LockScreenView : ViewBase<LockScreenViewModel>
         if (e.Key == Key.Enter)
             await SubmitAsync();
     }
+
+    private void ForgotPasswordButton_Click(object? sender, RoutedEventArgs e) => RaiseEvent(new(ForgotPasswordClickedEvent, this));
 }

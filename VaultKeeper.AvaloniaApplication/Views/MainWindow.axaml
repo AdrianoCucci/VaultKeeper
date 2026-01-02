@@ -12,7 +12,9 @@
         Icon="/Assets/avalonia-logo.ico"
         Title="VaultKeeper.AvaloniaApplication"
         Width="1920"
-        Height="1080">
+        Height="1080"
+        MinWidth="500"
+        MinHeight="500">
 
   <TransitioningContentControl Content="{Binding Content}" IsVisible="{Binding !IsInitializing}">
     <TransitioningContentControl.DataTemplates>
@@ -20,7 +22,8 @@
         <local:SetupView SetupCompleted="SetupView_SetupCompleted"/>
       </DataTemplate>
       <DataTemplate DataType="vm:LockScreenViewModel">
-        <local:LockScreenView LoginSuccess="LockScreenView_LoginSuccess"/>
+        <local:LockScreenView LoginSuccess="LockScreenView_LoginSuccess"
+                              ForgotPasswordClicked="LockScreenView_ForgotPasswordClicked"/>
       </DataTemplate>
       <DataTemplate DataType="vm:HomeViewModel">
         <local:MainContentView/>

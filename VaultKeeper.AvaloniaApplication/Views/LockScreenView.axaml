@@ -11,53 +11,84 @@
     <x:Static Member="vm:LockScreenViewModel.Design"/>
   </Design.DataContext>
 
-  <Border Padding="20 0" Background="{DynamicResource SystemAccentColor}">
-    <Border Padding="200"
-            HorizontalAlignment="Center"
-            BorderThickness="10 0"
+  <Grid RowDefinitions="*" ColumnDefinitions="*, 1.5*, *">
+    <Grid RowDefinitions="*" ColumnDefinitions="*, *" Background="{DynamicResource SystemAccentColor}" Grid.Column="0">
+      <Border MaxHeight="600"
+              MinWidth="100"
+              CornerRadius="100 0 0 20"
+              Background="{DynamicResource SystemControlBackgroundBaseLowBrush}"
+              Grid.Column="1"/>
+    </Grid>
+
+    <Border BorderThickness="10 0"
             BorderBrush="{DynamicResource SystemControlBackgroundBaseLowBrush}"
-            Background="{DynamicResource SystemControlBackgroundAltHighBrush}">
-      <Grid RowDefinitions="Auto, Auto, Auto"
-            ColumnDefinitions="Auto"
-            HorizontalAlignment="Center"
-            VerticalAlignment="Center"
-            RowSpacing="20">
+            Background="{DynamicResource SystemControlBackgroundAltHighBrush}"
+            MinWidth="500"
+            ZIndex="1"
+            Grid.Column="1">
+      <StackPanel VerticalAlignment="Center" Spacing="20">
+
         <Border Padding="20"
                 Margin="0 0 0 20"
-                CornerRadius="10"
-                Background="{DynamicResource SystemControlBackgroundBaseLowBrush}"
-                Grid.Row="0">
-          <StackPanel Orientation="Horizontal" Spacing="10">
+                Background="{DynamicResource SystemControlBackgroundBaseLowBrush}">
+          <StackPanel Orientation="Horizontal" Spacing="10" HorizontalAlignment="Center">
             <PathIcon Data="{StaticResource AppIconData}" Foreground="{DynamicResource SystemAccentColor}" Height="80" Width="80"/>
             <TextBlock Text="{StaticResource AppName}" Foreground="{DynamicResource SystemAccentColor}" Classes="h1"/>
           </StackPanel>
         </Border>
 
-        <TextBlock HorizontalAlignment="Center" Classes="txt-md" FontWeight="SemiBold" Grid.Row="1">Enter your password to continue.</TextBlock>
+        <Grid RowDefinitions="Auto, Auto" ColumnDefinitions="*, 4*, *" RowSpacing="10">
+          <TextBlock HorizontalAlignment="Center" Classes="txt-md" FontWeight="SemiBold" Grid.Row="0" Grid.Column="1">Enter your password to continue.</TextBlock>
 
-        <StackPanel Grid.Row="2">
-          <TextBox Name="InputPassword"
-                   PasswordChar="*"
-                   TextAlignment="Center"
-                   VerticalAlignment="Center"
-                   Text="{Binding Form.PasswordInput}"
-                   KeyDown="InputPassword_KeyDown">
-            <TextBox.InnerRightContent>
-              <common:AppButton IconStart="{StaticResource IconArrowRight}" ToolTip.Tip="Submit" Click="SubmitButton_Click"/>
-            </TextBox.InnerRightContent>
-          </TextBox>
+          <StackPanel Grid.Row="1" Grid.Column="1">
+            <TextBox Name="InputPassword"
+                     PasswordChar="*"
+                     TextAlignment="Center"
+                     VerticalAlignment="Center"
+                     Text="{Binding Form.PasswordInput}"
+                     KeyDown="InputPassword_KeyDown">
+              <TextBox.InnerRightContent>
+                <common:AppButton IconStart="{StaticResource IconArrowRight}" ToolTip.Tip="Submit" Click="SubmitButton_Click"/>
+              </TextBox.InnerRightContent>
+            </TextBox>
 
-          <ItemsControl ItemsSource="{Binding #InputPassword.(DataValidationErrors.Errors)}">
-            <ItemsControl.ItemTemplate>
-              <DataTemplate>
-                <TextBlock Text="{Binding}" Margin="0 6 0 0" Foreground="Red"></TextBlock>
-              </DataTemplate>
-            </ItemsControl.ItemTemplate>
-          </ItemsControl>
+            <Grid RowDefinitions="Auto" ColumnDefinitions="*, *" Margin="0 6 0 0">
+              <StackPanel Grid.Column="0">
+                <ItemsControl ItemsSource="{Binding #InputPassword.(DataValidationErrors.Errors)}">
+                  <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                      <TextBlock Text="{Binding}" Foreground="Red"></TextBlock>
+                    </DataTemplate>
+                  </ItemsControl.ItemTemplate>
+                </ItemsControl>
 
-          <TextBlock Text="{Binding Form.SubmissionError}" Margin="0 6 0 0" Foreground="Red"></TextBlock>
-        </StackPanel>
+                <TextBlock Text="{Binding Form.SubmissionError}" Foreground="Red"></TextBlock>
+              </StackPanel>
+
+              <Button HorizontalAlignment="Right"
+                      VerticalAlignment="Top"
+                      Classes="btn-link"
+                      Foreground="{DynamicResource SystemAccentColor}"
+                      Grid.Column="1"
+                      Click="ForgotPasswordButton_Click">
+                Forgot Password?
+              </Button>
+            </Grid>
+
+          </StackPanel>
+        </Grid>
+
+      </StackPanel>
+    </Border>
+
+    <Border Background="{DynamicResource SystemAccentColor}" Grid.Column="2">
+      <Grid RowDefinitions="*" ColumnDefinitions="*, *" Background="{DynamicResource SystemAccentColor}" Grid.Column="0">
+        <Border MaxHeight="600"
+                MinWidth="100"
+                CornerRadius="0 100 20 0"
+                Background="{DynamicResource SystemControlBackgroundBaseLowBrush}"
+                Grid.Column="0"/>
       </Grid>
     </Border>
-  </Border>
+  </Grid>
 </UserControl>

@@ -28,4 +28,6 @@ public partial class MainWindow : Window
     private void SetupView_SetupCompleted(object? sender, RoutedEventArgs e) => Model?.NavigateToLockscreen();
 
     private async void LockScreenView_LoginSuccess(object? sender, RoutedEventArgs e) => Model?.NavigateToHome();
+
+    private void LockScreenView_ForgotPasswordClicked(object? sender, RoutedEventArgs e) => Model?.NavigateToSetup();
 }

@@ -326,9 +326,17 @@ public partial class VaultPageViewModel(
 
             if (!string.IsNullOrWhiteSpace(search))
             {
-                groupedItems = groupedItems.Where(x => x.Name.Contains(search, StringComparison.OrdinalIgnoreCase));
-                if (!groupedItems.Any() && (group == null || !group.Name.Contains(search, StringComparison.OrdinalIgnoreCase)))
-                    continue;
+                if (group == null)
+                {
+                    groupedItems = groupedItems.Where(x => x.Name.Contains(search, StringComparison.OrdinalIgnoreCase));
+                    if (!groupedItems.Any())
+                        continue;
+                }
+                else
+                {
+                    if (!group.Name.Contains(search, StringComparison.OrdinalIgnoreCase) && !groupedItems.Any(x => x.Name.Contains(search, StringComparison.OrdinalIgnoreCase)))
+                        continue;
+                }
             }
 
             VaultItemListViewModel? listItemVM = group == null

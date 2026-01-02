@@ -8,25 +8,49 @@
 
   <Style Selector="Button">
     <Setter Property="Cursor" Value="Hand"/>
-  </Style>
-  <Style Selector="Button.btn-text">
-    <Setter Property="Background" Value="Transparent" />
-    <Setter Property="BorderBrush" Value="Transparent" />
 
-    <Style Selector="^:pointerover /template/ ContentPresenter#PART_ContentPresenter">
-      <Setter Property="Background" Value="{StaticResource ColorGray100}" />
-      <Setter Property="Foreground" Value="{DynamicResource ButtonForegroundPointerOver}" />
+    <Style Selector="^.btn-text">
+      <Setter Property="Background" Value="Transparent" />
+      <Setter Property="BorderBrush" Value="Transparent" />
+
+      <Style Selector="^:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="Background" Value="{StaticResource ColorGray100}" />
+        <Setter Property="Foreground" Value="{DynamicResource ButtonForegroundPointerOver}" />
+      </Style>
+      <Style Selector="^:pressed /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="Background" Value="{StaticResource ColorGray200}" />
+        <Setter Property="Foreground" Value="{DynamicResource ButtonForegroundPressed}" />
+      </Style>
+      <Style Selector="^ :is(TemplatedControl)">
+        <Setter Property="Foreground" Value="{DynamicResource SystemControlForegroundAccentBrush}" />
+      </Style>
+      <Style Selector="^ :is(MenuFlyoutPresenter) :is(TemplatedControl)">
+        <Setter Property="Foreground" Value="{DynamicResource MenuFlyoutItemForeground}" />
+        <Setter Property="Background" Value="{DynamicResource MenuFlyoutPresenterBackground}" />
+      </Style>
     </Style>
-    <Style Selector="^:pressed /template/ ContentPresenter#PART_ContentPresenter">
-      <Setter Property="Background" Value="{StaticResource ColorGray200}" />
-      <Setter Property="Foreground" Value="{DynamicResource ButtonForegroundPressed}" />
-    </Style>
-    <Style Selector="^ :is(TemplatedControl)">
-      <Setter Property="Foreground" Value="{DynamicResource SystemControlForegroundAccentBrush}" />
-    </Style>
-    <Style Selector="^ :is(MenuFlyoutPresenter) :is(TemplatedControl)">
-      <Setter Property="Foreground" Value="{DynamicResource MenuFlyoutItemForeground}" />
-      <Setter Property="Background" Value="{DynamicResource MenuFlyoutPresenterBackground}" />
+
+    <Style Selector="^.btn-link">
+      <Setter Property="Background" Value="Transparent" />
+      <Setter Property="Foreground" Value="{DynamicResource SystemAccentColor}" />
+      <Setter Property="MinHeight" Value="0" />
+      <Setter Property="Padding" Value="0" />
+
+      <Style Selector="^:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="Foreground" Value="{DynamicResource SystemControlBackgroundBaseHighBrush}" />
+      </Style>
+      <Style Selector="^:pressed /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="Foreground" Value="{DynamicResource SystemAccentColor}" />
+      </Style>
+      <Style Selector="^ :is(TemplatedControl)">
+        <Setter Property="Foreground" Value="{DynamicResource SystemControlForegroundAccentBrush}" />
+      </Style>
+      <Style Selector="^ :is(MenuFlyoutPresenter) :is(TemplatedControl)">
+        <Setter Property="Foreground" Value="{DynamicResource MenuFlyoutItemForeground}" />
+        <Setter Property="Background" Value="{DynamicResource MenuFlyoutPresenterBackground}" />
+      </Style>
     </Style>
   </Style>
 
