@@ -59,12 +59,6 @@
               <PathIcon Data="{StaticResource IconPen}"></PathIcon>
             </MenuItem.Icon>
           </MenuItem>
-          <MenuItem Header="Group" Click="ActionGroup_Click">
-            <MenuItem.Icon>
-              <PathIcon Data="{StaticResource IconList}"></PathIcon>
-            </MenuItem.Icon>
-          </MenuItem>
-          <Separator/>
           <MenuItem Header="Delete" Click="ActionDelete_Click">
             <MenuItem.Icon>
               <PathIcon Data="{StaticResource IconTrash}"></PathIcon>

@@ -18,20 +18,29 @@
       <TextBlock>Header</TextBlock>
     </Border>
 
-    <TabStrip ItemsSource="{Binding TabNavItems}"
-              SelectedItem="{Binding SelectedTab}"
-              HorizontalAlignment="Center"
-              SelectionChanged="TabStrip_SelectionChanged"
-              Grid.Row="1">
-      <TabStrip.ItemTemplate>
-        <DataTemplate x:DataType="common:NavItemViewModel">
-          <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
-            <PathIcon Data="{Binding Icon}"/>
-            <TextBlock Text="{Binding Label}"/>
-          </StackPanel>
-        </DataTemplate>
-      </TabStrip.ItemTemplate>
-    </TabStrip>
+    <Border Padding="20 10" Grid.Row="1">
+      <Grid RowDefinitions="Auto" ColumnDefinitions="*, Auto">
+        <TabStrip ItemsSource="{Binding TabNavItems}"
+                  SelectedItem="{Binding SelectedTab}"
+                  SelectionChanged="TabStrip_SelectionChanged"
+                  Grid.Column="0">
+          <TabStrip.ItemTemplate>
+            <DataTemplate x:DataType="common:NavItemViewModel">
+              <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
+                <PathIcon Data="{Binding Icon}"/>
+                <TextBlock Text="{Binding Label}"/>
+              </StackPanel>
+            </DataTemplate>
+          </TabStrip.ItemTemplate>
+        </TabStrip>
+
+        <common-views:AppButton Text="Logout"
+                                IconStart="{StaticResource IconRightFromBracket}"
+                                VerticalAlignment="Center"
+                                Grid.Column="1"
+                                Click="LogoutButton_Click"/>
+      </Grid>
+    </Border>
 
     <Border BorderThickness="2" BorderBrush="Black" Grid.Row="2">
       <TransitioningContentControl Content="{Binding Content}">

@@ -1,0 +1,35 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:controls="using:VaultKeeper.AvaloniaApplication.Views.Settings">
+
+  <Design.PreviewWith>
+    <StackPanel Width="400" Spacing="10">
+      <StackPanel Background="{DynamicResource SystemRegionBrush}">
+        <controls:SettingsSectionShell />
+      </StackPanel>
+    </StackPanel>
+  </Design.PreviewWith>
+
+  <ControlTheme x:Key="{x:Type controls:SettingsSectionShell}" TargetType="controls:SettingsSectionShell">
+    <Setter Property="Margin" Value="0 0 0 20"/>
+    <Setter Property="Template">
+      <ControlTemplate>
+        <StackPanel>
+
+          <StackPanel>
+            <StackPanel Orientation="Horizontal" Spacing="10">
+              <PathIcon Data="{TemplateBinding HeaderIcon}" Height="30" Width="30" Margin="10" />
+              <TextBlock Text="{TemplateBinding HeaderText}" Classes="h2"/>
+            </StackPanel>
+            <Separator Margin="0"/>
+          </StackPanel>
+
+          <Panel Margin="20">
+            <ContentPresenter Content="{TemplateBinding Content}"/>
+          </Panel>
+
+        </StackPanel>
+      </ControlTemplate>
+    </Setter>
+  </ControlTheme>
+</ResourceDictionary>

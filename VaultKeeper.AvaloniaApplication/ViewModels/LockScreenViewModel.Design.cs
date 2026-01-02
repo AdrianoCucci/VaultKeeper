@@ -2,5 +2,5 @@
 
 public partial class LockScreenViewModel : ViewModelBase
 {
-    public static readonly LockScreenViewModel Design = new(null!, null!);
+    public static LockScreenViewModel Design { get; } = new(null!);
 }

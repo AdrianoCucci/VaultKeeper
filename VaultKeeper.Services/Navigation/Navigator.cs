@@ -2,10 +2,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using VaultKeeper.AvaloniaApplication.Abstractions.Navigation;
 using VaultKeeper.Models.Navigation;
+using VaultKeeper.Services.Abstractions.Navigation;
 
-namespace VaultKeeper.AvaloniaApplication.Services.Navigation;
+namespace VaultKeeper.Services.Navigation;
 
 public class Navigator : INavigator
 {
@@ -48,5 +48,11 @@ public class Navigator : INavigator
         Navigated?.Invoke(this, _currentRoute);
 
         return _currentRoute;
+    }
+
+    public CurrentRoute NavigateToDefaultRoute()
+    {
+        _logger.LogInformation(nameof(NavigateToDefaultRoute));
+        return Navigate(_routeScope.Routes.First().Key);
     }
 }
