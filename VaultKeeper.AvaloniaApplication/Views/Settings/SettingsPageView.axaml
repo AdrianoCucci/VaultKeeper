@@ -124,55 +124,7 @@
       </local:SettingsSectionShell>
 
       <local:SettingsSectionShell HeaderText="Default Key Generation Settings" HeaderIcon="{StaticResource IconVault}">
-        <StackPanel Spacing="20">
-
-          <UniformGrid Rows="1" Columns="2" ColumnSpacing="20">
-            <StackPanel>
-              <Label Target="PART_KeyGenMinCharLengthInput">Minimum Key Length</Label>
-              <NumericUpDown Name="PART_KeyGenMinCharLengthInput"
-                             Value="{Binding KeyGenMinLength}"
-                             Minimum="1"
-                             Maximum="{Binding KeyGenMaxLength}"
-                             FormatString="0"/>
-            </StackPanel>
-
-            <StackPanel>
-              <Label Target="PART_KeyGenMaxCharLengthInput">Maximum Key Length</Label>
-              <NumericUpDown Name="PART_KeyGenMaxCharLengthInput"
-                             Value="{Binding KeyGenMaxLength}"
-                             Minimum="1"
-                             Maximum="100"
-                             FormatString="0"/>
-            </StackPanel>
-          </UniformGrid>
-
-          <StackPanel Spacing="10">
-            <Label>Character Set</Label>
-
-            <ListBox ItemsSource="{Binding CharSets}"
-                     SelectedItem="{Binding CurrentCharSet}"
-                     SelectedValueBinding="{Binding Type}">
-              <ListBox.ItemsPanel>
-                <ItemsPanelTemplate>
-                  <StackPanel Margin="10" />
-                </ItemsPanelTemplate>
-              </ListBox.ItemsPanel>
-
-              <ListBox.ItemTemplate>
-                <DataTemplate>
-                  <UniformGrid RowSpacing="0" Rows="1" Columns="2">
-                    <TextBlock Text="{Binding Name}"/>
-                    <TextBox Text="{Binding Chars}"
-                             IsReadOnly="True"
-                             Focusable="False" />
-                  </UniformGrid>
-
-                </DataTemplate>
-              </ListBox.ItemTemplate>
-            </ListBox>
-          </StackPanel>
-
-        </StackPanel>
+        <local:KeyGenerationSettingsView DataContext="{Binding KeyGenerationSettingsVM}" />
       </local:SettingsSectionShell>
 
     </StackPanel>

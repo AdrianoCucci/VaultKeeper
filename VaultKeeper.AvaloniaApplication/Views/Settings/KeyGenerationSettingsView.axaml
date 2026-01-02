@@ -1,0 +1,68 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:common="using:VaultKeeper.AvaloniaApplication.Views.Common"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="using:VaultKeeper.AvaloniaApplication.ViewModels.Settings"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="VaultKeeper.AvaloniaApplication.Views.Settings.KeyGenerationSettingsView"
+             x:DataType="vm:KeyGenerationSettingsViewModel">
+
+  <Design.DataContext>
+    <x:Static Member="vm:KeyGenerationSettingsViewModel.Design"/>
+  </Design.DataContext>
+
+  <StackPanel Spacing="20">
+    <UniformGrid Rows="1" Columns="2" ColumnSpacing="20">
+      <StackPanel>
+        <Label Target="PART_KeyGenMinCharLengthInput">Minimum Key Length</Label>
+        <NumericUpDown Name="PART_KeyGenMinCharLengthInput"
+                       Value="{Binding MinLength}"
+                       Minimum="1"
+                       Maximum="{Binding MaxLength}"
+                       FormatString="0"/>
+      </StackPanel>
+
+      <StackPanel>
+        <Label Target="PART_KeyGenMaxCharLengthInput">Maximum Key Length</Label>
+        <NumericUpDown Name="PART_KeyGenMaxCharLengthInput"
+                       Value="{Binding MaxLength}"
+                       Minimum="1"
+                       Maximum="100"
+                       FormatString="0"/>
+      </StackPanel>
+    </UniformGrid>
+
+    <StackPanel Spacing="10">
+      <Label>Character Set</Label>
+
+      <ListBox ItemsSource="{Binding CharSetOptions}"
+               SelectedItem="{Binding CharSet}"
+               SelectedValueBinding="{Binding Type}">
+        <ListBox.ItemsPanel>
+          <ItemsPanelTemplate>
+            <StackPanel Margin="10" />
+          </ItemsPanelTemplate>
+        </ListBox.ItemsPanel>
+
+        <ListBox.ItemTemplate>
+          <DataTemplate>
+            <UniformGrid RowSpacing="0" Rows="1" Columns="2" Cursor="Hand">
+              <TextBlock Text="{Binding Name}"/>
+              <TextBox Text="{Binding Chars}"
+                       IsHitTestVisible="False"
+                       IsReadOnly="True"
+                       Focusable="False" />
+            </UniformGrid>
+          </DataTemplate>
+        </ListBox.ItemTemplate>
+      </ListBox>
+    </StackPanel>
+
+    <common:AppButton Text="Generate"
+                      IconStart="{StaticResource IconWandMagicSparkles}"
+                      HorizontalAlignment="Right"
+                      IsVisible="{Binding IsGenerateButtonVisible}"
+                      Click="GenerateButton_Click"/>
+  </StackPanel>
+</UserControl>

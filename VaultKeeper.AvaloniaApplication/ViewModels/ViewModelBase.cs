@@ -1,14 +1,9 @@
-﻿using Avalonia.Controls;
-using CommunityToolkit.Mvvm.ComponentModel;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
 using System;
-using VaultKeeper.AvaloniaApplication.Helpers;
 
 namespace VaultKeeper.AvaloniaApplication.ViewModels;
 
-public abstract class ViewModelBase : ObservableObject
-{
-    protected static T CreateControl<T>(Action<T> configAction) where T : Control, new() => ControlHelper.CreateControl(configAction);
-}
+public abstract class ViewModelBase : ObservableObject;
 
 public abstract partial class ViewModelBase<T>(T model) : ViewModelBase
 {
@@ -16,4 +11,14 @@ public abstract partial class ViewModelBase<T>(T model) : ViewModelBase
     private T _model = model;
 
     public void UpdateModel(Func<T, T> updateAction) => Model = updateAction.Invoke(Model);
+
+    partial void OnModelChanging(T? oldValue, T newValue) => OnModelUpdating(oldValue, newValue);
+
+    partial void OnModelChanged(T? oldValue, T newValue) => OnModelUpdated(oldValue, newValue);
+
+    public virtual T GetUpdatedModel() => Model;
+
+    protected virtual void OnModelUpdating(T? oldValue, T newValue) { }
+
+    protected virtual void OnModelUpdated(T? oldValue, T newValue) { }
 }
