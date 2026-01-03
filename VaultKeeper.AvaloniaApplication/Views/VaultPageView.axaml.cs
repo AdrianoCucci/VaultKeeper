@@ -1,3 +1,4 @@
+using Avalonia;
 using Avalonia.Controls.Primitives;
 using Avalonia.Input;
 using Avalonia.Interactivity;
@@ -17,6 +18,12 @@ public partial class VaultPageView : ViewBase<VaultPageViewModel>
     {
         base.OnApplyTemplate(e);
         await LoadDataAsync();
+    }
+
+    protected override void OnAttachedToVisualTree(VisualTreeAttachmentEventArgs e)
+    {
+        base.OnAttachedToVisualTree(e);
+        Model?.HideAllForms();
     }
 
     private async Task LoadDataAsync()

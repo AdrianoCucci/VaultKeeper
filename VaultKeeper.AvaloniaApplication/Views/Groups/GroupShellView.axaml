@@ -15,7 +15,7 @@
 
   <Border Padding="20 10 10 10"
           CornerRadius="6"
-          Background="{DynamicResource SystemControlBackgroundAltHighBrush}">
+          Background="{DynamicResource SystemControlPageBackgroundChromeLowBrush}">
     <TransitioningContentControl Content="{Binding Content}">
       <TransitioningContentControl.DataTemplates>
         <DataTemplate x:DataType="groups:GroupViewModel">

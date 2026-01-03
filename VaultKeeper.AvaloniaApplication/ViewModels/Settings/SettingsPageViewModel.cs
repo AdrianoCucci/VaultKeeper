@@ -1,5 +1,7 @@
-﻿using Avalonia.Platform.Storage;
+﻿using Avalonia.Media;
+using Avalonia.Platform.Storage;
 using CommunityToolkit.Mvvm.ComponentModel;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
@@ -19,7 +21,7 @@ public partial class SettingsPageViewModel : ViewModelBase
     public UserSettings Model { get; private set; }
     public KeyGenerationSettingsViewModel KeyGenerationSettingsVM { get; init; }
 
-    [ObservableProperty, NotifyPropertyChangedFor(nameof(IsBackupDirectoryInvalid), nameof(DoesBackupDirectoryExist))]
+    [ObservableProperty]
     private string _backupDirectory = string.Empty;
 
     [ObservableProperty]
@@ -37,8 +39,9 @@ public partial class SettingsPageViewModel : ViewModelBase
     [ObservableProperty]
     private int _fontSize = 14;
 
-    public bool IsBackupDirectoryInvalid => Path.GetInvalidPathChars().Any(BackupDirectory.Contains);
-    public bool DoesBackupDirectoryExist => Directory.Exists(BackupDirectory);
+
+    private BackupDirectoryProperties _backupDirectoryProps;
+    public BackupDirectoryProperties BackupDirectoryProps { get => _backupDirectoryProps; private set => SetProperty(ref _backupDirectoryProps, value); }
 
     private readonly IUserSettingsService? _userSettingsService;
     private readonly IPlatformService? _platformService;
@@ -54,7 +57,6 @@ public partial class SettingsPageViewModel : ViewModelBase
         IBackupService backupService,
         IThemeService themeService,
         ICharSetService charSetService,
-        IKeyGeneratorService keyGeneratorService,
         IAppSessionService appSessionService)
     {
         _userSettingsService = userSettingsService;
@@ -64,12 +66,9 @@ public partial class SettingsPageViewModel : ViewModelBase
         _appSessionService = appSessionService;
 
         Model = userSettingsService?.GetDefaultUserSettings() ?? UserSettings.Default;
-        KeyGenerationSettingsVM = new(charSetService, keyGeneratorService, userSettingsService)
-        {
-            IsGenerateButtonVisible = false
-        };
-
+        KeyGenerationSettingsVM = new(charSetService, userSettingsService);
         KeyGenerationSettingsVM.PropertyChanged += KeyGenerationSettingsVM_PropertyChanged;
+        _backupDirectoryProps = new(BackupDirectory, backupService);
     }
 
     public SettingsPageViewModel()
@@ -77,6 +76,7 @@ public partial class SettingsPageViewModel : ViewModelBase
         Model = UserSettings.Default;
         KeyGenerationSettingsVM = new();
         KeyGenerationSettingsVM.PropertyChanged += KeyGenerationSettingsVM_PropertyChanged;
+        _backupDirectoryProps = new(BackupDirectory, null);
     }
 
     ~SettingsPageViewModel() => KeyGenerationSettingsVM.PropertyChanged -= KeyGenerationSettingsVM_PropertyChanged;
@@ -132,8 +132,8 @@ public partial class SettingsPageViewModel : ViewModelBase
         if (storageFolders.Count < 1)
             return;
 
-        IStorageFolder selectedFolder = storageFolders[0];
-        BackupDirectory = selectedFolder.Path.AbsolutePath;
+        var selectedFolderUri = storageFolders[0].Path;
+        BackupDirectory = (selectedFolderUri.IsAbsoluteUri ? selectedFolderUri.LocalPath : selectedFolderUri.OriginalString).Replace('\\', '/');
     }
 
     public async Task CreateBackupAsync()
@@ -171,7 +171,10 @@ public partial class SettingsPageViewModel : ViewModelBase
     {
         base.OnPropertyChanged(e);
 
-        if (!_isLoadingSavedSettings && e.PropertyName is not (nameof(IsBackupDirectoryInvalid)) or nameof(DoesBackupDirectoryExist))
+        if (e.PropertyName == nameof(BackupDirectory))
+            BackupDirectoryProps = new(BackupDirectory, _backupService);
+
+        if (!_isLoadingSavedSettings)
             SaveSettings();
     }
 
@@ -207,4 +210,46 @@ public partial class SettingsPageViewModel : ViewModelBase
     };
 
     private void KeyGenerationSettingsVM_PropertyChanged(object? sender, PropertyChangedEventArgs e) => OnPropertyChanged(e);
+
+    public class BackupDirectoryProperties
+    {
+        public string? BackupDirectory { get; }
+        public Uri? DirectoryUri { get; }
+        public bool IsValid { get; }
+        public bool DoesExist { get; }
+        public string? MessageText { get; }
+        public IBrush? MessageBrush { get; }
+
+        public BackupDirectoryProperties(string? backupDirectory, IBackupService? backupService)
+        {
+            BackupDirectory = backupDirectory;
+            if (!string.IsNullOrWhiteSpace(backupDirectory) && Uri.TryCreate(backupDirectory, UriKind.Absolute, out Uri? uri))
+                DirectoryUri = uri;
+
+            IsValid = DirectoryUri != null;
+            DoesExist = Directory.Exists(backupDirectory);
+
+            if (DirectoryUri == null)
+            {
+                MessageText = "Backup directory is invalid.";
+                MessageBrush = new SolidColorBrush(Colors.Red);
+            }
+            else if (!DoesExist)
+            {
+                MessageText = $"Backup directory does not exist and will be created.";
+                MessageBrush = new SolidColorBrush(Colors.Orange);
+            }
+            if (IsValid && DoesExist && backupService != null)
+            {
+                var canCreateBackupResult = backupService.CanCreateBackupAtDirectory(backupDirectory!);
+
+                if (!canCreateBackupResult.IsSuccessful)
+                {
+                    MessageText = "Cannot create backup at this directory.";
+                    MessageBrush = new SolidColorBrush(Colors.Red);
+                    IsValid = false;
+                }
+            }
+        }
+    }
 }

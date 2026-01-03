@@ -72,7 +72,9 @@ public partial class App : Application
             .AddSingleton<LockScreenViewModel>()
             .AddSingleton<HomeViewModel>()
             .AddSingleton<VaultPageViewModel>()
-            .AddSingleton<SettingsPageViewModel>();
+            .AddSingleton<SettingsPageViewModel>()
+
+            .AddTransient<KeyGenerationSettingsViewModel>();
 
         if (ApplicationLifetime != null)
             services.AddSingleton(ApplicationLifetime);

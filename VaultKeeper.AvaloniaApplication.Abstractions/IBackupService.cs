@@ -7,6 +7,7 @@ namespace VaultKeeper.AvaloniaApplication.Abstractions;
 
 public interface IBackupService
 {
+    Result CanCreateBackupAtDirectory(string directory);
     Task<Result<BackupData?>> SaveBackupAsync(BackupSettings? backupSettings = null);
     Task<Result<BackupData?>> LoadBackupAsync(string backupPath);
     Task<Result<BackupData?>> LoadBackupFromFilePickerAsync();

@@ -1,5 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using VaultKeeper.AvaloniaApplication.Forms.Common;
+using VaultKeeper.AvaloniaApplication.ViewModels.Settings;
 using VaultKeeper.AvaloniaApplication.ViewModels.VaultItems.Common;
 
 namespace VaultKeeper.AvaloniaApplication.ViewModels.VaultItems;
@@ -9,7 +10,10 @@ public partial class VaultItemFormViewModel(VaultItemForm form) : VaultItemViewM
     [ObservableProperty]
     private VaultItemForm _form = form;
 
-    [ObservableProperty, NotifyPropertyChangedFor(nameof(PasswordChar))]
+    [ObservableProperty, NotifyPropertyChangedFor(nameof(IsGenerateKeyButtonVisible))]
+    private KeyGenerationSettingsViewModel? _keyGenerationSettingsVM;
+
+    [ObservableProperty, NotifyPropertyChangedFor(nameof(PasswordChar), nameof(IsGenerateKeyButtonVisible))]
     private bool _valueRevealed = form.Mode == FormMode.New;
 
     [ObservableProperty]
@@ -19,4 +23,5 @@ public partial class VaultItemFormViewModel(VaultItemForm form) : VaultItemViewM
     private bool _useVerticalLayout = false;
 
     public char PasswordChar => ValueRevealed ? '\0' : '*';
+    public bool IsGenerateKeyButtonVisible => KeyGenerationSettingsVM != null && ValueRevealed;
 }

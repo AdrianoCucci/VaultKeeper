@@ -11,9 +11,11 @@ public partial class KeyGenerationSettingsViewModel
     {
         CharSet[] charSetOptions =
         [
-            new() { Type = CharSetType.AlphaNumericAndSymbols, Name = "CharSet Option 1", Chars = "abc123!@#" },
+            CharSet.Default,
             new() { Type = CharSetType.LettersOnly, Name = "CharSet Option 2", Chars = "abc" },
-            new() { Type = CharSetType.NumbersOnly, Name = "CharSet Option 3", Chars = "123" }
+            new() { Type = CharSetType.NumbersOnly, Name = "CharSet Option 3", Chars = "123" },
+            new() { Type = CharSetType.NumbersAndSymbols, Name = "CharSet Option 4", Chars = "123!@#" },
+            new() { Type = CharSetType.SymbolsOnly, Name = "CharSet Option 5", Chars = "!@#" },
         ];
 
         return new()

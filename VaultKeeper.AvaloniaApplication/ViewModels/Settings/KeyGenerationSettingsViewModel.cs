@@ -1,4 +1,5 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+﻿using Avalonia;
+using CommunityToolkit.Mvvm.ComponentModel;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -31,21 +32,22 @@ public partial class KeyGenerationSettingsViewModel(KeyGenerationSettings model,
     }
 
     [ObservableProperty]
-    private bool _isGenerateButtonVisible = true;
+    [NotifyPropertyChangedFor(nameof(ViewMaxWidth), nameof(ViewMaxHeight), nameof(ScrollViewerMaxHeight), nameof(ListBoxItemMargin))]
+    private bool _useCompactView = false;
+
+    public double ViewMaxWidth => UseCompactView ? 800 : double.NaN;
+    public double ViewMaxHeight => UseCompactView ? 600 : double.NaN;
+    public double ScrollViewerMaxHeight => UseCompactView ? 300 : double.NaN;
+    public Thickness ListBoxItemMargin => UseCompactView ? new(0) : new(10);
 
     private readonly ICharSetService? _charSetService;
-    private readonly IKeyGeneratorService? _keyGeneratorService;
     private readonly IUserSettingsService? _userSettingsService;
 
     public KeyGenerationSettingsViewModel() : this(KeyGenerationSettings.Default) { }
 
-    public KeyGenerationSettingsViewModel(
-        ICharSetService? charSetService,
-        IKeyGeneratorService? keyGeneratorService,
-        IUserSettingsService? userSettingsService) : this()
+    public KeyGenerationSettingsViewModel(ICharSetService? charSetService, IUserSettingsService? userSettingsService) : this()
     {
         _charSetService = charSetService;
-        _keyGeneratorService = keyGeneratorService;
         _userSettingsService = userSettingsService;
 
         ApplyDefaultSettings();
@@ -54,8 +56,8 @@ public partial class KeyGenerationSettingsViewModel(KeyGenerationSettings model,
     public void ApplySettings(KeyGenerationSettings settings)
     {
         Model = settings;
-        MinLength = settings.MinLength;
         MaxLength = settings.MaxLength;
+        MinLength = settings.MinLength;
 
         if (_charSetService != null)
         {
@@ -72,11 +74,9 @@ public partial class KeyGenerationSettingsViewModel(KeyGenerationSettings model,
 
     public void ApplyDefaultSettings()
     {
-        KeyGenerationSettings defaultSettings = _userSettingsService?.GetDefaultUserSettings()?.KeyGeneration ?? KeyGenerationSettings.Default;
+        KeyGenerationSettings defaultSettings = _userSettingsService?.GetUserSettingsOrDefault()?.KeyGeneration ?? KeyGenerationSettings.Default;
         ApplySettings(defaultSettings);
     }
-
-    public string? GenerateKey() => _keyGeneratorService?.GenerateKey(GetUpdatedModel());
 
     public override KeyGenerationSettings GetUpdatedModel() => new()
     {

@@ -4,18 +4,25 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:vm="using:VaultKeeper.AvaloniaApplication.ViewModels.Settings"
-             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             mc:Ignorable="d" d:DesignWidth="700" d:DesignHeight="500"
              x:Class="VaultKeeper.AvaloniaApplication.Views.Settings.KeyGenerationSettingsView"
-             x:DataType="vm:KeyGenerationSettingsViewModel">
+             x:DataType="vm:KeyGenerationSettingsViewModel"
+             Name="Root"
+             LayoutUpdated="Root_LayoutUpdated">
 
   <Design.DataContext>
     <x:Static Member="vm:KeyGenerationSettingsViewModel.Design"/>
   </Design.DataContext>
 
-  <StackPanel Spacing="20">
+  <StackPanel Spacing="20"
+              MaxWidth="{Binding ViewMaxWidth}"
+              MaxHeight="{Binding ViewMaxHeight}"
+              Grid.Row="0">
+
     <UniformGrid Rows="1" Columns="2" ColumnSpacing="20">
       <StackPanel>
         <Label Target="PART_KeyGenMinCharLengthInput">Minimum Key Length</Label>
+
         <NumericUpDown Name="PART_KeyGenMinCharLengthInput"
                        Value="{Binding MinLength}"
                        Minimum="1"
@@ -28,7 +35,7 @@
         <NumericUpDown Name="PART_KeyGenMaxCharLengthInput"
                        Value="{Binding MaxLength}"
                        Minimum="1"
-                       Maximum="100"
+                       Maximum="300"
                        FormatString="0"/>
       </StackPanel>
     </UniformGrid>
@@ -36,33 +43,31 @@
     <StackPanel Spacing="10">
       <Label>Character Set</Label>
 
-      <ListBox ItemsSource="{Binding CharSetOptions}"
-               SelectedItem="{Binding CharSet}"
-               SelectedValueBinding="{Binding Type}">
-        <ListBox.ItemsPanel>
-          <ItemsPanelTemplate>
-            <StackPanel Margin="10" />
-          </ItemsPanelTemplate>
-        </ListBox.ItemsPanel>
+      <ScrollViewer MaxHeight="{Binding ScrollViewerMaxHeight}">
+        <ListBox ItemsSource="{Binding CharSetOptions}"
+                 SelectedItem="{Binding CharSet}"
+                 SelectedValueBinding="{Binding Type}"
+                 CornerRadius="8"
+                 Cursor="Hand">
 
-        <ListBox.ItemTemplate>
-          <DataTemplate>
-            <UniformGrid RowSpacing="0" Rows="1" Columns="2" Cursor="Hand">
-              <TextBlock Text="{Binding Name}"/>
-              <TextBox Text="{Binding Chars}"
-                       IsHitTestVisible="False"
-                       IsReadOnly="True"
-                       Focusable="False" />
-            </UniformGrid>
-          </DataTemplate>
-        </ListBox.ItemTemplate>
-      </ListBox>
+          <ListBox.ItemTemplate>
+            <DataTemplate>
+              <UniformGrid RowSpacing="0"
+                           Rows="1"
+                           Columns="2"
+                           Margin="{Binding $parent[UserControl].DataContext.ListBoxItemMargin}">
+                <TextBlock Text="{Binding Name}" FontWeight="SemiBold"/>
+                <TextBox Text="{Binding Chars}"
+                         IsHitTestVisible="False"
+                         TextWrapping="Wrap"
+                         IsReadOnly="True"
+                         Focusable="False" />
+              </UniformGrid>
+            </DataTemplate>
+          </ListBox.ItemTemplate>
+        </ListBox>
+      </ScrollViewer>
+
     </StackPanel>
-
-    <common:AppButton Text="Generate"
-                      IconStart="{StaticResource IconWandMagicSparkles}"
-                      HorizontalAlignment="Right"
-                      IsVisible="{Binding IsGenerateButtonVisible}"
-                      Click="GenerateButton_Click"/>
   </StackPanel>
 </UserControl>

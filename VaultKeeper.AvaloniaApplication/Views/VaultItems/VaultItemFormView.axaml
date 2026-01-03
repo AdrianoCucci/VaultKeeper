@@ -4,8 +4,11 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:groups="using:VaultKeeper.Models.Groups"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:settings-views="using:VaultKeeper.AvaloniaApplication.ViewModels.Settings"
+             xmlns:settings-vms="using:VaultKeeper.AvaloniaApplication.Views.Settings"
+             xmlns:converters="clr-namespace:Avalonia.Data.Converters;assembly=Avalonia.Base"
              xmlns:vm="using:VaultKeeper.AvaloniaApplication.ViewModels.VaultItems"
-             mc:Ignorable="d" d:DesignWidth="1920" d:DesignHeight="450"
+             mc:Ignorable="d" d:DesignWidth="1920" d:DesignHeight="600"
              x:Class="VaultKeeper.AvaloniaApplication.Views.VaultItems.VaultItemFormView"
              x:DataType="vm:VaultItemFormViewModel"
              Name="Root"
@@ -112,6 +115,35 @@
             <PathIcon/>
           </Button>
         </TextBox.InnerLeftContent>
+
+        <TextBox.InnerRightContent>
+          <SplitButton IsVisible="{Binding IsGenerateKeyButtonVisible}" Click="GenerateValueButton_Click">
+            <PathIcon Data="{StaticResource IconWandMagicSparkles}"/>
+
+            <SplitButton.Flyout>
+              <Flyout>
+                <StackPanel>
+                  <settings-vms:KeyGenerationSettingsView DataContext="{Binding KeyGenerationSettingsVM}"
+                                                          MaxWidth="400"
+                                                          GenerateButtonClicked="GenerateValueButton_Click"/>
+
+                  <Border Padding="10" Margin="10" Background="{DynamicResource SystemRegionBrush}" CornerRadius="8" Grid.Row="1">
+                    <common:AppButton Text="Generate"
+                                      IconStart="{StaticResource IconWandMagicSparkles}"
+                                      HorizontalAlignment="Right"
+                                      Click="GenerateValueButton_Click" />
+                  </Border>
+                </StackPanel>
+              </Flyout>
+            </SplitButton.Flyout>
+
+            <SplitButton.Styles>
+              <Style Selector="SplitButton /template/ Button#PART_PrimaryButton">
+                <Setter Property="ToolTip.Tip" Value="Generate Value" />
+              </Style>
+            </SplitButton.Styles>
+          </SplitButton>
+        </TextBox.InnerRightContent>
       </TextBox>
 
       <ItemsControl ItemsSource="{Binding #InputValue.(DataValidationErrors.Errors)}">

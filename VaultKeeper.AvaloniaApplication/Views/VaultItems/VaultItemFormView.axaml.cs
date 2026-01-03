@@ -24,6 +24,8 @@ public partial class VaultItemFormView : VaultItemViewBase<VaultItemFormViewMode
 
     private void ActionToggleRevealValue_Click(object? sender, RoutedEventArgs e) => RaiseEvent(VaultItemFormAction.ToggleRevealValue);
 
+    private void GenerateValueButton_Click(object? sender, RoutedEventArgs e) => RaiseEvent(VaultItemFormAction.GenerateValue);
+
     private void FormButtons_Cancelled(object? sender, RoutedEventArgs e) => RaiseEvent(VaultItemFormAction.Cancel);
 
     private void FormButtons_Submitted(object? sender, RoutedEventArgs e)
