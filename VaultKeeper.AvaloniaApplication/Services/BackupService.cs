@@ -15,9 +15,16 @@ namespace VaultKeeper.AvaloniaApplication.Services;
 public class BackupService(
     ILogger<BackupService> logger,
     IAppDataService appDataService,
+    IFileService fileService,
     IUserSettingsService userSettingsService,
     IPlatformService platformService) : IBackupService
 {
+    public Result CanCreateBackupAtDirectory(string directory)
+    {
+        logger.LogInformation($"{nameof(CanCreateBackupAtDirectory)} | directory: {{directory}}", directory);
+        return fileService.CanWriteToDirectory(directory);
+    }
+
     public async Task<Result<BackupData?>> SaveBackupAsync(BackupSettings? backupSettings = null)
     {
         logger.LogInformation(nameof(SaveBackupAsync));

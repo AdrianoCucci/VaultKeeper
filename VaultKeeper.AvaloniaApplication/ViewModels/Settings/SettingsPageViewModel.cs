@@ -1,4 +1,5 @@
-﻿using Avalonia.Platform.Storage;
+﻿using Avalonia.Media;
+using Avalonia.Platform.Storage;
 using CommunityToolkit.Mvvm.ComponentModel;
 using System;
 using System.Collections.Generic;
@@ -15,17 +16,12 @@ using VaultKeeper.Services.Abstractions;
 
 namespace VaultKeeper.AvaloniaApplication.ViewModels.Settings;
 
-public partial class SettingsPageViewModel(
-    IUserSettingsService settingsService,
-    IPlatformService platformService,
-    IBackupService backupService,
-    IThemeService themeService,
-    ICharSetService charSetService,
-    IAppSessionService appSessionService) : ViewModelBase
+public partial class SettingsPageViewModel : ViewModelBase
 {
-    public UserSettings Model { get; private set; } = UserSettings.Default;
+    public UserSettings Model { get; private set; }
+    public KeyGenerationSettingsViewModel KeyGenerationSettingsVM { get; init; }
 
-    [ObservableProperty, NotifyPropertyChangedFor(nameof(IsBackupDirectoryInvalid), nameof(DoesBackupDirectoryExist))]
+    [ObservableProperty]
     private string _backupDirectory = string.Empty;
 
     [ObservableProperty]
@@ -43,37 +39,53 @@ public partial class SettingsPageViewModel(
     [ObservableProperty]
     private int _fontSize = 14;
 
-    [ObservableProperty]
-    private IEnumerable<CharSet> _charSets = [];
 
-    [ObservableProperty]
-    private CharSet _currentCharSet = CharSet.Default;
+    private BackupDirectoryProperties _backupDirectoryProps;
+    public BackupDirectoryProperties BackupDirectoryProps { get => _backupDirectoryProps; private set => SetProperty(ref _backupDirectoryProps, value); }
 
-    private int _keyGenMinLength = 1;
-    public int KeyGenMinLength { get => _keyGenMinLength; set => SetProperty(ref _keyGenMinLength, Math.Clamp(value, 1, _keyGenMaxLength)); }
-
-    private int _keyGenMaxLength = 1;
-    public int KeyGenMaxLength
-    {
-        get => _keyGenMaxLength;
-        set
-        {
-            SetProperty(ref _keyGenMaxLength, value);
-            if (value < _keyGenMinLength)
-                KeyGenMinLength = value;
-        }
-    }
-
-    public bool IsBackupDirectoryInvalid => Path.GetInvalidPathChars().Any(BackupDirectory.Contains);
-    public bool DoesBackupDirectoryExist => Directory.Exists(BackupDirectory);
+    private readonly IUserSettingsService? _userSettingsService;
+    private readonly IPlatformService? _platformService;
+    private readonly IBackupService? _backupService;
+    private readonly IThemeService? _themeService;
+    private readonly IAppSessionService? _appSessionService;
 
     private bool _isLoadingSavedSettings = false;
+
+    public SettingsPageViewModel(
+        IUserSettingsService userSettingsService,
+        IPlatformService platformService,
+        IBackupService backupService,
+        IThemeService themeService,
+        ICharSetService charSetService,
+        IAppSessionService appSessionService)
+    {
+        _userSettingsService = userSettingsService;
+        _platformService = platformService;
+        _backupService = backupService;
+        _themeService = themeService;
+        _appSessionService = appSessionService;
+
+        Model = userSettingsService?.GetDefaultUserSettings() ?? UserSettings.Default;
+        KeyGenerationSettingsVM = new(charSetService, userSettingsService);
+        KeyGenerationSettingsVM.PropertyChanged += KeyGenerationSettingsVM_PropertyChanged;
+        _backupDirectoryProps = new(BackupDirectory, backupService);
+    }
+
+    public SettingsPageViewModel()
+    {
+        Model = UserSettings.Default;
+        KeyGenerationSettingsVM = new();
+        KeyGenerationSettingsVM.PropertyChanged += KeyGenerationSettingsVM_PropertyChanged;
+        _backupDirectoryProps = new(BackupDirectory, null);
+    }
+
+    ~SettingsPageViewModel() => KeyGenerationSettingsVM.PropertyChanged -= KeyGenerationSettingsVM_PropertyChanged;
 
     public virtual void LoadSavedSettings()
     {
         _isLoadingSavedSettings = true;
 
-        Model = settingsService?.GetUserSettingsOrDefault() ?? UserSettings.Default;
+        Model = _userSettingsService?.GetUserSettingsOrDefault() ?? UserSettings.Default;
 
         BackupSettings backupSettings = Model.Backup ?? BackupSettings.Default;
         BackupDirectory = backupSettings.BackupDirectory;
@@ -81,15 +93,12 @@ public partial class SettingsPageViewModel(
         AutoBackupOnLogout = backupSettings.AutoBackupOnLogout;
 
         AppThemeSettings themeSettings = Model.Theme ?? AppThemeSettings.Default;
-        ThemeDefinitions = themeService?.GetThemeDefinitions() ?? [];
+        ThemeDefinitions = _themeService?.GetThemeDefinitions() ?? [];
         CurrentThemeDefinition = ThemeDefinitions.FirstOrDefault(x => x.ThemeType == themeSettings.ThemeType) ?? ThemeDefinitions.FirstOrDefault();
         FontSize = themeSettings.FontSize;
 
         KeyGenerationSettings keyGenerationSettings = Model.KeyGeneration ?? KeyGenerationSettings.Default;
-        CharSets = charSetService?.GetCharSets() ?? [];
-        CurrentCharSet = CharSets.FirstOrDefault(x => x.Type == keyGenerationSettings.CharSet?.Type) ?? CharSets.FirstOrDefault() ?? CharSet.Default;
-        KeyGenMaxLength = keyGenerationSettings.MaxLength;
-        KeyGenMinLength = keyGenerationSettings.MinLength;
+        KeyGenerationSettingsVM.ApplySettings(keyGenerationSettings);
 
         UpdateServices(Model);
 
@@ -104,16 +113,18 @@ public partial class SettingsPageViewModel(
 
     public void RestoreDefaultSettings()
     {
-        if (settingsService == null)
+        if (_userSettingsService == null)
             return;
 
-        settingsService.RestoreDefaultSettings();
+        _userSettingsService.RestoreDefaultSettings();
         LoadSavedSettings();
     }
 
     public async Task SetBackupDirectoryFromFolderPickerAsync()
     {
-        IReadOnlyList<IStorageFolder> storageFolders = await platformService.OpenFolderPickerAsync(new()
+        if (_platformService == null) return;
+
+        IReadOnlyList<IStorageFolder> storageFolders = await _platformService.OpenFolderPickerAsync(new()
         {
             Title = "Select Backup Directory"
         });
@@ -121,14 +132,16 @@ public partial class SettingsPageViewModel(
         if (storageFolders.Count < 1)
             return;
 
-        IStorageFolder selectedFolder = storageFolders[0];
-        BackupDirectory = selectedFolder.Path.AbsolutePath;
+        var selectedFolderUri = storageFolders[0].Path;
+        BackupDirectory = (selectedFolderUri.IsAbsoluteUri ? selectedFolderUri.LocalPath : selectedFolderUri.OriginalString).Replace('\\', '/');
     }
 
     public async Task CreateBackupAsync()
     {
+        if (_backupService == null) return;
+
         BackupSettings backupSettings = CreateBackupSettings();
-        Result<BackupData?> backupResult = await backupService.SaveBackupAsync(backupSettings);
+        Result<BackupData?> backupResult = await _backupService.SaveBackupAsync(backupSettings);
         if (!backupResult.IsSuccessful)
         {
             // TODO: Handle error.
@@ -138,7 +151,9 @@ public partial class SettingsPageViewModel(
 
     public async Task LoadBackupAsync()
     {
-        var loadResult = await backupService.LoadBackupFromFilePickerAsync();
+        if (_backupService == null || _appSessionService == null) return;
+
+        Result<BackupData?> loadResult = await _backupService.LoadBackupFromFilePickerAsync();
         if (!loadResult.IsSuccessful)
         {
             // TODO: Handle error.
@@ -149,33 +164,36 @@ public partial class SettingsPageViewModel(
         if (settings != null)
             UpdateServices(settings);
 
-        await appSessionService.LogoutAsync((nameof(MainWindowViewModel), nameof(LockScreenViewModel)));
+        await _appSessionService.LogoutAsync((nameof(MainWindowViewModel), nameof(LockScreenViewModel)));
     }
 
     protected override void OnPropertyChanged(PropertyChangedEventArgs e)
     {
         base.OnPropertyChanged(e);
 
-        if (!_isLoadingSavedSettings && e.PropertyName is not (nameof(IsBackupDirectoryInvalid)) or nameof(DoesBackupDirectoryExist))
+        if (e.PropertyName == nameof(BackupDirectory))
+            BackupDirectoryProps = new(BackupDirectory, _backupService);
+
+        if (!_isLoadingSavedSettings)
             SaveSettings();
     }
 
     private void UpdateServices(UserSettings settings)
     {
-        if (settingsService == null || themeService == null) return;
+        if (_userSettingsService == null || _themeService == null) return;
 
-        settingsService.SetUserSettings(settings);
+        _userSettingsService.SetUserSettings(settings);
 
-        AppThemeSettings themeSettings = settings.Theme ?? settingsService.GetDefaultUserSettings()?.Theme ?? AppThemeSettings.Default;
-        themeService.SetTheme(themeSettings.ThemeType);
-        themeService.SetBaseFontSize(themeSettings.FontSize);
+        AppThemeSettings themeSettings = settings.Theme ?? _userSettingsService.GetDefaultUserSettings()?.Theme ?? AppThemeSettings.Default;
+        _themeService.SetTheme(themeSettings.ThemeType);
+        _themeService.SetBaseFontSize(themeSettings.FontSize);
     }
 
     private UserSettings CreateUserSettings() => new()
     {
         Theme = CreateThemeSettings(),
         Backup = CreateBackupSettings(),
-        KeyGeneration = CreateKeyGenreationSettings()
+        KeyGeneration = KeyGenerationSettingsVM.GetUpdatedModel()
     };
 
     private AppThemeSettings CreateThemeSettings() => new()
@@ -191,10 +209,47 @@ public partial class SettingsPageViewModel(
         AutoBackupOnLogout = AutoBackupOnLogout
     };
 
-    private KeyGenerationSettings CreateKeyGenreationSettings() => new()
+    private void KeyGenerationSettingsVM_PropertyChanged(object? sender, PropertyChangedEventArgs e) => OnPropertyChanged(e);
+
+    public class BackupDirectoryProperties
     {
-        CharSet = CurrentCharSet,
-        MinLength = KeyGenMinLength,
-        MaxLength = KeyGenMaxLength
-    };
+        public string? BackupDirectory { get; }
+        public Uri? DirectoryUri { get; }
+        public bool IsValid { get; }
+        public bool DoesExist { get; }
+        public string? MessageText { get; }
+        public IBrush? MessageBrush { get; }
+
+        public BackupDirectoryProperties(string? backupDirectory, IBackupService? backupService)
+        {
+            BackupDirectory = backupDirectory;
+            if (!string.IsNullOrWhiteSpace(backupDirectory) && Uri.TryCreate(backupDirectory, UriKind.Absolute, out Uri? uri))
+                DirectoryUri = uri;
+
+            IsValid = DirectoryUri != null;
+            DoesExist = Directory.Exists(backupDirectory);
+
+            if (DirectoryUri == null)
+            {
+                MessageText = "Backup directory is invalid.";
+                MessageBrush = new SolidColorBrush(Colors.Red);
+            }
+            else if (!DoesExist)
+            {
+                MessageText = $"Backup directory does not exist and will be created.";
+                MessageBrush = new SolidColorBrush(Colors.Orange);
+            }
+            if (IsValid && DoesExist && backupService != null)
+            {
+                var canCreateBackupResult = backupService.CanCreateBackupAtDirectory(backupDirectory!);
+
+                if (!canCreateBackupResult.IsSuccessful)
+                {
+                    MessageText = "Cannot create backup at this directory.";
+                    MessageBrush = new SolidColorBrush(Colors.Red);
+                    IsValid = false;
+                }
+            }
+        }
+    }
 }

@@ -1,5 +1,6 @@
 ﻿using Avalonia.Media;
 using CommunityToolkit.Mvvm.ComponentModel;
+using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -11,12 +12,14 @@ using VaultKeeper.AvaloniaApplication.Extensions;
 using VaultKeeper.AvaloniaApplication.Forms.Common;
 using VaultKeeper.AvaloniaApplication.Forms.VaultItems;
 using VaultKeeper.AvaloniaApplication.ViewModels.Groups;
+using VaultKeeper.AvaloniaApplication.ViewModels.Settings;
 using VaultKeeper.AvaloniaApplication.ViewModels.VaultItems;
 using VaultKeeper.AvaloniaApplication.ViewModels.VaultItems.Common;
 using VaultKeeper.Common.Models.Queries;
 using VaultKeeper.Common.Results;
 using VaultKeeper.Models.Groups;
 using VaultKeeper.Models.Groups.Extensions;
+using VaultKeeper.Models.Settings;
 using VaultKeeper.Models.VaultItems;
 using VaultKeeper.Models.VaultItems.Extensions;
 using VaultKeeper.Services.Abstractions;
@@ -28,7 +31,9 @@ public partial class VaultPageViewModel(
     IGroupService groupService,
     ISecurityService securityService,
     IPlatformService platformService,
-    IApplicationService applicationService) : ViewModelBase
+    IApplicationService applicationService,
+    IKeyGeneratorService keyGeneratorService,
+    IServiceProvider serviceProvider) : ViewModelBase
 {
     [ObservableProperty, NotifyPropertyChangedFor(nameof(IsEmpty), nameof(EmptyTemplateTitle), nameof(EmptyTemplateDescription))]
     private ObservableVaultItemViewModels _groupedVaultItems = [];
@@ -126,179 +131,19 @@ public partial class VaultPageViewModel(
             SidePaneContent = null;
     }
 
-    public void ShowVaultItemEditForm(VaultItemViewModelBase vaultItemVM) =>
-        TryUpdateVaultItemViewModel(vaultItemVM.Model, () => CreateVaultItemFormViewModel(vaultItemVM.Model, FormMode.Edit));
-
-    public void HideVaultItemEditForm(VaultItemFormViewModel vaultItemVM) =>
-        TryUpdateVaultItemViewModel(vaultItemVM.Model, () => new VaultItemViewModel(vaultItemVM.Model));
-
-    public async Task DeleteVaultItemAsync(VaultItemViewModelBase vaultItemVM)
+    public void HideAllForms()
     {
-        VaultItem? item = _vaultItemData.Items.FirstOrDefault(x => x.Id == vaultItemVM.Model.Id);
-        if (item == null)
-            return;
+        HideVaultItemCreateForm();
 
-        Result deleteResult = await vaultItemService.DeleteAsync(item);
-        if (!deleteResult.IsSuccessful)
+        IEnumerable<VaultItemFormViewModel> itemFormVMs = [..GroupedVaultItems
+            .SelectMany(x => x.VaultItems)
+            .Where(x => x is VaultItemFormViewModel)
+            .Cast<VaultItemFormViewModel>()];
+
+        foreach (var vm in itemFormVMs)
         {
-            // TODO: Handle error.
-            return;
+            HideVaultItemEditForm(vm);
         }
-
-        if (TryUpdateVaultItemViewModel(vaultItemVM.Model, () => null))
-            await LoadVaultItemsAsync();
-    }
-
-    public async Task HandleItemActionAsync(VaultItemActionEventArgs eventArgs)
-    {
-        VaultItemViewModelBase viewModel = eventArgs.ViewModel;
-        VaultItem model = viewModel.Model;
-
-        switch (eventArgs.Action)
-        {
-            case VaultItemAction.CopyName:
-                await platformService.GetClipboard().SetTextAsync(model.Name);
-                break;
-            case VaultItemAction.CopyValue:
-                await platformService.GetClipboard().SetTextAsync(Decrypt(model.Value));
-                break;
-            case VaultItemAction.Edit:
-                ShowVaultItemEditForm(viewModel);
-                break;
-            case VaultItemAction.Delete:
-                await DeleteVaultItemAsync(viewModel);
-                break;
-        }
-    }
-
-    public async Task HandleItemFormActionAsync(VaultItemFormActionEventArgs eventArgs)
-    {
-        switch (eventArgs.Action)
-        {
-            case VaultItemFormAction.Cancel:
-                if (eventArgs.ViewModel == SidePaneContent)
-                    HideVaultItemCreateForm();
-                else
-                    HideVaultItemEditForm(eventArgs.ViewModel);
-                break;
-            case VaultItemFormAction.Submit:
-                await SaveVaultItemFormAsync(eventArgs);
-                break;
-            case VaultItemFormAction.ToggleRevealValue:
-                ToggleRevealFormItemValue(eventArgs.ViewModel);
-                break;
-        }
-    }
-
-    public async Task HandleGroupActionAsnc(GroupActionEventArgs eventArgs)
-    {
-        switch (eventArgs.Action)
-        {
-            case GroupAction.AddItem:
-                ShowVaultItemCreateForm(new() { GroupId = eventArgs.Group.Id });
-                break;
-            case GroupAction.Edit:
-                TryUpdateGroupViewModel(eventArgs.Group, () => new GroupFormViewModel(eventArgs.Group, FormMode.Edit));
-                break;
-            case GroupAction.CancelEdit:
-                TryUpdateGroupViewModel(eventArgs.Group, () => new GroupViewModel(eventArgs.Group));
-                break;
-            case GroupAction.ConfirmEdit:
-                {
-                    var updateResult = await groupService.UpdateAsync(eventArgs.Group);
-                    if (!updateResult.IsSuccessful)
-                    {
-                        // TODO: Handle error.
-                        return;
-                    }
-
-                    TryUpdateGroupViewModel(eventArgs.Group, () => new GroupViewModel(updateResult.Value!));
-                    await LoadGroupsAsync();
-                }
-                break;
-            case GroupAction.Delete:
-                {
-                    // TODO Prompt user to delete with or without child items.
-                    var deleteResult = await groupService.DeleteAsync(eventArgs.Group);
-                    if (!deleteResult.IsSuccessful)
-                    {
-                        // TODO: Handle error.
-                        return;
-                    }
-
-                    TryUpdateGroupViewModel(eventArgs.Group, () => null);
-                    await LoadGroupsAsync();
-                }
-                break;
-        }
-    }
-
-    public async Task SaveVaultItemFormAsync(VaultItemFormActionEventArgs formEvent)
-    {
-        if (formEvent.Form.HasErrors) return;
-
-        VaultItem formModel = formEvent.Form.GetModel();
-        bool shouldEncrypt = formEvent.ViewModel.ValueRevealed;
-
-        if (formEvent.Form.WillCreateGroup)
-        {
-            Result<Group> addGroupResult = await groupService.AddAsync(formEvent.Form.GetGroup().ToNewGroup());
-            if (!addGroupResult.IsSuccessful)
-            {
-                // TODO: Handle error.
-                return;
-            }
-
-            formModel.GroupId = addGroupResult.Value!.Id;
-            await LoadGroupsAsync(false);
-        }
-
-        switch (formEvent.Form.Mode)
-        {
-            case FormMode.New:
-                {
-                    Result<VaultItem> addResult = await vaultItemService.AddAsync(formModel.ToNewVaultItem(), shouldEncrypt);
-                    if (!addResult.IsSuccessful)
-                    {
-                        // TODO: Handle error.
-                        return;
-                    }
-
-                    HideVaultItemCreateForm();
-
-                    break;
-                }
-            case FormMode.Edit:
-                {
-                    Result<VaultItem> updateResult = await vaultItemService.UpdateAsync(formModel, shouldEncrypt);
-                    if (!updateResult.IsSuccessful)
-                    {
-                        // TODO: Handle error.
-                        return;
-                    }
-
-                    formEvent.ViewModel.UpdateModel(_ => updateResult.Value!);
-                    HideVaultItemEditForm(formEvent.ViewModel);
-
-                    break;
-                }
-        }
-
-        await LoadVaultItemsAsync();
-    }
-
-    public void ToggleRevealFormItemValue(VaultItemFormViewModel formVM)
-    {
-        string? value = formVM.Form.Value;
-
-        if (value != null)
-        {
-            formVM.Form.Value = formVM.ValueRevealed
-                ? Encrypt(value)
-                : Decrypt(value);
-        }
-
-        formVM.ValueRevealed = !formVM.ValueRevealed;
     }
 
     private void UpdateMainContent(
@@ -374,6 +219,191 @@ public partial class VaultPageViewModel(
         GroupedVaultItems = [.. updatedGroupItemVMs];
     }
 
+    private void ShowVaultItemEditForm(VaultItemViewModelBase vaultItemVM) =>
+        TryUpdateVaultItemViewModel(vaultItemVM.Model, () => CreateVaultItemFormViewModel(vaultItemVM.Model, FormMode.Edit));
+
+    private void HideVaultItemEditForm(VaultItemFormViewModel vaultItemVM) =>
+        TryUpdateVaultItemViewModel(vaultItemVM.Model, () => new VaultItemViewModel(vaultItemVM.Model));
+
+    public async Task HandleItemActionAsync(VaultItemActionEventArgs eventArgs)
+    {
+        VaultItemViewModelBase viewModel = eventArgs.ViewModel;
+        VaultItem model = viewModel.Model;
+
+        switch (eventArgs.Action)
+        {
+            case VaultItemAction.CopyName:
+                await platformService.GetClipboard().SetTextAsync(model.Name);
+                break;
+            case VaultItemAction.CopyValue:
+                await platformService.GetClipboard().SetTextAsync(Decrypt(model.Value));
+                break;
+            case VaultItemAction.Edit:
+                ShowVaultItemEditForm(viewModel);
+                break;
+            case VaultItemAction.Delete:
+                await DeleteVaultItemAsync(viewModel);
+                break;
+        }
+    }
+
+    public async Task HandleItemFormActionAsync(VaultItemFormActionEventArgs eventArgs)
+    {
+        switch (eventArgs.Action)
+        {
+            case VaultItemFormAction.Cancel:
+                if (eventArgs.ViewModel == SidePaneContent)
+                    HideVaultItemCreateForm();
+                else
+                    HideVaultItemEditForm(eventArgs.ViewModel);
+                break;
+            case VaultItemFormAction.Submit:
+                await SaveVaultItemFormAsync(eventArgs);
+                break;
+            case VaultItemFormAction.ToggleRevealValue:
+                ToggleRevealFormItemValue(eventArgs.ViewModel);
+                break;
+            case VaultItemFormAction.GenerateValue:
+                GenerateValueForFormItem(eventArgs.ViewModel);
+                break;
+        }
+    }
+
+    public async Task HandleGroupActionAsnc(GroupActionEventArgs eventArgs)
+    {
+        switch (eventArgs.Action)
+        {
+            case GroupAction.AddItem:
+                ShowVaultItemCreateForm(new() { GroupId = eventArgs.Group.Id });
+                break;
+            case GroupAction.Edit:
+                TryUpdateGroupViewModel(eventArgs.Group, () => new GroupFormViewModel(eventArgs.Group, FormMode.Edit));
+                break;
+            case GroupAction.CancelEdit:
+                TryUpdateGroupViewModel(eventArgs.Group, () => new GroupViewModel(eventArgs.Group));
+                break;
+            case GroupAction.ConfirmEdit:
+                {
+                    var updateResult = await groupService.UpdateAsync(eventArgs.Group);
+                    if (!updateResult.IsSuccessful)
+                    {
+                        // TODO: Handle error.
+                        return;
+                    }
+
+                    TryUpdateGroupViewModel(eventArgs.Group, () => new GroupViewModel(updateResult.Value!));
+                    await LoadGroupsAsync();
+                }
+                break;
+            case GroupAction.Delete:
+                {
+                    // TODO Prompt user to delete with or without child items.
+                    var deleteResult = await groupService.DeleteAsync(eventArgs.Group);
+                    if (!deleteResult.IsSuccessful)
+                    {
+                        // TODO: Handle error.
+                        return;
+                    }
+
+                    TryUpdateGroupViewModel(eventArgs.Group, () => null);
+                    await LoadGroupsAsync();
+                }
+                break;
+        }
+    }
+
+    private async Task SaveVaultItemFormAsync(VaultItemFormActionEventArgs formEvent)
+    {
+        if (formEvent.Form.HasErrors) return;
+
+        VaultItem formModel = formEvent.Form.GetModel();
+        bool shouldEncrypt = formEvent.ViewModel.ValueRevealed;
+
+        if (formEvent.Form.WillCreateGroup)
+        {
+            Result<Group> addGroupResult = await groupService.AddAsync(formEvent.Form.GetGroup().ToNewGroup());
+            if (!addGroupResult.IsSuccessful)
+            {
+                // TODO: Handle error.
+                return;
+            }
+
+            formModel.GroupId = addGroupResult.Value!.Id;
+            await LoadGroupsAsync(false);
+        }
+
+        switch (formEvent.Form.Mode)
+        {
+            case FormMode.New:
+                {
+                    Result<VaultItem> addResult = await vaultItemService.AddAsync(formModel.ToNewVaultItem(), shouldEncrypt);
+                    if (!addResult.IsSuccessful)
+                    {
+                        // TODO: Handle error.
+                        return;
+                    }
+
+                    HideVaultItemCreateForm();
+
+                    break;
+                }
+            case FormMode.Edit:
+                {
+                    Result<VaultItem> updateResult = await vaultItemService.UpdateAsync(formModel, shouldEncrypt);
+                    if (!updateResult.IsSuccessful)
+                    {
+                        // TODO: Handle error.
+                        return;
+                    }
+
+                    formEvent.ViewModel.UpdateModel(_ => updateResult.Value!);
+                    HideVaultItemEditForm(formEvent.ViewModel);
+
+                    break;
+                }
+        }
+
+        await LoadVaultItemsAsync();
+    }
+
+    private void ToggleRevealFormItemValue(VaultItemFormViewModel formVM)
+    {
+        string? value = formVM.Form.Value;
+
+        if (value != null)
+        {
+            formVM.Form.Value = formVM.ValueRevealed
+                ? Encrypt(value)
+                : Decrypt(value);
+        }
+
+        formVM.ValueRevealed = !formVM.ValueRevealed;
+    }
+
+    private void GenerateValueForFormItem(VaultItemFormViewModel formVM)
+    {
+        KeyGenerationSettings? settings = formVM.KeyGenerationSettingsVM?.GetUpdatedModel();
+        if (settings != null)
+            formVM.Form.Value = keyGeneratorService.GenerateKey(settings);
+    }
+
+    private async Task DeleteVaultItemAsync(VaultItemViewModelBase vaultItemVM)
+    {
+        VaultItem? item = _vaultItemData.Items.FirstOrDefault(x => x.Id == vaultItemVM.Model.Id);
+        if (item == null)
+            return;
+
+        Result deleteResult = await vaultItemService.DeleteAsync(item);
+        if (!deleteResult.IsSuccessful)
+        {
+            // TODO: Handle error.
+            return;
+        }
+
+        if (TryUpdateVaultItemViewModel(vaultItemVM.Model, () => null))
+            await LoadVaultItemsAsync();
+    }
+
     private bool TryUpdateVaultItemViewModel(VaultItem vaultItem, Func<VaultItemViewModelBase?> newModelFunc)
     {
         VaultItemListViewModel? listItemVM = GroupedVaultItems.FirstOrDefault(x => x.VaultItems.Any(y => y.Model.Id == vaultItem.Id));
@@ -421,10 +451,15 @@ public partial class VaultPageViewModel(
         IEnumerable<Group> groupOptions = _groupData.Items;
         Group? selectedGroup = groupOptions.FirstOrDefault(x => x.Id == vaultItem.GroupId);
 
-        return new VaultItemFormViewModel(new(vaultItem, formMode, selectedGroup)
+        VaultItemForm form = new(vaultItem, formMode, selectedGroup)
         {
             GroupOptions = groupOptions
-        });
+        };
+
+        return new VaultItemFormViewModel(form)
+        {
+            KeyGenerationSettingsVM = serviceProvider.GetRequiredService<KeyGenerationSettingsViewModel>()
+        };
     }
 
     private string Encrypt(string value)

@@ -78,6 +78,24 @@ public class FileService(ILogger<FileService> logger) : IFileService
         return writeResult.Logged(logger);
     }
 
+    public Result CanWriteToDirectory(string path)
+    {
+        logger.LogInformation($"{nameof(CanWriteToDirectory)} | path: {{path}}", path);
+
+        try
+        {
+            string tempFilePath = Path.Combine(path, Path.GetRandomFileName());
+
+            File.Create(tempFilePath, 1, FileOptions.DeleteOnClose).Dispose();
+
+            return Result.Ok().Logged(logger);
+        }
+        catch (Exception ex)
+        {
+            return ex.ToFailedResult().Logged(logger);
+        }
+    }
+
     private static void EnsureDirectoryCreated(string path)
     {
         string? directory = Path.GetDirectoryName(path);

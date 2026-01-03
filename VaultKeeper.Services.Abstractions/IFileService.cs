@@ -10,4 +10,5 @@ public interface IFileService
     Result<string> ReadFileText(string path, Encoding? encoding = null);
     Result WriteFileBytes(string path, byte[] data, FileAttributes? attributes = null);
     Result WriteFileText(string path, string data, FileAttributes? attributes = null, Encoding? encoding = null);
+    Result CanWriteToDirectory(string path);
 }
