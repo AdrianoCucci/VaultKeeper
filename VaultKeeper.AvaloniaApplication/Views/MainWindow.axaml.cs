@@ -29,5 +29,7 @@ public partial class MainWindow : Window
 
     private async void LockScreenView_LoginSuccess(object? sender, RoutedEventArgs e) => Model?.NavigateToHome();
 
-    private void LockScreenView_ForgotPasswordClicked(object? sender, RoutedEventArgs e) => Model?.NavigateToSetup();
+    private void LockScreenView_ForgotPasswordClicked(object? sender, RoutedEventArgs e) => Model?.NavigateToSetup(canNavigateBack: true);
+
+    private void SetupPageView_NavigateBackClicked(object? sender, RoutedEventArgs e) => Model?.NavigateToLockscreen();
 }

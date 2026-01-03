@@ -12,7 +12,7 @@
   </Design.DataContext>
 
   <Grid RowDefinitions="*" ColumnDefinitions="*, 1.5*, *">
-    <Grid RowDefinitions="*" ColumnDefinitions="*, *" Background="{DynamicResource SystemAccentColor}" Grid.Column="0">
+    <Grid RowDefinitions="*" ColumnDefinitions="*, *" Background="{DynamicResource SystemRegionBrush}" Grid.Column="0">
       <Border MaxHeight="600"
               MinWidth="100"
               CornerRadius="100 0 0 20"
@@ -68,7 +68,6 @@
               <Button HorizontalAlignment="Right"
                       VerticalAlignment="Top"
                       Classes="btn-link"
-                      Foreground="{DynamicResource SystemAccentColor}"
                       Grid.Column="1"
                       Click="ForgotPasswordButton_Click">
                 Forgot Password?
@@ -82,7 +81,7 @@
     </Border>
 
     <Border Background="{DynamicResource SystemAccentColor}" Grid.Column="2">
-      <Grid RowDefinitions="*" ColumnDefinitions="*, *" Background="{DynamicResource SystemAccentColor}" Grid.Column="0">
+      <Grid RowDefinitions="*" ColumnDefinitions="*, *" Background="{DynamicResource SystemRegionBrush}" Grid.Column="0">
         <Border MaxHeight="600"
                 MinWidth="100"
                 CornerRadius="0 100 20 0"

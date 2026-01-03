@@ -32,7 +32,6 @@ public partial class MainWindowViewModel : ViewModelBase
         _appDataService = appDataService;
         _themeService = themeService;
         _navigator.Navigated += Navigator_Navigated;
-        Content = _navigator.CurrentRoute.Content;
     }
 
     ~MainWindowViewModel() => _navigator.Navigated -= Navigator_Navigated;
@@ -67,7 +66,10 @@ public partial class MainWindowViewModel : ViewModelBase
         }
     }
 
-    public void NavigateToSetup() => _navigator.Navigate(nameof(SetupPageViewModel));
+    public void NavigateToSetup(bool canNavigateBack = false) => _navigator.Navigate(nameof(SetupPageViewModel), new()
+    {
+        { nameof(SetupPageViewModel.CanNavigateBack), canNavigateBack }
+    });
 
     public void NavigateToLockscreen() => _navigator.Navigate(nameof(LockScreenPageViewModel));
 

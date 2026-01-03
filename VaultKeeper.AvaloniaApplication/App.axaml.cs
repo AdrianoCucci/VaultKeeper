@@ -67,12 +67,12 @@ public partial class App : Application
             .AddVaultKeeperServices()
             .AddAvaloniaServices()
 
-            .AddSingleton<MainWindowViewModel>()
-            .AddSingleton<SetupPageViewModel>()
-            .AddSingleton<LockScreenPageViewModel>()
-            .AddSingleton<HomeViewModel>()
-            .AddSingleton<VaultPageViewModel>()
-            .AddSingleton<SettingsPageViewModel>()
+            .AddTransient<MainWindowViewModel>()
+            .AddTransient<SetupPageViewModel>()
+            .AddTransient<LockScreenPageViewModel>()
+            .AddTransient<HomeViewModel>()
+            .AddTransient<VaultPageViewModel>()
+            .AddTransient<SettingsPageViewModel>()
 
             .AddTransient<KeyGenerationSettingsViewModel>();
 
@@ -86,6 +86,7 @@ public partial class App : Application
                 Key = nameof(MainWindowViewModel),
                 Routes =
                 [
+                    new() { Key = nameof(MainWindowViewModel) }, // Initializing route
                     new()
                     {
                         Key = nameof(SetupPageViewModel),

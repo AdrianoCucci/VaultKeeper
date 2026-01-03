@@ -35,21 +35,32 @@
       <Setter Property="Foreground" Value="{DynamicResource SystemAccentColor}" />
       <Setter Property="MinHeight" Value="0" />
       <Setter Property="Padding" Value="0" />
+      <Setter Property="FontWeight" Value="SemiBold" />
 
-      <Style Selector="^:pointerover /template/ ContentPresenter#PART_ContentPresenter">
-        <Setter Property="Background" Value="Transparent" />
-        <Setter Property="Foreground" Value="{DynamicResource SystemControlBackgroundBaseHighBrush}" />
-      </Style>
-      <Style Selector="^:pressed /template/ ContentPresenter#PART_ContentPresenter">
-        <Setter Property="Background" Value="Transparent" />
-        <Setter Property="Foreground" Value="{DynamicResource SystemAccentColor}" />
-      </Style>
       <Style Selector="^ :is(TemplatedControl)">
         <Setter Property="Foreground" Value="{DynamicResource SystemControlForegroundAccentBrush}" />
       </Style>
       <Style Selector="^ :is(MenuFlyoutPresenter) :is(TemplatedControl)">
         <Setter Property="Foreground" Value="{DynamicResource MenuFlyoutItemForeground}" />
         <Setter Property="Background" Value="{DynamicResource MenuFlyoutPresenterBackground}" />
+      </Style>
+
+      <Style Selector="^:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="Foreground" Value="{DynamicResource SystemControlBackgroundBaseHighBrush}" />
+      </Style>
+      <Style Selector="^:pointerover PathIcon">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="Foreground" Value="{DynamicResource SystemControlBackgroundBaseHighBrush}" />
+      </Style>
+
+      <Style Selector="^:pressed /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="Foreground" Value="{DynamicResource SystemAccentColor}" />
+      </Style>
+      <Style Selector="^:pressed PathIcon">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="Foreground" Value="{DynamicResource SystemAccentColor}" />
       </Style>
     </Style>
   </Style>
