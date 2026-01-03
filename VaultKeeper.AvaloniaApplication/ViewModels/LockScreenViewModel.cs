@@ -5,7 +5,7 @@ using VaultKeeper.Services.Abstractions;
 
 namespace VaultKeeper.AvaloniaApplication.ViewModels;
 
-public partial class LockScreenViewModel(IAppSessionService appSessionService) : ViewModelBase
+public partial class LockScreenPageViewModel(IAppSessionService appSessionService) : ViewModelBase
 {
     public LockScreenForm Form { get; } = new();
 

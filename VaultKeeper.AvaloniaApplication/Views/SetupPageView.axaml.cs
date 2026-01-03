@@ -4,13 +4,13 @@ using VaultKeeper.AvaloniaApplication.ViewModels;
 
 namespace VaultKeeper.AvaloniaApplication.Views;
 
-public partial class SetupView : ViewBase<SetupViewModel>
+public partial class SetupPageView : ViewBase<SetupPageViewModel>
 {
-    public static readonly RoutedEvent<RoutedEventArgs> SetupCompletedEvent = RoutedEvent.Register<RoutedEventArgs>(nameof(SetupCompleted), RoutingStrategies.Bubble, typeof(LockScreenView));
+    public static readonly RoutedEvent<RoutedEventArgs> SetupCompletedEvent = RoutedEvent.Register<RoutedEventArgs>(nameof(SetupCompleted), RoutingStrategies.Bubble, typeof(LockScreenPageView));
 
     public event EventHandler<RoutedEventArgs> SetupCompleted { add => AddHandler(SetupCompletedEvent, value); remove => RemoveHandler(SetupCompletedEvent, value); }
 
-    public SetupView() => InitializeComponent();
+    public SetupPageView() => InitializeComponent();
 
     private async void SubmitButton_Click(object? sender, RoutedEventArgs e)
     {

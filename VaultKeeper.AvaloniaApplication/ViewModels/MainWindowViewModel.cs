@@ -67,9 +67,9 @@ public partial class MainWindowViewModel : ViewModelBase
         }
     }
 
-    public void NavigateToSetup() => _navigator.Navigate(nameof(SetupViewModel));
+    public void NavigateToSetup() => _navigator.Navigate(nameof(SetupPageViewModel));
 
-    public void NavigateToLockscreen() => _navigator.Navigate(nameof(LockScreenViewModel));
+    public void NavigateToLockscreen() => _navigator.Navigate(nameof(LockScreenPageViewModel));
 
     public void NavigateToHome() => _navigator.Navigate(nameof(HomeViewModel));
 

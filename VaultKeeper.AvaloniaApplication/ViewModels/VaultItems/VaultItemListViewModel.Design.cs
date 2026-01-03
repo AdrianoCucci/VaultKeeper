@@ -8,9 +8,9 @@ using VaultKeeper.Models.VaultItems;
 
 namespace VaultKeeper.AvaloniaApplication.ViewModels.VaultItems;
 
-public partial class VaultItemListViewModel : ViewModelBase
+public partial class GroupedVaultItemsViewModel : ViewModelBase
 {
-    private static readonly Lazy<VaultItemListViewModel> _designLazy = new(() =>
+    private static readonly Lazy<GroupedVaultItemsViewModel> _designLazy = new(() =>
     {
         Group group = new() { Id = Guid.Empty, Name = "Item Group Name" };
         IEnumerable<VaultItem> items = Enumerable
@@ -28,5 +28,5 @@ public partial class VaultItemListViewModel : ViewModelBase
         return new(itemVMs, new(groupVM));
     });
 
-    public static VaultItemListViewModel Design => _designLazy.Value;
+    public static GroupedVaultItemsViewModel Design => _designLazy.Value;
 };

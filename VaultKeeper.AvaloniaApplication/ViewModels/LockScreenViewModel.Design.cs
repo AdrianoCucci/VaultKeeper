@@ -1,6 +1,6 @@
 ﻿namespace VaultKeeper.AvaloniaApplication.ViewModels;
 
-public partial class LockScreenViewModel : ViewModelBase
+public partial class LockScreenPageViewModel : ViewModelBase
 {
-    public static LockScreenViewModel Design { get; } = new(null!);
+    public static LockScreenPageViewModel Design { get; } = new(null!);
 }

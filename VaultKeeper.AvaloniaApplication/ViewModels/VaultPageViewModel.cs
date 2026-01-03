@@ -36,7 +36,7 @@ public partial class VaultPageViewModel(
     IServiceProvider serviceProvider) : ViewModelBase
 {
     [ObservableProperty, NotifyPropertyChangedFor(nameof(IsEmpty), nameof(EmptyTemplateTitle), nameof(EmptyTemplateDescription))]
-    private ObservableVaultItemViewModels _groupedVaultItems = [];
+    private ObservableGroupedVaultItemViewModels _groupedVaultItems = [];
 
     [ObservableProperty]
     private string? _searchInput;
@@ -157,8 +157,8 @@ public partial class VaultPageViewModel(
         search ??= SearchInput;
         sortDirection ??= SortInput;
 
-        IEnumerable<VaultItemListViewModel> existingGroupedItemVMs = GroupedVaultItems.AsEnumerable();
-        IEnumerable<VaultItemListViewModel> updatedGroupItemVMs = [];
+        IEnumerable<GroupedVaultItemsViewModel> existingGroupedItemVMs = GroupedVaultItems.AsEnumerable();
+        IEnumerable<GroupedVaultItemsViewModel> updatedGroupItemVMs = [];
 
         Dictionary<Guid, IEnumerable<VaultItem>> groupItemsDict = vaultItemData
             .GroupBy(x => x.GroupId)
@@ -184,7 +184,7 @@ public partial class VaultPageViewModel(
                 }
             }
 
-            VaultItemListViewModel? listItemVM = group == null
+            GroupedVaultItemsViewModel? listItemVM = group == null
                 ? existingGroupedItemVMs.FirstOrDefault(x => x.Group == null) ?? new([], null)
                 : existingGroupedItemVMs.FirstOrDefault(x => x.Group?.Model.Id == groupId) ?? new([], new(new GroupViewModel(group)));
 
@@ -406,7 +406,7 @@ public partial class VaultPageViewModel(
 
     private bool TryUpdateVaultItemViewModel(VaultItem vaultItem, Func<VaultItemViewModelBase?> newModelFunc)
     {
-        VaultItemListViewModel? listItemVM = GroupedVaultItems.FirstOrDefault(x => x.VaultItems.Any(y => y.Model.Id == vaultItem.Id));
+        GroupedVaultItemsViewModel? listItemVM = GroupedVaultItems.FirstOrDefault(x => x.VaultItems.Any(y => y.Model.Id == vaultItem.Id));
         if (listItemVM == null)
             return false;
 
@@ -426,7 +426,7 @@ public partial class VaultPageViewModel(
 
     private bool TryUpdateGroupViewModel(Group group, Func<GroupViewModelBase?> newModelFunc)
     {
-        VaultItemListViewModel? listItemVM = GroupedVaultItems.FirstOrDefault(x => x.Group?.Model.Id == group.Id);
+        GroupedVaultItemsViewModel? listItemVM = GroupedVaultItems.FirstOrDefault(x => x.Group?.Model.Id == group.Id);
         if (listItemVM == null)
             return false;
 

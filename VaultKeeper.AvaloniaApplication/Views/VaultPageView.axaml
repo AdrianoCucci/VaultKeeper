@@ -64,11 +64,11 @@
           <common:ListView ItemsSource="{Binding GroupedVaultItems}" Margin="20">
             <common:ListView.ItemTemplate>
               <DataTemplate>
-                <uc:VaultItemListView DataContext="{Binding .}"
-                                      Margin="0 0 0 40"
-                                      ItemActionInvoked="VaultItem_ActionInvoked"
-                                      ItemFormActionInvoked="VaultItem_FormActionInvoked"
-                                      GroupActionInvoked="Group_ActionInvoked"/>
+                <uc:GroupedVaultItemsView DataContext="{Binding .}"
+                                          Margin="0 0 0 40"
+                                          ItemActionInvoked="VaultItem_ActionInvoked"
+                                          ItemFormActionInvoked="VaultItem_FormActionInvoked"
+                                          GroupActionInvoked="Group_ActionInvoked"/>
               </DataTemplate>
             </common:ListView.ItemTemplate>
 

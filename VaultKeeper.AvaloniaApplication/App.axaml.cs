@@ -68,8 +68,8 @@ public partial class App : Application
             .AddAvaloniaServices()
 
             .AddSingleton<MainWindowViewModel>()
-            .AddSingleton<SetupViewModel>()
-            .AddSingleton<LockScreenViewModel>()
+            .AddSingleton<SetupPageViewModel>()
+            .AddSingleton<LockScreenPageViewModel>()
             .AddSingleton<HomeViewModel>()
             .AddSingleton<VaultPageViewModel>()
             .AddSingleton<SettingsPageViewModel>()
@@ -88,13 +88,13 @@ public partial class App : Application
                 [
                     new()
                     {
-                        Key = nameof(SetupViewModel),
-                        Content = sp.GetRequiredService<SetupViewModel>
+                        Key = nameof(SetupPageViewModel),
+                        Content = sp.GetRequiredService<SetupPageViewModel>
                     },
                     new()
                     {
-                        Key = nameof(LockScreenViewModel),
-                        Content = sp.GetRequiredService<LockScreenViewModel>
+                        Key = nameof(LockScreenPageViewModel),
+                        Content = sp.GetRequiredService<LockScreenPageViewModel>
                     },
                     new()
                     {

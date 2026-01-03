@@ -6,9 +6,9 @@ using VaultKeeper.Models.Groups;
 
 namespace VaultKeeper.AvaloniaApplication.ViewModels.VaultItems;
 
-public partial class VaultItemListViewModel(ObservableCollection<VaultItemViewModelBase> vaultItems, GroupShellViewModel? group) : ViewModelBase
+public partial class GroupedVaultItemsViewModel(ObservableCollection<VaultItemViewModelBase> vaultItems, GroupShellViewModel? group) : ViewModelBase
 {
-    public static VaultItemListViewModel Empty(Group? group = null)
+    public static GroupedVaultItemsViewModel Empty(Group? group = null)
     {
         GroupShellViewModel? shellVM = group == null ? null : new(new GroupViewModel(group));
         return new([], shellVM);

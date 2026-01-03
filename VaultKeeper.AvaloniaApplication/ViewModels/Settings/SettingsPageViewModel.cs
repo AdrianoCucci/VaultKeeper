@@ -164,7 +164,7 @@ public partial class SettingsPageViewModel : ViewModelBase
         if (settings != null)
             UpdateServices(settings);
 
-        await _appSessionService.LogoutAsync((nameof(MainWindowViewModel), nameof(LockScreenViewModel)));
+        await _appSessionService.LogoutAsync((nameof(MainWindowViewModel), nameof(LockScreenPageViewModel)));
     }
 
     protected override void OnPropertyChanged(PropertyChangedEventArgs e)

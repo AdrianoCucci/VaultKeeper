@@ -8,13 +8,13 @@ using VaultKeeper.AvaloniaApplication.Views.Groups;
 
 namespace VaultKeeper.AvaloniaApplication.Views.VaultItems;
 
-public partial class VaultItemListView : ViewBase<VaultItemListViewModel>
+public partial class GroupedVaultItemsView : ViewBase<GroupedVaultItemsViewModel>
 {
     public static readonly RoutedEvent<VaultItemActionEventArgs> ItemActionInvokedEvent =
-        RoutedEvent.Register<VaultItemActionEventArgs>(nameof(ItemActionInvoked), RoutingStrategies.Bubble, typeof(VaultItemListView));
+        RoutedEvent.Register<VaultItemActionEventArgs>(nameof(ItemActionInvoked), RoutingStrategies.Bubble, typeof(GroupedVaultItemsView));
 
     public static readonly RoutedEvent<VaultItemFormActionEventArgs> ItemFormActionInvokedEvent =
-        RoutedEvent.Register<VaultItemFormActionEventArgs>(nameof(ItemFormActionInvoked), RoutingStrategies.Bubble, typeof(VaultItemListView));
+        RoutedEvent.Register<VaultItemFormActionEventArgs>(nameof(ItemFormActionInvoked), RoutingStrategies.Bubble, typeof(GroupedVaultItemsView));
 
     public static readonly RoutedEvent<GroupActionEventArgs> GroupActionInvokedEvent =
         RoutedEvent.Register<GroupActionEventArgs>(nameof(GroupActionInvoked), RoutingStrategies.Bubble, typeof(GroupView));
@@ -37,7 +37,7 @@ public partial class VaultItemListView : ViewBase<VaultItemListViewModel>
         remove => RemoveHandler(GroupActionInvokedEvent, value);
     }
 
-    public VaultItemListView() => InitializeComponent();
+    public GroupedVaultItemsView() => InitializeComponent();
 
     private void VaultItemView_ActionInvoked(object? sender, VaultItemActionEventArgs e) =>
         RaiseEvent(new VaultItemActionEventArgs(ItemActionInvokedEvent, e));

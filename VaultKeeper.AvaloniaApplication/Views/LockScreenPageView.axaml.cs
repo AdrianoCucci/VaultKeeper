@@ -6,16 +6,16 @@ using VaultKeeper.AvaloniaApplication.ViewModels;
 
 namespace VaultKeeper.AvaloniaApplication.Views;
 
-public partial class LockScreenView : ViewBase<LockScreenViewModel>
+public partial class LockScreenPageView : ViewBase<LockScreenPageViewModel>
 {
-    public static readonly RoutedEvent<RoutedEventArgs> LoginSuccessEvent = RoutedEvent.Register<RoutedEventArgs>(nameof(LoginSuccess), RoutingStrategies.Bubble, typeof(LockScreenView));
-    public static readonly RoutedEvent<RoutedEventArgs> ForgotPasswordClickedEvent = RoutedEvent.Register<RoutedEventArgs>(nameof(ForgotPasswordClicked), RoutingStrategies.Bubble, typeof(LockScreenView));
+    public static readonly RoutedEvent<RoutedEventArgs> LoginSuccessEvent = RoutedEvent.Register<RoutedEventArgs>(nameof(LoginSuccess), RoutingStrategies.Bubble, typeof(LockScreenPageView));
+    public static readonly RoutedEvent<RoutedEventArgs> ForgotPasswordClickedEvent = RoutedEvent.Register<RoutedEventArgs>(nameof(ForgotPasswordClicked), RoutingStrategies.Bubble, typeof(LockScreenPageView));
 
     public event EventHandler<RoutedEventArgs> LoginSuccess { add => AddHandler(LoginSuccessEvent, value); remove => RemoveHandler(LoginSuccessEvent, value); }
 
     public event EventHandler<RoutedEventArgs> ForgotPasswordClicked { add => AddHandler(ForgotPasswordClickedEvent, value); remove => RemoveHandler(ForgotPasswordClickedEvent, value); }
 
-    public LockScreenView() => InitializeComponent();
+    public LockScreenPageView() => InitializeComponent();
 
     private async Task SubmitAsync()
     {

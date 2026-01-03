@@ -5,10 +5,10 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:vm="using:VaultKeeper.AvaloniaApplication.ViewModels"
              mc:Ignorable="d" d:DesignWidth="1920" d:DesignHeight="1080"
-             x:Class="VaultKeeper.AvaloniaApplication.Views.LockScreenView"
-             x:DataType="vm:LockScreenViewModel">
+             x:Class="VaultKeeper.AvaloniaApplication.Views.LockScreenPageView"
+             x:DataType="vm:LockScreenPageViewModel">
   <Design.DataContext>
-    <x:Static Member="vm:LockScreenViewModel.Design"/>
+    <x:Static Member="vm:LockScreenPageViewModel.Design"/>
   </Design.DataContext>
 
   <Grid RowDefinitions="*" ColumnDefinitions="*, 1.5*, *">

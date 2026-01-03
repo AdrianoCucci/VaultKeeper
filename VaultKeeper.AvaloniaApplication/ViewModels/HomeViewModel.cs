@@ -84,7 +84,7 @@ public partial class HomeViewModel : ViewModelBase
     {
         if (_appSessionService == null) return;
 
-        var logoutResult = await _appSessionService.LogoutAsync((nameof(MainWindowViewModel), nameof(LockScreenViewModel)));
+        var logoutResult = await _appSessionService.LogoutAsync((nameof(MainWindowViewModel), nameof(LockScreenPageViewModel)));
 
         if (!logoutResult.IsSuccessful)
         {

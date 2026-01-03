@@ -5,8 +5,8 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:vm="using:VaultKeeper.AvaloniaApplication.ViewModels"
              mc:Ignorable="d" d:DesignWidth="1920" d:DesignHeight="1080"
-             x:Class="VaultKeeper.AvaloniaApplication.Views.SetupView"
-             x:DataType="vm:SetupViewModel">
+             x:Class="VaultKeeper.AvaloniaApplication.Views.SetupPageView"
+             x:DataType="vm:SetupPageViewModel">
   <ScrollViewer>
     <Border Padding="20">
       <Grid RowDefinitions="Auto, Auto" ColumnDefinitions="*" HorizontalAlignment="Stretch" VerticalAlignment="Center">

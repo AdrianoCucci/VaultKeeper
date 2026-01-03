@@ -8,11 +8,11 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:vaultitems="using:VaultKeeper.AvaloniaApplication.ViewModels.VaultItems"
              mc:Ignorable="d" d:DesignWidth="1920" d:DesignHeight="1080"
-             x:Class="VaultKeeper.AvaloniaApplication.Views.VaultItems.VaultItemListView"
-             x:DataType="vaultitems:VaultItemListViewModel">
+             x:Class="VaultKeeper.AvaloniaApplication.Views.VaultItems.GroupedVaultItemsView"
+             x:DataType="vaultitems:GroupedVaultItemsViewModel">
 
   <Design.DataContext>
-    <x:Static Member="vaultitems:VaultItemListViewModel.Design"/>
+    <x:Static Member="vaultitems:GroupedVaultItemsViewModel.Design"/>
   </Design.DataContext>
 
   <Border BorderBrush="{DynamicResource SystemAccentColor}"
