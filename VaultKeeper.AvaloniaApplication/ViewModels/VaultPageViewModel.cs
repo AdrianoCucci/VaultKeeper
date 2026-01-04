@@ -264,13 +264,12 @@ public partial class VaultPageViewModel(
                 ShowOverlay(new ConfirmPromptViewModel()
                 {
                     Header = "Delete Key",
-                    Message = $"Are you sure you want to delete the \"{viewModel.Model.Name}\" key?",
-                    ContextObject = viewModel,
+                    Message = $"Are you sure you want to delete key: \"{viewModel.Model.Name}\"?",
                     CancelAction = HideOverlay,
                     ConfirmAction = async () =>
                     {
-                        await DeleteVaultItemAsync(viewModel);
-                        HideOverlay();
+                        if (await DeleteVaultItemAsync(viewModel.Model))
+                            HideOverlay();
                     }
                 });
                 break;
@@ -327,16 +326,20 @@ public partial class VaultPageViewModel(
                 break;
             case GroupAction.Delete:
                 {
-                    // TODO Prompt user to delete with or without child items.
-                    var deleteResult = await groupService.DeleteAsync(eventArgs.Group);
-                    if (!deleteResult.IsSuccessful)
+                    DeleteGroupConfirmPromptViewModel promptVM = new()
                     {
-                        // TODO: Handle error.
-                        return;
-                    }
+                        Header = "Delete Group",
+                        Message = $"Choose what should happen to the keys inside of group: \"{eventArgs.Group.Name}\":",
+                        CascadeDeleteMode = CascadeDeleteMode.OrphanChildren,
+                        CancelAction = HideOverlay
+                    };
+                    promptVM.ConfirmAction = async () =>
+                    {
+                        if (await DeleteGroupAsync(eventArgs.Group, promptVM.CascadeDeleteMode))
+                            HideOverlay();
+                    };
 
-                    TryUpdateGroupViewModel(eventArgs.Group, () => null);
-                    await LoadGroupsAsync();
+                    ShowOverlay(promptVM);
                 }
                 break;
         }
@@ -417,21 +420,38 @@ public partial class VaultPageViewModel(
             formVM.Form.Value = keyGeneratorService.GenerateKey(settings);
     }
 
-    private async Task DeleteVaultItemAsync(VaultItemViewModelBase vaultItemVM)
+    private async Task<bool> DeleteVaultItemAsync(VaultItem vaultItem)
     {
-        VaultItem? item = _vaultItemData.Items.FirstOrDefault(x => x.Id == vaultItemVM.Model.Id);
-        if (item == null)
-            return;
+        if (!_vaultItemData.Items.Contains(vaultItem)) return false;
 
-        Result deleteResult = await vaultItemService.DeleteAsync(item);
+        Result deleteResult = await vaultItemService.DeleteAsync(vaultItem);
         if (!deleteResult.IsSuccessful)
         {
             // TODO: Handle error.
-            return;
+            return false;
         }
 
-        if (TryUpdateVaultItemViewModel(vaultItemVM.Model, () => null))
+        if (TryUpdateVaultItemViewModel(vaultItem, () => null))
             await LoadVaultItemsAsync();
+
+        return true;
+    }
+
+    private async Task<bool> DeleteGroupAsync(Group group, CascadeDeleteMode cascadeDeleteMode)
+    {
+        if (!_groupData.Items.Contains(group)) return false;
+
+        Result deleteResult = await groupService.DeleteAsync(group, cascadeDeleteMode);
+        if (!deleteResult.IsSuccessful)
+        {
+            // TODO: Handle error.
+            return false;
+        }
+
+        if (TryUpdateGroupViewModel(group, () => null))
+            await LoadDataAsync();
+
+        return true;
     }
 
     private bool TryUpdateVaultItemViewModel(VaultItem vaultItem, Func<VaultItemViewModelBase?> newModelFunc)

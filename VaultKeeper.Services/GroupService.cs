@@ -1,17 +1,23 @@
 ﻿using Microsoft.Extensions.Logging;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using VaultKeeper.Common.Extensions;
 using VaultKeeper.Common.Models.Queries;
 using VaultKeeper.Common.Results;
 using VaultKeeper.Models.Groups;
 using VaultKeeper.Models.Groups.Extensions;
+using VaultKeeper.Models.VaultItems;
 using VaultKeeper.Repositories.Abstractions;
 using VaultKeeper.Services.Abstractions;
 
 namespace VaultKeeper.Services;
 
-public class GroupService(IRepository<Group> repository, ILogger<GroupService> logger) : IGroupService
+public class GroupService(
+    IRepository<Group> repository,
+    IRepository<VaultItem> vaultItemRepository,
+    ILogger<GroupService> logger) : IGroupService
 {
     public async Task<Result<CountedData<Group>>> GetManyCountedAsync(ReadQuery<Group>? query = null)
     {
@@ -80,7 +86,7 @@ public class GroupService(IRepository<Group> repository, ILogger<GroupService> l
         }
     }
 
-    public async Task<Result> DeleteAsync(Group group)
+    public async Task<Result> DeleteAsync(Group group, CascadeDeleteMode cascadeDeleteMode = CascadeDeleteMode.DeleteChildren)
     {
         logger.LogInformation(nameof(DeleteAsync));
 
@@ -89,6 +95,18 @@ public class GroupService(IRepository<Group> repository, ILogger<GroupService> l
             bool didRemove = await repository.RemoveAsync(group);
             if (!didRemove)
                 return Result.Failed<Group>(ResultFailureType.NotFound, $"Group ID does not exist: ({group.Id})").Logged(logger);
+
+            IEnumerable<VaultItem> childItems = await vaultItemRepository.GetManyAsync(new() { Where = x => x.GroupId == group.Id });
+
+            if (cascadeDeleteMode == CascadeDeleteMode.OrphanChildren)
+            {
+                IEnumerable<KeyValuePair<VaultItem, VaultItem>> updateRequests = childItems.Select(x => new KeyValuePair<VaultItem, VaultItem>(x, x with { GroupId = null }));
+                await vaultItemRepository.UpdateManyAsync(updateRequests);
+            }
+            else
+            {
+                await vaultItemRepository.RemoveManyAsync(childItems);
+            }
 
             return Result.Ok($"Group deleted successfuly (ID: {group.Id}).").Logged(logger);
         }

@@ -7,6 +7,10 @@
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="VaultKeeper.AvaloniaApplication.Views.Common.ConfirmPrompts.ConfirmPromptView"
              x:DataType="confirmprompts:ConfirmPromptViewModel">
+  <Design.DataContext>
+    <x:Static Member="confirmprompts:ConfirmPromptViewModel.Design"/>
+  </Design.DataContext>
+
   <StackPanel Spacing="20">
     <Grid RowDefinitions="Auto" ColumnDefinitions="*, Auto">
       <TextBlock Text="{Binding Header}"

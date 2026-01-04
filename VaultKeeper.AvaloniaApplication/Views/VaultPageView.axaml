@@ -156,6 +156,10 @@
     <overlays:OverlayPanel.OverlayContent>
       <ContentControl Content="{Binding OverlayContent}">
         <ContentControl.DataTemplates>
+          <DataTemplate x:DataType="confirmpromptVMs:DeleteGroupConfirmPromptViewModel">
+            <confirmprompts:DeleteGroupConfirmPromptView ActionInvoked="ConfirmPromptView_ActionInvoked"/>
+          </DataTemplate>
+
           <DataTemplate x:DataType="confirmpromptVMs:ConfirmPromptViewModel">
             <confirmprompts:ConfirmPromptView ActionInvoked="ConfirmPromptView_ActionInvoked"/>
           </DataTemplate>
