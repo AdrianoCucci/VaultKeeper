@@ -28,6 +28,12 @@ public class CharSetService(ILogger<CharSetService> logger) : ICharSetService
         },
         new()
         {
+            Type = CharSetType.LettersAndSymbols,
+            Name = "Letters + Symbols",
+            Chars = $"{_lettersCharSet}{_symbolsCharSet}"
+        },
+        new()
+        {
             Type = CharSetType.NumbersAndSymbols,
             Name = "Numbers + Symbols",
             Chars = $"{_numbersCharSet}{_symbolsCharSet}"

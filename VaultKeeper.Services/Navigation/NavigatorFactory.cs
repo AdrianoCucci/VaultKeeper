@@ -71,16 +71,4 @@ public class NavigatorFactory : INavigatorFactory
         _logger.LogInformation($"{nameof(GetRequiredNavigator)} | key: {{key}}", scopeKey);
         return GetNavigator(scopeKey) ?? throw new ArgumentException($"Scope key, \"{scopeKey}\" is not defined.", nameof(scopeKey));
     }
-
-    public IEnumerable<INavigator> GetAllNavigators()
-    {
-        _logger.LogInformation(nameof(GetAllNavigators));
-
-        IEnumerable<INavigator> navigators = _routeScopesDict
-            .Select(x => x.Key)
-            .Select(GetNavigator)
-            .Where(nav => nav != null)!;
-
-        return navigators;
-    }
 }

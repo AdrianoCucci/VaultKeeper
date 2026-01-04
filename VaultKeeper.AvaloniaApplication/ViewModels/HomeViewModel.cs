@@ -71,13 +71,19 @@ public partial class HomeViewModel : ViewModelBase
             _navigator.Navigated -= Navigator_Navigated;
     }
 
-    public void Initialize() => SelectedTab = TabNavItems.FirstOrDefault();
+    public void Initialize()
+    {
+        if (_navigator != null)
+            _navigator.NavigateToDefaultRoute();
+        else
+            SelectedTab = TabNavItems.FirstOrDefault();
+    }
 
     public void UpdateSelectedTabState()
     {
         string? tabKey = SelectedTab?.Model.Key;
         if (tabKey != null)
-            _navigator.Navigate(tabKey);
+            _navigator?.Navigate(tabKey);
     }
 
     public async Task LogoutAsync()

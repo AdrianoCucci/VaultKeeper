@@ -4,6 +4,7 @@ public enum CharSetType
 {
     AlphaNumericAndSymbols,
     AlphaNumeric,
+    LettersAndSymbols,
     NumbersAndSymbols,
     LettersOnly,
     NumbersOnly,

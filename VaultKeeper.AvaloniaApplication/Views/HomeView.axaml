@@ -24,14 +24,24 @@
                   SelectedItem="{Binding SelectedTab}"
                   SelectionChanged="TabStrip_SelectionChanged"
                   Grid.Column="0">
+
           <TabStrip.ItemTemplate>
             <DataTemplate x:DataType="common:NavItemViewModel">
-              <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
+              <StackPanel Orientation="Horizontal"
+                          Spacing="12"
+                          Background="Transparent"
+                          VerticalAlignment="Center">
                 <PathIcon Data="{Binding Icon}"/>
                 <TextBlock Text="{Binding Label}"/>
               </StackPanel>
             </DataTemplate>
           </TabStrip.ItemTemplate>
+
+          <TabStrip.Styles>
+            <Style Selector="TabStrip TabStripItem">
+              <Setter Property="Cursor" Value="Hand"/>
+            </Style>
+          </TabStrip.Styles>
         </TabStrip>
 
         <common-views:AppButton Text="Logout"
