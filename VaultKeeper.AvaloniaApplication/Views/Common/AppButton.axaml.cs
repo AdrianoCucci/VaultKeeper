@@ -1,7 +1,11 @@
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Controls.Primitives;
 using Avalonia.Layout;
 using Avalonia.Media;
+using System.Collections.Generic;
+using System.Collections.Specialized;
+using System.Linq;
 
 namespace VaultKeeper.AvaloniaApplication.Views.Common;
 
@@ -29,4 +33,37 @@ public class AppButton : Button
     public Geometry? IconEnd { get => GetValue(IconEndProperty); set => SetValue(IconEndProperty, value); }
     public double? IconEndSize { get => GetValue(IconEndSizeProperty); set => SetValue(IconEndSizeProperty, value); }
     public double? Spacing { get => GetValue(SpacingProperty); set => SetValue(SpacingProperty, value); }
+
+    private Button? _innerButton;
+
+    public AppButton() => Classes.CollectionChanged += Classes_CollectionChanged;
+
+    ~AppButton() => Classes.CollectionChanged -= Classes_CollectionChanged;
+
+    protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
+    {
+        base.OnApplyTemplate(e);
+
+        _innerButton = e.NameScope.Find<Button>("PART_Button");
+        UpdateInnerButtonClasses([], Classes);
+    }
+
+    private void UpdateInnerButtonClasses(IEnumerable<string> oldClasses, IEnumerable<string> newClasses)
+    {
+        if (_innerButton == null) return;
+
+        IEnumerable<string> oldNonPseudoClasses = oldClasses.Where(x => !x.StartsWith(':'));
+        IEnumerable<string> newNonPseudoClasses = newClasses.Where(x => !x.StartsWith(':'));
+
+        _innerButton.Classes.RemoveAll(oldClasses);
+        _innerButton.Classes.AddRange(newClasses);
+    }
+
+    private void Classes_CollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
+    {
+        IEnumerable<string> oldClasses = e.OldItems is IEnumerable<string> concreteOldItems ? concreteOldItems : [];
+        IEnumerable<string> newClasses = e.NewItems is IEnumerable<string> concreteNewItems ? concreteNewItems : [];
+
+        UpdateInnerButtonClasses(oldClasses, newClasses);
+    }
 }

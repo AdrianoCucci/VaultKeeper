@@ -11,6 +11,7 @@ using VaultKeeper.AvaloniaApplication.Constants;
 using VaultKeeper.AvaloniaApplication.Extensions;
 using VaultKeeper.AvaloniaApplication.Forms.Common;
 using VaultKeeper.AvaloniaApplication.Forms.VaultItems;
+using VaultKeeper.AvaloniaApplication.ViewModels.Common.ConfirmPrompts;
 using VaultKeeper.AvaloniaApplication.ViewModels.Groups;
 using VaultKeeper.AvaloniaApplication.ViewModels.Settings;
 using VaultKeeper.AvaloniaApplication.ViewModels.VaultItems;
@@ -52,6 +53,12 @@ public partial class VaultPageViewModel(
 
     [ObservableProperty]
     private object? _sidePaneContent;
+
+    [ObservableProperty]
+    private bool _isOverlayVisible;
+
+    [ObservableProperty]
+    private object? _overlayContent;
 
     public bool IsEmpty => _vaultItemData.TotalCount < 1 && _groupData.TotalCount < 1;
     public Geometry? SortIcon => SortInput == SortDirection.Ascending
@@ -142,7 +149,7 @@ public partial class VaultPageViewModel(
 
         foreach (var vm in itemFormVMs)
         {
-            HideVaultItemEditForm(vm);
+            HideVaultItemEditForm(vm.Model);
         }
     }
 
@@ -219,11 +226,23 @@ public partial class VaultPageViewModel(
         GroupedVaultItems = [.. updatedGroupItemVMs];
     }
 
-    private void ShowVaultItemEditForm(VaultItemViewModelBase vaultItemVM) =>
-        TryUpdateVaultItemViewModel(vaultItemVM.Model, () => CreateVaultItemFormViewModel(vaultItemVM.Model, FormMode.Edit));
+    public void ShowOverlay(object content)
+    {
+        OverlayContent = content;
+        IsOverlayVisible = true;
+    }
 
-    private void HideVaultItemEditForm(VaultItemFormViewModel vaultItemVM) =>
-        TryUpdateVaultItemViewModel(vaultItemVM.Model, () => new VaultItemViewModel(vaultItemVM.Model));
+    public void HideOverlay()
+    {
+        OverlayContent = null;
+        IsOverlayVisible = false;
+    }
+
+    private void ShowVaultItemEditForm(VaultItem vaultItem) =>
+        TryUpdateVaultItemViewModel(vaultItem, () => CreateVaultItemFormViewModel(vaultItem, FormMode.Edit));
+
+    private void HideVaultItemEditForm(VaultItem vaultItem) =>
+        TryUpdateVaultItemViewModel(vaultItem, () => new VaultItemViewModel(vaultItem));
 
     public async Task HandleItemActionAsync(VaultItemActionEventArgs eventArgs)
     {
@@ -239,10 +258,21 @@ public partial class VaultPageViewModel(
                 await platformService.GetClipboard().SetTextAsync(Decrypt(model.Value));
                 break;
             case VaultItemAction.Edit:
-                ShowVaultItemEditForm(viewModel);
+                ShowVaultItemEditForm(model);
                 break;
             case VaultItemAction.Delete:
-                await DeleteVaultItemAsync(viewModel);
+                ShowOverlay(new ConfirmPromptViewModel()
+                {
+                    Header = "Delete Key",
+                    Message = $"Are you sure you want to delete the \"{viewModel.Model.Name}\" key?",
+                    ContextObject = viewModel,
+                    CancelAction = HideOverlay,
+                    ConfirmAction = async () =>
+                    {
+                        await DeleteVaultItemAsync(viewModel);
+                        HideOverlay();
+                    }
+                });
                 break;
         }
     }
@@ -255,7 +285,7 @@ public partial class VaultPageViewModel(
                 if (eventArgs.ViewModel == SidePaneContent)
                     HideVaultItemCreateForm();
                 else
-                    HideVaultItemEditForm(eventArgs.ViewModel);
+                    HideVaultItemEditForm(eventArgs.ViewModel.Model);
                 break;
             case VaultItemFormAction.Submit:
                 await SaveVaultItemFormAsync(eventArgs);
@@ -357,7 +387,7 @@ public partial class VaultPageViewModel(
                     }
 
                     formEvent.ViewModel.UpdateModel(_ => updateResult.Value!);
-                    HideVaultItemEditForm(formEvent.ViewModel);
+                    HideVaultItemEditForm(formEvent.ViewModel.Model);
 
                     break;
                 }

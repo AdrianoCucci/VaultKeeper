@@ -1,9 +1,12 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:commonVMs="using:VaultKeeper.AvaloniaApplication.ViewModels.Common"
+             xmlns:confirmprompts="using:VaultKeeper.AvaloniaApplication.Views.Common.ConfirmPrompts"
+             xmlns:confirmpromptVMs="using:VaultKeeper.AvaloniaApplication.ViewModels.Common.ConfirmPrompts"
              xmlns:common="using:VaultKeeper.AvaloniaApplication.Views.Common"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:overlays="using:VaultKeeper.AvaloniaApplication.Views.Common.Overlays"
              xmlns:system="using:System"
              xmlns:vm="using:VaultKeeper.AvaloniaApplication.ViewModels"
              xmlns:uc="using:VaultKeeper.AvaloniaApplication.Views.VaultItems"
@@ -17,125 +20,148 @@
     <x:Static Member="vm:VaultPageViewModel.Design"/>
   </Design.DataContext>
 
-  <SplitView DisplayMode="Inline" PanePlacement="Right" OpenPaneLength="500" IsPaneOpen="{Binding IsSidePaneOpen}" PaneClosed="SplitView_PaneClosed">
-    <Grid RowDefinitions="Auto, *" ColumnDefinitions="*">
-      <Border Height="80"
-              Padding="20"
-              Background="{DynamicResource SystemControlBackgroundListLowBrush}"
-              BorderBrush="{DynamicResource SystemControlBackgroundBaseLowBrush}"
-              BorderThickness="0 0 0 2"
-              Grid.Row="0">
+  <overlays:OverlayPanel OverlayPadding="20"
+                         CloseOnBackdropClicked="true"
+                         IsOverlayVisible="{Binding IsOverlayVisible}"
+                         OverlayClosed="OverlayPanel_OverlayClosed">
+    <SplitView DisplayMode="Inline"
+               PanePlacement="Right"
+               OpenPaneLength="500"
+               IsPaneOpen="{Binding IsSidePaneOpen}"
+               PaneClosed="SplitView_PaneClosed">
 
-        <Grid RowDefinitions="Auto"
-              ColumnDefinitions="*, Auto"
-              ColumnSpacing="20"
-              IsVisible="{Binding !IsEmpty}"
-              IsEnabled="{Binding !IsSidePaneOpen}">
+      <Grid RowDefinitions="Auto, *" ColumnDefinitions="*">
+        <Border Height="80"
+                Padding="20"
+                Background="{DynamicResource SystemControlBackgroundListLowBrush}"
+                BorderBrush="{DynamicResource SystemControlBackgroundBaseLowBrush}"
+                BorderThickness="0 0 0 2"
+                Grid.Row="0">
 
-          <Grid RowDefinitions="Auto" ColumnDefinitions="Auto, *" ColumnSpacing="20" Grid.Column="0">
-            <common:AppButton IconStart="{Binding SortIcon}"
-                              Click="SortButton_Click"
-                              Grid.Column="0"
-                              ToolTip.Tip="Sort"/>
+          <Grid RowDefinitions="Auto"
+                ColumnDefinitions="*, Auto"
+                ColumnSpacing="20"
+                IsVisible="{Binding !IsEmpty}"
+                IsEnabled="{Binding !IsSidePaneOpen}">
 
-            <common:SearchBox Text="{Binding SearchInput}"
-                              Debounce="SearchBox_Debounce"
-                              Grid.Column="1"/>
+            <Grid RowDefinitions="Auto" ColumnDefinitions="Auto, *" ColumnSpacing="20" Grid.Column="0">
+              <common:AppButton IconStart="{Binding SortIcon}"
+                                Click="SortButton_Click"
+                                Grid.Column="0"
+                                ToolTip.Tip="Sort"/>
+
+              <common:SearchBox Text="{Binding SearchInput}"
+                                Debounce="SearchBox_Debounce"
+                                Grid.Column="1"/>
+            </Grid>
+
+            <StackPanel Orientation="Horizontal"
+                        Spacing="-1"
+                        Grid.Column="1">
+
+              <common:AppButton Text="New Key"
+                                IconStart="{StaticResource IconPlus}"
+                                CornerRadius="6 0 0 6"
+                                Click="ButtonNew_Click"/>
+              <common:AppButton Text="Import Keys"
+                                IconStart="{StaticResource IconUpload}"
+                                CornerRadius="0 6 6 0"
+                                Click="ButtonNew_Click"/>
+            </StackPanel>
           </Grid>
+        </Border>
 
-          <StackPanel Orientation="Horizontal"
-                      Spacing="-1"
-                      Grid.Column="1">
+        <Border Grid.Row="1">
+          <ScrollViewer>
+            <common:ListView ItemsSource="{Binding GroupedVaultItems}" Margin="20">
+              <common:ListView.ItemTemplate>
+                <DataTemplate>
+                  <uc:GroupedVaultItemsView DataContext="{Binding .}"
+                                            Margin="0 0 0 40"
+                                            ItemActionInvoked="VaultItem_ActionInvoked"
+                                            ItemFormActionInvoked="VaultItem_FormActionInvoked"
+                                            GroupActionInvoked="Group_ActionInvoked"/>
+                </DataTemplate>
+              </common:ListView.ItemTemplate>
 
-            <common:AppButton Text="New Key"
-                              IconStart="{StaticResource IconPlus}"
-                              CornerRadius="6 0 0 6"
-                              Click="ButtonNew_Click"/>
-            <common:AppButton Text="Import Keys"
-                              IconStart="{StaticResource IconUpload}"
-                              CornerRadius="0 6 6 0"
-                              Click="ButtonNew_Click"/>
-          </StackPanel>
-        </Grid>
-      </Border>
+              <common:ListView.EmptyTemplate>
+                <DataTemplate>
+                  <StackPanel HorizontalAlignment="Center">
+                    <Border HorizontalAlignment="Center"
+                            Padding="30"
+                            CornerRadius="10"
+                            BorderThickness="6"
+                            Background="{DynamicResource SystemAccentColor}"
+                            BorderBrush="{DynamicResource SystemControlBackgroundAltHighBrush}">
+                      <PathIcon Data="{StaticResource IconVault}" Foreground="{DynamicResource SystemControlBackgroundAltHighBrush}" Width="100" Height="100"/>
+                    </Border>
 
-      <Border Grid.Row="1">
-        <ScrollViewer>
-          <common:ListView ItemsSource="{Binding GroupedVaultItems}" Margin="20">
-            <common:ListView.ItemTemplate>
-              <DataTemplate>
-                <uc:GroupedVaultItemsView DataContext="{Binding .}"
-                                          Margin="0 0 0 40"
-                                          ItemActionInvoked="VaultItem_ActionInvoked"
-                                          ItemFormActionInvoked="VaultItem_FormActionInvoked"
-                                          GroupActionInvoked="Group_ActionInvoked"/>
-              </DataTemplate>
-            </common:ListView.ItemTemplate>
+                    <TextBlock HorizontalAlignment="Center" Classes="h1" Text="{Binding $parent[UserControl].DataContext.EmptyTemplateTitle}"/>
+                    <TextBlock HorizontalAlignment="Center" Classes="txt-md" Text="{Binding $parent[UserControl].DataContext.EmptyTemplateDescription}"/>
 
-            <common:ListView.EmptyTemplate>
-              <DataTemplate>
-                <StackPanel HorizontalAlignment="Center">
-                  <Border HorizontalAlignment="Center"
-                          Padding="30"
-                          CornerRadius="10"
-                          BorderThickness="6"
-                          Background="{DynamicResource SystemAccentColor}"
-                          BorderBrush="{DynamicResource SystemControlBackgroundAltHighBrush}">
-                    <PathIcon Data="{StaticResource IconVault}" Foreground="{DynamicResource SystemControlBackgroundAltHighBrush}" Width="100" Height="100"/>
-                  </Border>
+                    <Grid RowDefinitions="*" ColumnDefinitions="*, *" ColumnSpacing="20" Margin="0 60 0 0" IsEnabled="{Binding !$parent[UserControl].DataContext.IsSidePaneOpen}">
+                      <common:AppButton Text="New Key"
+                                        HorizontalAlignment="Center"
+                                        IconStart="{StaticResource IconPlus}"
+                                        Click="ButtonNew_Click"
+                                        Grid.Column="0"/>
 
-                  <TextBlock HorizontalAlignment="Center" Classes="h1" Text="{Binding $parent[UserControl].DataContext.EmptyTemplateTitle}"/>
-                  <TextBlock HorizontalAlignment="Center" Classes="txt-md" Text="{Binding $parent[UserControl].DataContext.EmptyTemplateDescription}"/>
+                      <common:AppButton Text="Import Keys"
+                                        HorizontalAlignment="Center"
+                                        IconStart="{StaticResource IconUpload}"
+                                        Click="ButtonNew_Click"
+                                        Grid.Column="1"/>
+                    </Grid>
+                  </StackPanel>
+                </DataTemplate>
+              </common:ListView.EmptyTemplate>
+            </common:ListView>
+          </ScrollViewer>
+        </Border>
+      </Grid>
 
-                  <Grid RowDefinitions="*" ColumnDefinitions="*, *" ColumnSpacing="20" Margin="0 60 0 0" IsEnabled="{Binding !$parent[UserControl].DataContext.IsSidePaneOpen}">
-                    <common:AppButton Text="New Key"
-                                      HorizontalAlignment="Center"
-                                      IconStart="{StaticResource IconPlus}"
-                                      Click="ButtonNew_Click"
-                                      Grid.Column="0"/>
+      <SplitView.Pane>
+        <Border Padding="20" IsVisible="{Binding SidePaneContent, Converter={x:Static converters:ObjectConverters.IsNotNull}}">
+          <Grid RowDefinitions="Auto, *" ColumnDefinitions="*">
 
-                    <common:AppButton Text="Import Keys"
-                                      HorizontalAlignment="Center"
-                                      IconStart="{StaticResource IconUpload}"
-                                      Click="ButtonNew_Click"
-                                      Grid.Column="1"/>
-                  </Grid>
-                </StackPanel>
-              </DataTemplate>
-            </common:ListView.EmptyTemplate>
-          </common:ListView>
-        </ScrollViewer>
-      </Border>
-    </Grid>
+            <Grid RowDefinitions="Auto, Auto" ColumnDefinitions="*, Auto" Margin="0,0,0,10">
+              <TextBlock Text="{Binding SidePaneTitle}" Margin="0" VerticalAlignment="Center" Classes="h2" Grid.Column="0"/>
 
-    <SplitView.Pane>
-      <Border Padding="20" IsVisible="{Binding SidePaneContent, Converter={x:Static converters:ObjectConverters.IsNotNull}}">
-        <Grid RowDefinitions="Auto, *" ColumnDefinitions="*">
+              <common:AppButton IconStart="{StaticResource IconX}"
+                                Width="34"
+                                Height="34"
+                                HorizontalAlignment="Right"
+                                Classes="btn-text"
+                                Click="ButtonCloseSidePane_Click"
+                                Grid.Column="1"
+                                ToolTip.Tip="Close"/>
 
-          <Grid RowDefinitions="Auto, Auto" ColumnDefinitions="*, Auto" Margin="0,0,0,10">
-            <TextBlock Text="{Binding SidePaneTitle}" Margin="0" VerticalAlignment="Center" Classes="h2" Grid.Column="0"/>
+              <Separator Margin="0,20,0,0" Grid.Row="1" Grid.ColumnSpan="2"/>
+            </Grid>
 
-            <common:AppButton IconStart="{StaticResource IconX}"
-                              Width="34"
-                              Height="34"
-                              HorizontalAlignment="Right"
-                              Click="ButtonCloseSidePane_Click"
-                              Grid.Column="1"
-                              ToolTip.Tip="Close"/>
+            <ContentControl Content="{Binding SidePaneContent}" Padding="12" Grid.Row="1">
+              <ContentControl.ContentTemplate>
+                <DataTemplate DataType="vaultitems:VaultItemFormViewModel">
+                  <uc:VaultItemFormView ActionInvoked="VaultItem_ActionInvoked" FormActionInvoked="VaultItem_FormActionInvoked"/>
+                </DataTemplate>
+              </ContentControl.ContentTemplate>
+            </ContentControl>
 
-            <Separator Margin="0,20,0,0" Grid.Row="1" Grid.ColumnSpan="2"/>
           </Grid>
+        </Border>
+      </SplitView.Pane>
 
-          <ContentControl Content="{Binding SidePaneContent}" Padding="12" Grid.Row="1">
-            <ContentControl.ContentTemplate>
-              <DataTemplate DataType="vaultitems:VaultItemFormViewModel">
-                <uc:VaultItemFormView ActionInvoked="VaultItem_ActionInvoked" FormActionInvoked="VaultItem_FormActionInvoked"/>
-              </DataTemplate>
-            </ContentControl.ContentTemplate>
-          </ContentControl>
+    </SplitView>
 
-        </Grid>
-      </Border>
-    </SplitView.Pane>
-  </SplitView>
+    <overlays:OverlayPanel.OverlayContent>
+      <ContentControl Content="{Binding OverlayContent}">
+        <ContentControl.DataTemplates>
+          <DataTemplate x:DataType="confirmpromptVMs:ConfirmPromptViewModel">
+            <confirmprompts:ConfirmPromptView ActionInvoked="ConfirmPromptView_ActionInvoked"/>
+          </DataTemplate>
+        </ContentControl.DataTemplates>
+      </ContentControl>
+    </overlays:OverlayPanel.OverlayContent>
+
+  </overlays:OverlayPanel>
 </UserControl>

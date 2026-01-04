@@ -37,18 +37,4 @@
     <ProjectReference Include="..\VaultKeeper.Services\VaultKeeper.Services.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Compile Update="Views\HomeView.axaml.cs">
-      <DependentUpon>HomeView.axaml</DependentUpon>
-    </Compile>
-    <Compile Update="Views\LockScreenPageView.axaml.cs">
-      <DependentUpon>LockScreenPageView.axaml</DependentUpon>
-    </Compile>
-    <Compile Update="Views\SetupPageView.axaml.cs">
-      <DependentUpon>SetupPageView.axaml</DependentUpon>
-    </Compile>
-    <Compile Update="Views\VaultItems\GroupedVaultItemsView.axaml.cs">
-      <DependentUpon>GroupedVaultItemsView.axaml</DependentUpon>
-    </Compile>
-  </ItemGroup>
 </Project>

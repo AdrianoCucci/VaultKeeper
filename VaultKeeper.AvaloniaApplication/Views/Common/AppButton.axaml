@@ -5,9 +5,9 @@
 
   <Design.PreviewWith>
     <StackPanel Background="{DynamicResource SystemRegionBrush}" Spacing="10" Width="300">
-      <controls:AppButton Text="Text"/>
-      <controls:AppButton Text="Text" HorizontalAlignment="Center"/>
-      <controls:AppButton Text="Text" HorizontalAlignment="Right"/>
+      <controls:AppButton Text="Text" Classes="btn-text" />
+      <controls:AppButton Text="Text" Classes="btn-outlined" HorizontalAlignment="Center"/>
+      <controls:AppButton Text="Text" Classes="btn-link" HorizontalAlignment="Right"/>
       <controls:AppButton Text="Text" HorizontalAlignment="Stretch"/>
       <controls:AppButton IconStart="{StaticResource IconCheck}"/>
       <controls:AppButton Text="Text" Background="DarkBlue" Foreground="White"/>

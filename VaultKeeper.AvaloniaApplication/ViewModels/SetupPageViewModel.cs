@@ -64,6 +64,6 @@ public partial class SetupPageViewModel : ViewModelBase
         if (!loadBackupResult.IsSuccessful)
             throw new Exception($"{nameof(SetupPageViewModel)}: Failed to load backup data: {loadBackupResult.Message}", loadBackupResult.Exception);
 
-        return true;
+        return loadBackupResult.Value != null;
     }
 }

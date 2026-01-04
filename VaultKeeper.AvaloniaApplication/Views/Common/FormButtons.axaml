@@ -32,6 +32,7 @@
                               Text="{TemplateBinding CancelButtonText}"
                               IconStart="{TemplateBinding CancelButtonIcon}"
                               HorizontalAlignment="Stretch"
+                              Classes="btn-outlined"
                               Grid.Column="0"/>
 
           <controls:AppButton Name="PART_SubmitButton"

@@ -147,6 +147,9 @@ public partial class SettingsPageViewModel : ViewModelBase
             // TODO: Handle error.
             return;
         }
+
+        // Refresh backup directory props.
+        BackupDirectoryProps = new(BackupDirectory, _backupService);
     }
 
     public async Task LoadBackupAsync()
@@ -159,6 +162,9 @@ public partial class SettingsPageViewModel : ViewModelBase
             // TODO: Handle error.
             return;
         }
+
+        if (loadResult.Value == null)
+            return;
 
         UserSettings? settings = loadResult.Value?.UserData?.Settings;
         if (settings != null)
