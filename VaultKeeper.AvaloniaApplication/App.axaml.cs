@@ -63,7 +63,7 @@ public partial class App : Application
 
     private ServiceProvider ConfigureServices()
     {
-        var services = new ServiceCollection()
+        IServiceCollection services = new ServiceCollection()
             .AddVaultKeeperServices()
             .AddAvaloniaServices()
 
@@ -75,9 +75,6 @@ public partial class App : Application
             .AddTransient<SettingsPageViewModel>()
 
             .AddTransient<KeyGenerationSettingsViewModel>();
-
-        if (ApplicationLifetime != null)
-            services.AddSingleton(ApplicationLifetime);
 
         services.AddNavigation(sp => new HashSet<RouteScope>()
         {
