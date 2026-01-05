@@ -1,11 +1,12 @@
 ﻿using System.Threading.Tasks;
 using VaultKeeper.AvaloniaApplication.Forms;
 using VaultKeeper.Common.Results;
+using VaultKeeper.Models.Errors;
 using VaultKeeper.Services.Abstractions;
 
 namespace VaultKeeper.AvaloniaApplication.ViewModels;
 
-public partial class LockScreenPageViewModel(IAppSessionService appSessionService) : ViewModelBase
+public partial class LockScreenPageViewModel(IAppSessionService appSessionService, IErrorReportingService errorReportingService) : ViewModelBase
 {
     public LockScreenForm Form { get; } = new();
 
@@ -24,11 +25,13 @@ public partial class LockScreenPageViewModel(IAppSessionService appSessionServic
         Result<bool> loginResult = await appSessionService.TryLoginAsync(Form.PasswordInput!);
         if (!loginResult.IsSuccessful)
         {
-            // TODO: handle error.
-            if (loginResult.FailureType == ResultFailureType.Conflict)
+            errorReportingService.ReportError(new()
             {
-                // TODO: main password not set - inform user.
-            }
+                Header = "Login Failure",
+                Message = $"({loginResult.FailureType}) - {loginResult.Message}",
+                Exception = loginResult.Exception,
+                Severity = ErrorSeverity.High
+            });
 
             return false;
         }

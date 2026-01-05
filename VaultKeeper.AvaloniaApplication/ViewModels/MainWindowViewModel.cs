@@ -101,11 +101,16 @@ public partial class MainWindowViewModel : ViewModelBase
         OverlayContent = null;
     }
 
-    private void ErrorReportingService_ErrorReported(object? sender, Error error) => ShowOverlay(new PromptViewModel
+    private void ErrorReportingService_ErrorReported(object? sender, Error error)
     {
-        Header = error.Header,
-        Message = error.Message,
-    });
+        if (error.Visibility == ErrorVisibility.Internal) return;
+
+        ShowOverlay(new PromptViewModel
+        {
+            Header = error.Header,
+            Message = error.Message,
+        });
+    }
 
     public void NavigateToLockscreen() => _navigator.Navigate(nameof(LockScreenPageViewModel));
 

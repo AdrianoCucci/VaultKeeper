@@ -9,6 +9,7 @@ using VaultKeeper.AvaloniaApplication.Constants;
 using VaultKeeper.AvaloniaApplication.Extensions;
 using VaultKeeper.AvaloniaApplication.ViewModels.Common;
 using VaultKeeper.AvaloniaApplication.ViewModels.Settings;
+using VaultKeeper.Models.Errors;
 using VaultKeeper.Models.Navigation;
 using VaultKeeper.Services.Abstractions;
 using VaultKeeper.Services.Abstractions.Navigation;
@@ -17,9 +18,6 @@ namespace VaultKeeper.AvaloniaApplication.ViewModels;
 
 public partial class HomeViewModel : ViewModelBase
 {
-    private readonly INavigator _navigator;
-    private readonly IAppSessionService _appSessionService;
-
     [ObservableProperty]
     private ObservableCollection<NavItemViewModel> _tabNavItems;
 
@@ -29,7 +27,15 @@ public partial class HomeViewModel : ViewModelBase
     [ObservableProperty]
     private object? _content;
 
-    public HomeViewModel(INavigatorFactory navFactory, IAppSessionService appSessionService, IApplicationService applicationService)
+    private readonly INavigator _navigator;
+    private readonly IAppSessionService _appSessionService;
+    private readonly IErrorReportingService _errorReportingService;
+
+    public HomeViewModel(
+        INavigatorFactory navFactory,
+        IAppSessionService appSessionService,
+        IApplicationService applicationService,
+        IErrorReportingService errorReportingService)
     {
         Application application = applicationService.GetApplication();
 
@@ -50,9 +56,11 @@ public partial class HomeViewModel : ViewModelBase
         ];
 
         _navigator = navFactory.GetRequiredNavigator(nameof(HomeViewModel));
+        _appSessionService = appSessionService;
+        _errorReportingService = errorReportingService;
+
         _navigator.Navigated += Navigator_Navigated;
         Content = _navigator.CurrentRoute.Content;
-        _appSessionService = appSessionService;
     }
 
 #if DEBUG
@@ -60,6 +68,7 @@ public partial class HomeViewModel : ViewModelBase
     {
         _navigator = null!;
         _appSessionService = null!;
+        _errorReportingService = null!;
         _selectedTab = null!;
         _tabNavItems = [];
     }
@@ -94,7 +103,13 @@ public partial class HomeViewModel : ViewModelBase
 
         if (!logoutResult.IsSuccessful)
         {
-            // TODO: handle error;
+            _errorReportingService?.ReportError(new()
+            {
+                Header = "Logout Failure",
+                Message = $"({logoutResult.FailureType}) - {logoutResult.Message}",
+                Exception = logoutResult.Exception,
+                Severity = ErrorSeverity.High
+            });
         }
     }
 

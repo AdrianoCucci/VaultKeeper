@@ -8,6 +8,7 @@ public record Error
     public required string Message { get; set; }
     public ErrorSeverity Severity { get; set; } = ErrorSeverity.Normal;
     public ErrorSource Source { get; set; } = ErrorSource.Application;
+    public ErrorVisibility Visibility { get; set; } = ErrorVisibility.Visible;
     public DateTime Timestamp { get; set; } = DateTime.UtcNow;
     public Exception? Exception { get; set; }
 }
