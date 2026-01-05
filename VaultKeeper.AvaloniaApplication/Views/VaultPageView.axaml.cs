@@ -70,4 +70,6 @@ public partial class VaultPageView : ViewBase<VaultPageViewModel>
     private async void ConfirmPromptView_ActionInvoked(object? sender, ConfirmPromptEventArgs e) => await e.ViewModel.InvokeActionAsync(e.Action);
 
     private void PromptView_Acknowledged(object? sender, RoutedEventArgs e) => Model?.HideOverlay();
+
+    private void Modal_BackdropPressed(object? sender, RoutedEventArgs e) => Model?.HideOverlay();
 }

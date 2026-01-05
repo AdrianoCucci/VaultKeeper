@@ -19,9 +19,8 @@
         MinWidth="500"
         MinHeight="500">
 
-  <overlays:OverlayPanel OverlayContent="{Binding OverlayContent}" 
-                         IsOverlayVisible="{Binding IsOverlayVisible}"
-                         OverlayPadding="20">
+  <overlays:OverlayPanel IsOverlayVisible="{Binding IsOverlayVisible}">
+
     <TransitioningContentControl Content="{Binding Content}" IsVisible="{Binding !IsInitializing}">
       <TransitioningContentControl.DataTemplates>
         <DataTemplate DataType="vm:SetupPageViewModel">
@@ -38,10 +37,14 @@
       </TransitioningContentControl.DataTemplates>
     </TransitioningContentControl>
 
-    <overlays:OverlayPanel.OverlayTemplate>
-      <DataTemplate x:DataType="promptVMs:PromptViewModel">
-        <prompts:PromptView Acknowledged="PromptView_Acknowledged"/>
-      </DataTemplate>
-    </overlays:OverlayPanel.OverlayTemplate>
+    <overlays:OverlayPanel.OverlayContent>
+      <overlays:Modal Content="{Binding OverlayContent}">
+        <overlays:Modal.DataTemplates>
+          <DataTemplate x:DataType="promptVMs:PromptViewModel">
+            <prompts:PromptView Acknowledged="PromptView_Acknowledged"/>
+          </DataTemplate>
+        </overlays:Modal.DataTemplates>
+      </overlays:Modal>
+    </overlays:OverlayPanel.OverlayContent>
   </overlays:OverlayPanel>
 </Window>

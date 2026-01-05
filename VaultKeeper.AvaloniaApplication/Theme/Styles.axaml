@@ -6,6 +6,13 @@
     </Border>
   </Design.PreviewWith>
 
+  <Style Selector=":is(Control).non-interactive">
+    <Setter Property="IsEnabled" Value="false"/>
+    <Setter Property="IsHitTestVisible" Value="false"/>
+    <Setter Property="Focusable" Value="false"/>
+    <Setter Property="KeyboardNavigation.TabNavigation" Value="None"/>
+  </Style>
+
   <Style Selector="Button">
     <Setter Property="Cursor" Value="Hand"/>
     <Setter Property="Background" Value="{DynamicResource ButtonBackground}" />

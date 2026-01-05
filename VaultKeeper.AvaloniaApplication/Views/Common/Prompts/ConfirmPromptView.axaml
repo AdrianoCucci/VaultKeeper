@@ -14,7 +14,7 @@
     <x:Static Member="prompts:ConfirmPromptViewModel.Design"/>
   </Design.DataContext>
 
-  <overlays:OverlayPanel ContentPadding="20" OverlayMargin="20" OverlayPadding="20" IsOverlayVisible="{Binding IsOverlayVisible}">
+  <overlays:OverlayPanel IsOverlayVisible="{Binding IsOverlayVisible}">
     <local:PromptView ShowOkButton="false" CloseButtonClicked="CancelButton_Clicked">
       <local:PromptView.InnerContent>
         <StackPanel>

@@ -55,8 +55,8 @@ public class AppButton : Button
         IEnumerable<string> oldNonPseudoClasses = oldClasses.Where(x => !x.StartsWith(':'));
         IEnumerable<string> newNonPseudoClasses = newClasses.Where(x => !x.StartsWith(':'));
 
-        _innerButton.Classes.RemoveAll(oldClasses);
-        _innerButton.Classes.AddRange(newClasses);
+        _innerButton.Classes.RemoveAll(oldNonPseudoClasses);
+        _innerButton.Classes.AddRange(newNonPseudoClasses);
     }
 
     private void Classes_CollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)

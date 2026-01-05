@@ -9,6 +9,7 @@
     <ResourceInclude Source="/Views/Common/SearchBox.axaml"/>
 
     <ResourceInclude Source="/Views/Common/Overlays/OverlayPanel.axaml"/>
+    <ResourceInclude Source="/Views/Common/Overlays/Modal.axaml"/>
 
     <ResourceInclude Source="/Views/Settings/SettingsSectionShell.axaml"/>
   </ResourceDictionary.MergedDictionaries>

@@ -20,9 +20,7 @@
     <x:Static Member="vm:VaultPageViewModel.Design"/>
   </Design.DataContext>
 
-  <overlays:OverlayPanel OverlayPadding="0"
-                         CloseOnBackdropClicked="true"
-                         IsOverlayVisible="{Binding IsOverlayVisible}"
+  <overlays:OverlayPanel IsOverlayVisible="{Binding IsOverlayVisible}"
                          OverlayClosed="OverlayPanel_OverlayClosed">
     <SplitView DisplayMode="Inline"
                PanePlacement="Right"
@@ -154,8 +152,8 @@
     </SplitView>
 
     <overlays:OverlayPanel.OverlayContent>
-      <ContentControl Content="{Binding OverlayContent}">
-        <ContentControl.DataTemplates>
+      <overlays:Modal Content="{Binding OverlayContent}" BackdropPressed="Modal_BackdropPressed">
+        <overlays:Modal.DataTemplates>
           <DataTemplate x:DataType="promptVMs:DeleteGroupConfirmPromptViewModel">
             <prompts:DeleteGroupConfirmPromptView ActionInvoked="ConfirmPromptView_ActionInvoked"/>
           </DataTemplate>
@@ -167,8 +165,8 @@
           <DataTemplate x:DataType="promptVMs:PromptViewModel">
             <prompts:PromptView Padding="20 20 20 0" Acknowledged="PromptView_Acknowledged"/>
           </DataTemplate>
-        </ContentControl.DataTemplates>
-      </ContentControl>
+        </overlays:Modal.DataTemplates>
+      </overlays:Modal>
     </overlays:OverlayPanel.OverlayContent>
 
   </overlays:OverlayPanel>

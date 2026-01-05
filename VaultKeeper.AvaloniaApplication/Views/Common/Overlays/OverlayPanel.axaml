@@ -2,19 +2,11 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:controls="using:VaultKeeper.AvaloniaApplication.Views.Common.Overlays">
 
-  <!--
-  Additional resources
-  Using Control Themes:
-  https://docs.avaloniaui.net/docs/basics/user-interface/styling/control-themes
-  Using Theme Variants:
-  https://docs.avaloniaui.net/docs/guides/styles-and-resources/how-to-use-theme-variants
-  -->
-
   <Design.PreviewWith>
     <StackPanel Width="600" Spacing="10">
       <StackPanel Background="{DynamicResource SystemRegionBrush}">
 
-        <controls:OverlayPanel IsOverlayVisible="true" ContentMargin="10" ContentPadding="10">
+        <controls:OverlayPanel IsOverlayVisible="True" OverlayPreventsMainContentInteraction="False">
           <StackPanel>
             <Button>BUTTON</Button>
             <TextBlock>CONTENT</TextBlock>
@@ -32,12 +24,18 @@
           </StackPanel>
 
           <controls:OverlayPanel.OverlayContent>
-            <StackPanel>
-              <Button>BUTTON</Button>
-              <TextBlock>OVERLAY</TextBlock>
-              <TextBlock>OVERLAY</TextBlock>
-              <TextBlock>OVERLAY</TextBlock>
-            </StackPanel>
+            <Border Background="Gray"
+                    Padding="20"
+                    Margin="15"
+                    CornerRadius="10"
+                    HorizontalAlignment="Left">
+              <StackPanel>
+                <Button>BUTTON</Button>
+                <TextBlock>OVERLAY</TextBlock>
+                <TextBlock>OVERLAY</TextBlock>
+                <TextBlock>OVERLAY</TextBlock>
+              </StackPanel>
+            </Border>
           </controls:OverlayPanel.OverlayContent>
 
         </controls:OverlayPanel>
@@ -47,59 +45,38 @@
   </Design.PreviewWith>
 
   <ControlTheme x:Key="{x:Type controls:OverlayPanel}" TargetType="controls:OverlayPanel">
-    <Setter Property="OverlayBackground" Value="{DynamicResource SystemRegionBrush}" />
-
     <Setter Property="Template">
       <ControlTemplate>
         <Grid>
+          <ContentControl Name="PART_Content"
+                          Content="{TemplateBinding Content}"
+                          ContentTemplate="{TemplateBinding ContentTemplate}"
+                          Classes.non-interactive="{TemplateBinding IsMainContentInteractionDisabled}"/>
 
-          <Border Name="PART_Content"
-                  Margin="{TemplateBinding ContentMargin}"
-                  Padding="{TemplateBinding ContentPadding}"
-                  Classes.overlayed="{TemplateBinding IsOverlayVisible}">
-            <ContentControl Content="{TemplateBinding Content}" />
+          <ContentControl Name="PART_OverlayContent"
+                          Content="{TemplateBinding OverlayContent}"
+                          ContentTemplate="{TemplateBinding OverlayContentTemplate}"
+                          IsVisible="{TemplateBinding IsOverlayVisible}"
+                          Classes.visible="{TemplateBinding IsOverlayVisible}">
 
-            <Border.Styles>
-              <Style Selector="Panel#PART_Content.overlayed">
-                <Setter Property="IsHitTestVisible" Value="false"/>
-                <Setter Property="Focusable" Value="false"/>
-                <Setter Property="KeyboardNavigation.TabNavigation" Value="None"/>
-              </Style>
-            </Border.Styles>
-          </Border>
-
-          <Grid Name="PART_Overlay"
-                IsVisible="{TemplateBinding IsOverlayVisible}"
-                Classes.visible="{TemplateBinding IsOverlayVisible}">
-            <Border Name="PART_Backdrop"
-                    Background="{TemplateBinding OverlayBackdrop}"
-                    Opacity="{TemplateBinding OverlayBackdropOpacity}" />
-
-            <Border HorizontalAlignment="{TemplateBinding OverlayHorizontalAlignment}"
-                    VerticalAlignment="{TemplateBinding OverlayVerticalAlignment}"
-                    Margin="{TemplateBinding OverlayMargin}"
-                    Padding="{TemplateBinding OverlayPadding}"
-                    CornerRadius="{TemplateBinding OverlayCornerRadius}"
-                    Background="{TemplateBinding OverlayBackground}">
-              <ContentControl Content="{TemplateBinding OverlayContent}"
-                              ContentTemplate="{TemplateBinding OverlayTemplate}"/>
-            </Border>
-
-            <Grid.Styles>
-              <Style Selector="Grid#PART_Overlay:not(.visible)">
+            <ContentControl.Styles>
+              <Style Selector="ContentControl#PART_OverlayContent:not(.visible)">
                 <Setter Property="Opacity" Value="0"/>
+                <Setter Property="RenderTransform" Value="scale(1.25, 1.25)"/>
               </Style>
-              <Style Selector="Grid#PART_Overlay.visible">
+              <Style Selector="ContentControl#PART_OverlayContent.visible">
                 <Setter Property="Opacity" Value="1"/>
+                <Setter Property="RenderTransform" Value="scale(1, 1)"/>
               </Style>
-            </Grid.Styles>
+            </ContentControl.Styles>
 
-            <Grid.Transitions>
+            <ContentControl.Transitions>
               <Transitions>
-                <DoubleTransition Property="Opacity" Duration="0:0:0.025"/>
+                <DoubleTransition Property="Opacity" Duration="0:0:0:0.1"/>
+                <TransformOperationsTransition Property="RenderTransform" Duration="0:0:0:0.1" Easing="CubicEaseOut"/>
               </Transitions>
-            </Grid.Transitions>
-          </Grid>
+            </ContentControl.Transitions>
+          </ContentControl>
 
         </Grid>
       </ControlTemplate>
