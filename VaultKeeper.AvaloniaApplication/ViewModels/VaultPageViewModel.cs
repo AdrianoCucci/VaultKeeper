@@ -11,11 +11,12 @@ using VaultKeeper.AvaloniaApplication.Constants;
 using VaultKeeper.AvaloniaApplication.Extensions;
 using VaultKeeper.AvaloniaApplication.Forms.Common;
 using VaultKeeper.AvaloniaApplication.Forms.VaultItems;
-using VaultKeeper.AvaloniaApplication.ViewModels.Common.ConfirmPrompts;
+using VaultKeeper.AvaloniaApplication.ViewModels.Common.Prompts;
 using VaultKeeper.AvaloniaApplication.ViewModels.Groups;
 using VaultKeeper.AvaloniaApplication.ViewModels.Settings;
 using VaultKeeper.AvaloniaApplication.ViewModels.VaultItems;
 using VaultKeeper.AvaloniaApplication.ViewModels.VaultItems.Common;
+using VaultKeeper.Common.Exceptions;
 using VaultKeeper.Common.Models.Queries;
 using VaultKeeper.Common.Results;
 using VaultKeeper.Models.Groups;
@@ -24,6 +25,8 @@ using VaultKeeper.Models.Settings;
 using VaultKeeper.Models.VaultItems;
 using VaultKeeper.Models.VaultItems.Extensions;
 using VaultKeeper.Services.Abstractions;
+using VaultKeeper.Services.Abstractions.Groups;
+using VaultKeeper.Services.Abstractions.VaultItems;
 
 namespace VaultKeeper.AvaloniaApplication.ViewModels;
 
@@ -316,7 +319,11 @@ public partial class VaultPageViewModel(
                     var updateResult = await groupService.UpdateAsync(eventArgs.Group);
                     if (!updateResult.IsSuccessful)
                     {
-                        // TODO: Handle error.
+                        ShowOverlay(new PromptViewModel
+                        {
+                            Header = "Failed to Update Group",
+                            Message = updateResult.Message ?? "An unknown error occurred"
+                        });
                         return;
                     }
 
@@ -357,12 +364,40 @@ public partial class VaultPageViewModel(
             Result<Group> addGroupResult = await groupService.AddAsync(formEvent.Form.GetGroup().ToNewGroup());
             if (!addGroupResult.IsSuccessful)
             {
-                // TODO: Handle error.
+                ShowOverlay(new PromptViewModel
+                {
+                    Header = "Failed to Create Group",
+                    Message = addGroupResult.Message ?? "An unknown error occurred"
+                });
                 return;
             }
 
             formModel.GroupId = addGroupResult.Value!.Id;
             await LoadGroupsAsync(false);
+        }
+
+        void HandleUpsertFailure(Result failedResult)
+        {
+            if (failedResult.FailureType == ResultFailureType.Conflict)
+            {
+                string message = $"Another Key named \"{formModel.Name}\" already exists";
+                if (formModel.GroupId.HasValue)
+                    message += " in this group";
+
+                ShowOverlay(new PromptViewModel
+                {
+                    Header = "Key Name Conflict",
+                    Message = $"{message}."
+                });
+            }
+            else
+            {
+                ShowOverlay(new PromptViewModel
+                {
+                    Header = $"Failed to {(formEvent.Form.Mode == FormMode.New ? "Add" : "Update")} Key",
+                    Message = failedResult.Message ?? "An unknown error occurred."
+                });
+            }
         }
 
         switch (formEvent.Form.Mode)
@@ -372,12 +407,11 @@ public partial class VaultPageViewModel(
                     Result<VaultItem> addResult = await vaultItemService.AddAsync(formModel.ToNewVaultItem(), shouldEncrypt);
                     if (!addResult.IsSuccessful)
                     {
-                        // TODO: Handle error.
+                        HandleUpsertFailure(addResult);
                         return;
                     }
 
                     HideVaultItemCreateForm();
-
                     break;
                 }
             case FormMode.Edit:
@@ -385,7 +419,7 @@ public partial class VaultPageViewModel(
                     Result<VaultItem> updateResult = await vaultItemService.UpdateAsync(formModel, shouldEncrypt);
                     if (!updateResult.IsSuccessful)
                     {
-                        // TODO: Handle error.
+                        HandleUpsertFailure(updateResult);
                         return;
                     }
 
@@ -425,16 +459,24 @@ public partial class VaultPageViewModel(
         if (!_vaultItemData.Items.Contains(vaultItem)) return false;
 
         Result deleteResult = await vaultItemService.DeleteAsync(vaultItem);
-        if (!deleteResult.IsSuccessful)
+        if (deleteResult.IsSuccessful)
         {
-            // TODO: Handle error.
-            return false;
+            if (TryUpdateVaultItemViewModel(vaultItem, () => null))
+                await LoadVaultItemsAsync();
+
+            return true;
         }
 
-        if (TryUpdateVaultItemViewModel(vaultItem, () => null))
-            await LoadVaultItemsAsync();
+        if (OverlayContent is ConfirmPromptViewModel promptVM)
+        {
+            promptVM.ShowOverlayPrompt(new()
+            {
+                Header = "Failed to Delete Key",
+                Message = deleteResult.Message ?? "An unknown error occurred."
+            });
+        }
 
-        return true;
+        return false;
     }
 
     private async Task<bool> DeleteGroupAsync(Group group, CascadeDeleteMode cascadeDeleteMode)
@@ -442,16 +484,36 @@ public partial class VaultPageViewModel(
         if (!_groupData.Items.Contains(group)) return false;
 
         Result deleteResult = await groupService.DeleteAsync(group, cascadeDeleteMode);
-        if (!deleteResult.IsSuccessful)
+        if (deleteResult.IsSuccessful)
         {
-            // TODO: Handle error.
-            return false;
+            if (TryUpdateGroupViewModel(group, () => null))
+                await LoadDataAsync();
+
+            return true;
         }
 
-        if (TryUpdateGroupViewModel(group, () => null))
-            await LoadDataAsync();
+        if (OverlayContent is DeleteGroupConfirmPromptViewModel promptVM)
+        {
+            if (deleteResult.Exception is CascadeDeleteException<Group, VaultItem> cascadeDeleteEx)
+            {
+                string[] childNames = [.. cascadeDeleteEx.ConflictingChildren.Select(x => $"\"{x.Name}\"")];
+                promptVM.ShowOverlayPrompt(new()
+                {
+                    Header = "Cannot Keep Keys",
+                    Message = $"{childNames.Length} Keys in group \"{group.Name}\" have the same names as other existing ungrouped keys:\n\n{string.Join(", ", childNames)}.\n\nThese keys must either be renamed, deleted, or moved to another group."
+                });
+            }
+            else
+            {
+                promptVM.ShowOverlayPrompt(new()
+                {
+                    Header = "Unable to Delete Group",
+                    Message = deleteResult.Message ?? "An unknown error occurred."
+                });
+            }
+        }
 
-        return true;
+        return false;
     }
 
     private bool TryUpdateVaultItemViewModel(VaultItem vaultItem, Func<VaultItemViewModelBase?> newModelFunc)

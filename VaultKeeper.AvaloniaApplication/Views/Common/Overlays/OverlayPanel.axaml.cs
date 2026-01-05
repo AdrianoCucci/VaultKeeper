@@ -25,6 +25,10 @@ public class OverlayPanel : TemplatedControl
 
     public static readonly StyledProperty<IDataTemplate?> OverlayTemplateProperty = AvaloniaProperty.Register<OverlayPanel, IDataTemplate?>(nameof(OverlayTemplate));
 
+    public static readonly StyledProperty<Thickness> ContentMarginProperty = AvaloniaProperty.Register<OverlayPanel, Thickness>(nameof(ContentMargin), new(0));
+
+    public static readonly StyledProperty<Thickness> ContentPaddingProperty = AvaloniaProperty.Register<OverlayPanel, Thickness>(nameof(ContentPadding), new(0));
+
     public static readonly StyledProperty<bool> IsOverlayVisibleProperty = AvaloniaProperty.Register<OverlayPanel, bool>(nameof(IsOverlayVisible), false, defaultBindingMode: BindingMode.TwoWay);
 
     public static readonly StyledProperty<IBrush?> OverlayBackdropProperty = AvaloniaProperty.Register<OverlayPanel, IBrush?>(nameof(OverlayBackdrop), new SolidColorBrush(Colors.Black));
@@ -55,6 +59,8 @@ public class OverlayPanel : TemplatedControl
     public object? Content { get => GetValue(ContentProperty); set => SetValue(ContentProperty, value); }
     public object? OverlayContent { get => GetValue(OverlayContentProperty); set => SetValue(OverlayContentProperty, value); }
     public IDataTemplate? OverlayTemplate { get => GetValue(OverlayTemplateProperty); set => SetValue(OverlayTemplateProperty, value); }
+    public Thickness ContentMargin { get => GetValue(ContentMarginProperty); set => SetValue(ContentMarginProperty, value); }
+    public Thickness ContentPadding { get => GetValue(ContentPaddingProperty); set => SetValue(ContentPaddingProperty, value); }
     public IBrush? OverlayBackdrop { get => GetValue(OverlayBackdropProperty); set => SetValue(OverlayBackdropProperty, value); }
     public double OverlayBackdropOpacity { get => GetValue(OverlayBackdropOpacityProperty); set => SetValue(OverlayBackdropOpacityProperty, value); }
     public IBrush? OverlayBackground { get => GetValue(OverlayBackgroundProperty); set => SetValue(OverlayBackgroundProperty, value); }

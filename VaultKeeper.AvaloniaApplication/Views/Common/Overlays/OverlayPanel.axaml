@@ -14,7 +14,7 @@
     <StackPanel Width="600" Spacing="10">
       <StackPanel Background="{DynamicResource SystemRegionBrush}">
 
-        <controls:OverlayPanel IsOverlayVisible="true">
+        <controls:OverlayPanel IsOverlayVisible="true" ContentMargin="10" ContentPadding="10">
           <StackPanel>
             <Button>BUTTON</Button>
             <TextBlock>CONTENT</TextBlock>
@@ -53,17 +53,20 @@
       <ControlTemplate>
         <Grid>
 
-          <Panel Name="PART_Content" Classes.overlayed="{TemplateBinding IsOverlayVisible}">
+          <Border Name="PART_Content"
+                  Margin="{TemplateBinding ContentMargin}"
+                  Padding="{TemplateBinding ContentPadding}"
+                  Classes.overlayed="{TemplateBinding IsOverlayVisible}">
             <ContentControl Content="{TemplateBinding Content}" />
 
-            <Panel.Styles>
+            <Border.Styles>
               <Style Selector="Panel#PART_Content.overlayed">
                 <Setter Property="IsHitTestVisible" Value="false"/>
                 <Setter Property="Focusable" Value="false"/>
                 <Setter Property="KeyboardNavigation.TabNavigation" Value="None"/>
               </Style>
-            </Panel.Styles>
-          </Panel>
+            </Border.Styles>
+          </Border>
 
           <Grid Name="PART_Overlay"
                 IsVisible="{TemplateBinding IsOverlayVisible}"

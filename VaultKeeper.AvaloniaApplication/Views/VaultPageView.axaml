@@ -1,7 +1,7 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:commonVMs="using:VaultKeeper.AvaloniaApplication.ViewModels.Common"
-             xmlns:confirmprompts="using:VaultKeeper.AvaloniaApplication.Views.Common.ConfirmPrompts"
-             xmlns:confirmpromptVMs="using:VaultKeeper.AvaloniaApplication.ViewModels.Common.ConfirmPrompts"
+             xmlns:prompts="using:VaultKeeper.AvaloniaApplication.Views.Common.Prompts"
+             xmlns:promptVMs="using:VaultKeeper.AvaloniaApplication.ViewModels.Common.Prompts"
              xmlns:common="using:VaultKeeper.AvaloniaApplication.Views.Common"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -20,7 +20,7 @@
     <x:Static Member="vm:VaultPageViewModel.Design"/>
   </Design.DataContext>
 
-  <overlays:OverlayPanel OverlayPadding="20"
+  <overlays:OverlayPanel OverlayPadding="0"
                          CloseOnBackdropClicked="true"
                          IsOverlayVisible="{Binding IsOverlayVisible}"
                          OverlayClosed="OverlayPanel_OverlayClosed">
@@ -156,12 +156,16 @@
     <overlays:OverlayPanel.OverlayContent>
       <ContentControl Content="{Binding OverlayContent}">
         <ContentControl.DataTemplates>
-          <DataTemplate x:DataType="confirmpromptVMs:DeleteGroupConfirmPromptViewModel">
-            <confirmprompts:DeleteGroupConfirmPromptView ActionInvoked="ConfirmPromptView_ActionInvoked"/>
+          <DataTemplate x:DataType="promptVMs:DeleteGroupConfirmPromptViewModel">
+            <prompts:DeleteGroupConfirmPromptView ActionInvoked="ConfirmPromptView_ActionInvoked"/>
           </DataTemplate>
 
-          <DataTemplate x:DataType="confirmpromptVMs:ConfirmPromptViewModel">
-            <confirmprompts:ConfirmPromptView ActionInvoked="ConfirmPromptView_ActionInvoked"/>
+          <DataTemplate x:DataType="promptVMs:ConfirmPromptViewModel">
+            <prompts:ConfirmPromptView ActionInvoked="ConfirmPromptView_ActionInvoked"/>
+          </DataTemplate>
+
+          <DataTemplate x:DataType="promptVMs:PromptViewModel">
+            <prompts:PromptView Padding="20 20 20 0" Acknowledged="PromptView_Acknowledged"/>
           </DataTemplate>
         </ContentControl.DataTemplates>
       </ContentControl>

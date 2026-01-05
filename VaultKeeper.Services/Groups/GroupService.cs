@@ -10,13 +10,14 @@ using VaultKeeper.Models.Groups;
 using VaultKeeper.Models.Groups.Extensions;
 using VaultKeeper.Models.VaultItems;
 using VaultKeeper.Repositories.Abstractions;
-using VaultKeeper.Services.Abstractions;
+using VaultKeeper.Services.Abstractions.Groups;
 
-namespace VaultKeeper.Services;
+namespace VaultKeeper.Services.Groups;
 
 public class GroupService(
     IRepository<Group> repository,
     IRepository<VaultItem> vaultItemRepository,
+    IGroupValidatorService validatorService,
     ILogger<GroupService> logger) : IGroupService
 {
     public async Task<Result<CountedData<Group>>> GetManyCountedAsync(ReadQuery<Group>? query = null)
@@ -42,7 +43,7 @@ public class GroupService(
         {
             Group model = group.ToGroup() with { Id = Guid.NewGuid() };
 
-            Result validateResult = await ValidateUpsertAsync(model);
+            Result validateResult = await validatorService.ValidateUpsertAsync(model);
             if (!validateResult.IsSuccessful)
                 return validateResult.WithValue(model).Logged(logger);
 
@@ -70,7 +71,7 @@ public class GroupService(
             if (existingModel == null)
                 return Result.Failed<Group>(ResultFailureType.NotFound, $"Vault Item ID does not exist: ({group.Id})").Logged(logger);
 
-            Result validateResult = await ValidateUpsertAsync(group);
+            Result validateResult = await validatorService.ValidateUpsertAsync(group);
             if (!validateResult.IsSuccessful)
                 return validateResult.WithValue(group).Logged(logger);
 
@@ -92,9 +93,11 @@ public class GroupService(
 
         try
         {
-            bool didRemove = await repository.RemoveAsync(group);
-            if (!didRemove)
-                return Result.Failed<Group>(ResultFailureType.NotFound, $"Group ID does not exist: ({group.Id})").Logged(logger);
+            Result validateResult = await validatorService.ValidateDeleteAsync(group, cascadeDeleteMode);
+            if (!validateResult.IsSuccessful)
+                return validateResult.Logged(logger);
+
+            _ = await repository.RemoveAsync(group);
 
             IEnumerable<VaultItem> childItems = await vaultItemRepository.GetManyAsync(new() { Where = x => x.GroupId == group.Id });
 
@@ -114,23 +117,5 @@ public class GroupService(
         {
             return ex.ToFailedResult().Logged(logger);
         }
-    }
-
-    private async Task<Result> ValidateUpsertAsync(Group group)
-    {
-        if (string.IsNullOrWhiteSpace(group.Name))
-            return Result.Failed(ResultFailureType.BadRequest, "Name is required.");
-
-        bool isDuplicate = await repository.HasAnyAsync(new()
-        {
-            Where = x =>
-                group.Name == x.Name &&
-                group.Id != x.Id
-        });
-
-        if (isDuplicate)
-            return Result.Failed<Group>(ResultFailureType.Conflict, $"Another Group named \"{group.Name}\" already exists.");
-
-        return Result.Ok();
     }
 }

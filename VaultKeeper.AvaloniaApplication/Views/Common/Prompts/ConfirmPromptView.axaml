@@ -1,0 +1,34 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:common="using:VaultKeeper.AvaloniaApplication.Views.Common"
+             xmlns:prompts="using:VaultKeeper.AvaloniaApplication.ViewModels.Common.Prompts"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:local="using:VaultKeeper.AvaloniaApplication.Views.Common.Prompts"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:overlays="using:VaultKeeper.AvaloniaApplication.Views.Common.Overlays"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="VaultKeeper.AvaloniaApplication.Views.Common.Prompts.ConfirmPromptView"
+             x:DataType="prompts:ConfirmPromptViewModel"
+             Name="Root">
+  <Design.DataContext>
+    <x:Static Member="prompts:ConfirmPromptViewModel.Design"/>
+  </Design.DataContext>
+
+  <overlays:OverlayPanel ContentPadding="20" OverlayMargin="20" OverlayPadding="20" IsOverlayVisible="{Binding IsOverlayVisible}">
+    <local:PromptView ShowOkButton="false" CloseButtonClicked="CancelButton_Clicked">
+      <local:PromptView.InnerContent>
+        <StackPanel>
+          <ContentControl Content="{Binding #Root.InnerContent}" />
+          <common:FormButtons Margin="0 40 0 0"
+                              SubmitButtonText="Confirm"
+                              Cancelled="CancelButton_Clicked"
+                              Submitted="ConfirmButton_Clicked"/>
+        </StackPanel>
+      </local:PromptView.InnerContent>
+    </local:PromptView>
+
+    <overlays:OverlayPanel.OverlayContent>
+      <local:PromptView MaxWidth="500" DataContext="{Binding OverlayPrompt}" Acknowledged="OverlayPromptView_Acknowledged"/>
+    </overlays:OverlayPanel.OverlayContent>
+  </overlays:OverlayPanel>
+</UserControl>

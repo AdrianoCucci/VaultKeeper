@@ -1,8 +1,8 @@
 using Avalonia.Interactivity;
-using VaultKeeper.AvaloniaApplication.ViewModels.Common.ConfirmPrompts;
+using VaultKeeper.AvaloniaApplication.ViewModels.Common.Prompts;
 using VaultKeeper.Common.Models.Queries;
 
-namespace VaultKeeper.AvaloniaApplication.Views.Common.ConfirmPrompts;
+namespace VaultKeeper.AvaloniaApplication.Views.Common.Prompts;
 
 public partial class DeleteGroupConfirmPromptView : ConfirmPromptViewBase<DeleteGroupConfirmPromptViewModel>
 {
@@ -15,4 +15,6 @@ public partial class DeleteGroupConfirmPromptView : ConfirmPromptViewBase<Delete
     private void CancelButton_Clicked(object? sender, RoutedEventArgs e) => RaiseEvent(ConfirmPromptAction.Cancelled);
 
     private void ConfirmButton_Clicked(object? sender, RoutedEventArgs e) => RaiseEvent(ConfirmPromptAction.Confirmed);
+
+    private void ConfirmPromptView_ActionInvoked(object? sender, ConfirmPromptEventArgs e) => RaiseEvent(e.Action);
 }

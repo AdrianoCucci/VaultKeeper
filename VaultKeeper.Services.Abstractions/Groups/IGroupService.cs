@@ -3,7 +3,7 @@ using VaultKeeper.Common.Models.Queries;
 using VaultKeeper.Common.Results;
 using VaultKeeper.Models.Groups;
 
-namespace VaultKeeper.Services.Abstractions;
+namespace VaultKeeper.Services.Abstractions.Groups;
 
 public interface IGroupService
 {

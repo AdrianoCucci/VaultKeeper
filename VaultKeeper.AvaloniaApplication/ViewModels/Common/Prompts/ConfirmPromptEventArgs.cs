@@ -1,6 +1,6 @@
 ﻿using Avalonia.Interactivity;
 
-namespace VaultKeeper.AvaloniaApplication.ViewModels.Common.ConfirmPrompts;
+namespace VaultKeeper.AvaloniaApplication.ViewModels.Common.Prompts;
 
 public class ConfirmPromptEventArgs(RoutedEvent routedEvent, object? source = null) : RoutedEventArgs(routedEvent, source)
 {

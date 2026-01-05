@@ -5,7 +5,7 @@ using Avalonia.Interactivity;
 using System.Threading.Tasks;
 using VaultKeeper.AvaloniaApplication.Forms.VaultItems;
 using VaultKeeper.AvaloniaApplication.ViewModels;
-using VaultKeeper.AvaloniaApplication.ViewModels.Common.ConfirmPrompts;
+using VaultKeeper.AvaloniaApplication.ViewModels.Common.Prompts;
 using VaultKeeper.AvaloniaApplication.ViewModels.Groups;
 using VaultKeeper.AvaloniaApplication.ViewModels.VaultItems.Common;
 
@@ -68,4 +68,6 @@ public partial class VaultPageView : ViewBase<VaultPageViewModel>
     private void OverlayPanel_OverlayClosed(object? sender, RoutedEventArgs e) => Model?.HideOverlay();
 
     private async void ConfirmPromptView_ActionInvoked(object? sender, ConfirmPromptEventArgs e) => await e.ViewModel.InvokeActionAsync(e.Action);
+
+    private void PromptView_Acknowledged(object? sender, RoutedEventArgs e) => Model?.HideOverlay();
 }
