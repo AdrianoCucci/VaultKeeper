@@ -19,6 +19,7 @@ using VaultKeeper.AvaloniaApplication.ViewModels.VaultItems.Common;
 using VaultKeeper.Common.Exceptions;
 using VaultKeeper.Common.Models.Queries;
 using VaultKeeper.Common.Results;
+using VaultKeeper.Models.Errors;
 using VaultKeeper.Models.Groups;
 using VaultKeeper.Models.Groups.Extensions;
 using VaultKeeper.Models.Settings;
@@ -37,6 +38,7 @@ public partial class VaultPageViewModel(
     IPlatformService platformService,
     IApplicationService applicationService,
     IKeyGeneratorService keyGeneratorService,
+    IErrorReportingService errorReportingService,
     IServiceProvider serviceProvider) : ViewModelBase
 {
     [ObservableProperty, NotifyPropertyChangedFor(nameof(IsEmpty), nameof(EmptyTemplateTitle), nameof(EmptyTemplateDescription))]
@@ -384,15 +386,16 @@ public partial class VaultPageViewModel(
                 if (formModel.GroupId.HasValue)
                     message += " in this group";
 
-                ShowOverlay(new PromptViewModel
+                errorReportingService.ReportError(new()
                 {
                     Header = "Key Name Conflict",
-                    Message = $"{message}."
+                    Message = $"{message}.",
+                    Source = ErrorSource.User
                 });
             }
             else
             {
-                ShowOverlay(new PromptViewModel
+                errorReportingService.ReportError(new()
                 {
                     Header = $"Failed to {(formEvent.Form.Mode == FormMode.New ? "Add" : "Update")} Key",
                     Message = failedResult.Message ?? "An unknown error occurred."
@@ -459,24 +462,23 @@ public partial class VaultPageViewModel(
         if (!_vaultItemData.Items.Contains(vaultItem)) return false;
 
         Result deleteResult = await vaultItemService.DeleteAsync(vaultItem);
-        if (deleteResult.IsSuccessful)
-        {
-            if (TryUpdateVaultItemViewModel(vaultItem, () => null))
-                await LoadVaultItemsAsync();
 
-            return true;
-        }
-
-        if (OverlayContent is ConfirmPromptViewModel promptVM)
+        if (!deleteResult.IsSuccessful)
         {
-            promptVM.ShowOverlayPrompt(new()
+            errorReportingService.ReportError(new()
             {
                 Header = "Failed to Delete Key",
-                Message = deleteResult.Message ?? "An unknown error occurred."
+                Message = deleteResult.Message ?? "An unknown error occurred.",
+                Exception = deleteResult.Exception
             });
+
+            return false;
         }
 
-        return false;
+        if (TryUpdateVaultItemViewModel(vaultItem, () => null))
+            await LoadVaultItemsAsync();
+
+        return true;
     }
 
     private async Task<bool> DeleteGroupAsync(Group group, CascadeDeleteMode cascadeDeleteMode)
@@ -484,36 +486,34 @@ public partial class VaultPageViewModel(
         if (!_groupData.Items.Contains(group)) return false;
 
         Result deleteResult = await groupService.DeleteAsync(group, cascadeDeleteMode);
-        if (deleteResult.IsSuccessful)
-        {
-            if (TryUpdateGroupViewModel(group, () => null))
-                await LoadDataAsync();
-
-            return true;
-        }
-
-        if (OverlayContent is DeleteGroupConfirmPromptViewModel promptVM)
+        if (!deleteResult.IsSuccessful)
         {
             if (deleteResult.Exception is CascadeDeleteException<Group, VaultItem> cascadeDeleteEx)
             {
                 string[] childNames = [.. cascadeDeleteEx.ConflictingChildren.Select(x => $"\"{x.Name}\"")];
-                promptVM.ShowOverlayPrompt(new()
+                errorReportingService.ReportError(new()
                 {
                     Header = "Cannot Keep Keys",
-                    Message = $"{childNames.Length} Keys in group \"{group.Name}\" have the same names as other existing ungrouped keys:\n\n{string.Join(", ", childNames)}.\n\nThese keys must either be renamed, deleted, or moved to another group."
+                    Message = $"{childNames.Length} Keys in group \"{group.Name}\" have the same names as other existing ungrouped keys:\n\n{string.Join(", ", childNames)}.\n\nThese keys must either be renamed, deleted, or moved to another group.",
+                    Source = ErrorSource.User
                 });
             }
             else
             {
-                promptVM.ShowOverlayPrompt(new()
+                errorReportingService.ReportError(new()
                 {
-                    Header = "Unable to Delete Group",
+                    Header = "Failed to Delete Group",
                     Message = deleteResult.Message ?? "An unknown error occurred."
                 });
             }
+
+            return false;
         }
 
-        return false;
+        if (TryUpdateGroupViewModel(group, () => null))
+            await LoadDataAsync();
+
+        return true;
     }
 
     private bool TryUpdateVaultItemViewModel(VaultItem vaultItem, Func<VaultItemViewModelBase?> newModelFunc)

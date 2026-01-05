@@ -32,4 +32,6 @@ public partial class MainWindow : Window
     private void LockScreenView_ForgotPasswordClicked(object? sender, RoutedEventArgs e) => Model?.NavigateToSetup(canNavigateBack: true);
 
     private void SetupPageView_NavigateBackClicked(object? sender, RoutedEventArgs e) => Model?.NavigateToLockscreen();
+
+    private void PromptView_Acknowledged(object? sender, RoutedEventArgs e) => Model?.HideOverlay();
 }

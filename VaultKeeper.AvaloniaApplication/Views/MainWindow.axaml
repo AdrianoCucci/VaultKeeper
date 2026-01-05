@@ -4,6 +4,9 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:local="using:VaultKeeper.AvaloniaApplication.Views"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:overlays="using:VaultKeeper.AvaloniaApplication.Views.Common.Overlays"
+        xmlns:prompts="using:VaultKeeper.AvaloniaApplication.Views.Common.Prompts"
+        xmlns:promptVMs="using:VaultKeeper.AvaloniaApplication.ViewModels.Common.Prompts"
         xmlns:vm="using:VaultKeeper.AvaloniaApplication.ViewModels"
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
         x:Class="VaultKeeper.AvaloniaApplication.Views.MainWindow"
@@ -16,19 +19,29 @@
         MinWidth="500"
         MinHeight="500">
 
-  <TransitioningContentControl Content="{Binding Content}" IsVisible="{Binding !IsInitializing}">
-    <TransitioningContentControl.DataTemplates>
-      <DataTemplate DataType="vm:SetupPageViewModel">
-        <local:SetupPageView SetupCompleted="SetupView_SetupCompleted"
-                             NavigateBackClicked="SetupPageView_NavigateBackClicked"/>
+  <overlays:OverlayPanel OverlayContent="{Binding OverlayContent}" 
+                         IsOverlayVisible="{Binding IsOverlayVisible}"
+                         OverlayPadding="20">
+    <TransitioningContentControl Content="{Binding Content}" IsVisible="{Binding !IsInitializing}">
+      <TransitioningContentControl.DataTemplates>
+        <DataTemplate DataType="vm:SetupPageViewModel">
+          <local:SetupPageView SetupCompleted="SetupView_SetupCompleted"
+                               NavigateBackClicked="SetupPageView_NavigateBackClicked"/>
+        </DataTemplate>
+        <DataTemplate DataType="vm:LockScreenPageViewModel">
+          <local:LockScreenPageView LoginSuccess="LockScreenView_LoginSuccess"
+                                    ForgotPasswordClicked="LockScreenView_ForgotPasswordClicked"/>
+        </DataTemplate>
+        <DataTemplate DataType="vm:HomeViewModel">
+          <local:MainContentView/>
+        </DataTemplate>
+      </TransitioningContentControl.DataTemplates>
+    </TransitioningContentControl>
+
+    <overlays:OverlayPanel.OverlayTemplate>
+      <DataTemplate x:DataType="promptVMs:PromptViewModel">
+        <prompts:PromptView Acknowledged="PromptView_Acknowledged"/>
       </DataTemplate>
-      <DataTemplate DataType="vm:LockScreenPageViewModel">
-        <local:LockScreenPageView LoginSuccess="LockScreenView_LoginSuccess"
-                                  ForgotPasswordClicked="LockScreenView_ForgotPasswordClicked"/>
-      </DataTemplate>
-      <DataTemplate DataType="vm:HomeViewModel">
-        <local:MainContentView/>
-      </DataTemplate>
-    </TransitioningContentControl.DataTemplates>
-  </TransitioningContentControl>
+    </overlays:OverlayPanel.OverlayTemplate>
+  </overlays:OverlayPanel>
 </Window>

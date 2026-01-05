@@ -31,6 +31,7 @@ public static class ServiceCollectionExtensions
     {
         services
             .AddLogging()
+            .AddSingleton<IErrorReportingService, ErrorReportingService>()
             .AddSingleton<ISecurityService, SecurityService>()
             .AddSingleton<IJsonService, JsonService>()
             .AddSingleton<ICsvService, CsvService>()
