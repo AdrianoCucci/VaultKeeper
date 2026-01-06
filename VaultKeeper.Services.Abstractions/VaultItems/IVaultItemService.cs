@@ -3,7 +3,7 @@ using VaultKeeper.Common.Models.Queries;
 using VaultKeeper.Common.Results;
 using VaultKeeper.Models.VaultItems;
 
-namespace VaultKeeper.Services.Abstractions;
+namespace VaultKeeper.Services.Abstractions.VaultItems;
 
 public interface IVaultItemService
 {

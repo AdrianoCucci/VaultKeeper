@@ -1,0 +1,59 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:common="using:VaultKeeper.AvaloniaApplication.Views.Common"
+             xmlns:prompts="using:VaultKeeper.AvaloniaApplication.ViewModels.Common.Prompts"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:local="using:VaultKeeper.AvaloniaApplication.Views.Common.Prompts"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:overlays="using:VaultKeeper.AvaloniaApplication.Views.Common.Overlays"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="600"
+             x:Class="VaultKeeper.AvaloniaApplication.Views.Common.Prompts.DeleteGroupConfirmPromptView"
+             x:DataType="prompts:DeleteGroupConfirmPromptViewModel">
+  <Design.DataContext>
+    <x:Static Member="prompts:DeleteGroupConfirmPromptViewModel.Design"/>
+  </Design.DataContext>
+
+  <local:ConfirmPromptView ActionInvoked="ConfirmPromptView_ActionInvoked">
+    <local:ConfirmPromptView.InnerContent>
+      <Grid RowDefinitions="Auto" ColumnDefinitions="*, *" ColumnSpacing="10" Margin="0 10 0 0">
+        <Button Padding="20"
+                HorizontalAlignment="Stretch"
+                Classes.btn-text="{Binding DeleteWithChildren}"
+                Click="KeepChildrenButton_Click"
+                Grid.Column="0">
+          <StackPanel>
+            <TextBlock Classes="h4" HorizontalAlignment="Center">Keep Keys</TextBlock>
+
+            <StackPanel Spacing="10" Margin="0 0 0 20">
+              <Border Background="Crimson" Height="20" Margin="20 0 0 0" CornerRadius="4"/>
+              <Border Background="Green" Height="10" CornerRadius="4"/>
+              <Border Background="Green" Height="10" CornerRadius="4"/>
+              <Border Background="Green" Height="10" CornerRadius="4"/>
+            </StackPanel>
+
+            <TextBlock TextAlignment="Center" FontWeight="SemiBold">All keys in this group will be moved outside of it.</TextBlock>
+          </StackPanel>
+        </Button>
+
+        <Button Padding="20"
+                HorizontalAlignment="Stretch"
+                Classes.btn-text="{Binding !DeleteWithChildren}"
+                Click="DeleteChildrenButton_Click"
+                Grid.Column="1">
+          <StackPanel>
+            <TextBlock Classes="h4" HorizontalAlignment="Center">Delete Keys</TextBlock>
+
+            <StackPanel Spacing="10" Margin="0 0 0 20">
+              <Border Background="Crimson" Height="20" CornerRadius="4"/>
+              <Border Background="Crimson" Height="10" Margin="20 0 0 0" CornerRadius="4"/>
+              <Border Background="Crimson" Height="10" Margin="20 0 0 0" CornerRadius="4"/>
+              <Border Background="Crimson" Height="10" Margin="20 0 0 0" CornerRadius="4"/>
+            </StackPanel>
+
+            <TextBlock TextAlignment="Center" FontWeight="SemiBold">All keys in this group will be deleted along with it.</TextBlock>
+          </StackPanel>
+        </Button>
+      </Grid>
+    </local:ConfirmPromptView.InnerContent>
+  </local:ConfirmPromptView>
+</UserControl>

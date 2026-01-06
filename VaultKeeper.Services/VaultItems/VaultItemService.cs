@@ -8,10 +8,15 @@ using VaultKeeper.Models.VaultItems;
 using VaultKeeper.Models.VaultItems.Extensions;
 using VaultKeeper.Repositories.Abstractions;
 using VaultKeeper.Services.Abstractions;
+using VaultKeeper.Services.Abstractions.VaultItems;
 
-namespace VaultKeeper.Services;
+namespace VaultKeeper.Services.VaultItems;
 
-public class VaultItemService(IRepository<VaultItem> repository, ISecurityService securityService, ILogger<VaultItemService> logger) : IVaultItemService
+public class VaultItemService(
+    IRepository<VaultItem> repository,
+    IVaultItemValidatorService validatorService,
+    ISecurityService securityService,
+    ILogger<VaultItemService> logger) : IVaultItemService
 {
     public async Task<Result<CountedData<VaultItem>>> GetManyCountedAsync(ReadQuery<VaultItem>? query = null)
     {
@@ -36,7 +41,7 @@ public class VaultItemService(IRepository<VaultItem> repository, ISecurityServic
         {
             VaultItem model = vaultItem.ToVaultItem() with { Id = Guid.NewGuid() };
 
-            Result validateResult = await ValidateUpsertAsync(model);
+            Result validateResult = await validatorService.ValidateUpsertAsync(model);
             if (!validateResult.IsSuccessful)
                 return validateResult.WithValue(model).Logged(logger);
 
@@ -73,7 +78,7 @@ public class VaultItemService(IRepository<VaultItem> repository, ISecurityServic
             if (existingModel == null)
                 return Result.Failed<VaultItem>(ResultFailureType.NotFound, $"Vault Item ID does not exist: ({vaultItem.Id})").Logged(logger);
 
-            Result validateResult = await ValidateUpsertAsync(vaultItem);
+            Result validateResult = await validatorService.ValidateUpsertAsync(vaultItem);
             if (!validateResult.IsSuccessful)
                 return validateResult.WithValue(vaultItem).Logged(logger);
 
@@ -114,27 +119,5 @@ public class VaultItemService(IRepository<VaultItem> repository, ISecurityServic
         {
             return ex.ToFailedResult().Logged(logger);
         }
-    }
-
-    private async Task<Result> ValidateUpsertAsync(VaultItem vaultItem)
-    {
-        if (string.IsNullOrWhiteSpace(vaultItem.Name))
-            return Result.Failed(ResultFailureType.BadRequest, "Name is required.");
-
-        if (string.IsNullOrWhiteSpace(vaultItem.Value))
-            return Result.Failed(ResultFailureType.BadRequest, "Value is required.");
-
-        bool isDuplicate = await repository.HasAnyAsync(new()
-        {
-            Where = x =>
-                vaultItem.Name == x.Name &&
-                vaultItem.Id != x.Id &&
-                vaultItem.GroupId == x.GroupId
-        });
-
-        if (isDuplicate)
-            return Result.Failed<VaultItem>(ResultFailureType.Conflict, $"Another Vault Item named \"{vaultItem.Name}\" already exists.");
-
-        return Result.Ok();
     }
 }

@@ -9,9 +9,13 @@ using VaultKeeper.Models.VaultItems;
 using VaultKeeper.Repositories.Extensions.DependencyInjection;
 using VaultKeeper.Services.Abstractions;
 using VaultKeeper.Services.Abstractions.DataFormatting;
+using VaultKeeper.Services.Abstractions.Groups;
 using VaultKeeper.Services.Abstractions.Navigation;
+using VaultKeeper.Services.Abstractions.VaultItems;
 using VaultKeeper.Services.DataFormatting;
+using VaultKeeper.Services.Groups;
 using VaultKeeper.Services.Navigation;
+using VaultKeeper.Services.VaultItems;
 
 namespace VaultKeeper.Services.Extensions.DependencyInjection;
 
@@ -27,6 +31,7 @@ public static class ServiceCollectionExtensions
     {
         services
             .AddLogging()
+            .AddSingleton<IErrorReportingService, ErrorReportingService>()
             .AddSingleton<ISecurityService, SecurityService>()
             .AddSingleton<IJsonService, JsonService>()
             .AddSingleton<ICsvService, CsvService>()
@@ -38,7 +43,9 @@ public static class ServiceCollectionExtensions
             .AddSingleton<IKeyGeneratorService, KeyGeneratorService>()
 
             .AddScoped<IVaultItemService, VaultItemService>()
+            .AddScoped<IVaultItemValidatorService, VaultItemValidatorService>()
             .AddScoped<IGroupService, GroupService>()
+            .AddScoped<IGroupValidatorService, GroupValidatorService>()
 
             .AddInMemoryCache<UserData>()
             .AddInMemoryCache<UserSettings>()

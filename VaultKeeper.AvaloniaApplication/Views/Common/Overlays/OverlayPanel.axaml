@@ -1,0 +1,85 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:controls="using:VaultKeeper.AvaloniaApplication.Views.Common.Overlays">
+
+  <Design.PreviewWith>
+    <StackPanel Width="600" Spacing="10">
+      <StackPanel Background="{DynamicResource SystemRegionBrush}">
+
+        <controls:OverlayPanel IsOverlayVisible="True" OverlayPreventsMainContentInteraction="False">
+          <StackPanel>
+            <Button>BUTTON</Button>
+            <TextBlock>CONTENT</TextBlock>
+            <TextBlock>CONTENT</TextBlock>
+            <TextBlock>CONTENT</TextBlock>
+            <TextBlock>CONTENT</TextBlock>
+            <TextBlock>CONTENT</TextBlock>
+            <TextBlock>CONTENT</TextBlock>
+            <TextBlock>CONTENT</TextBlock>
+            <TextBlock>CONTENT</TextBlock>
+            <TextBlock>CONTENT</TextBlock>
+            <TextBlock>CONTENT</TextBlock>
+            <TextBlock>CONTENT</TextBlock>
+            <TextBlock>CONTENT</TextBlock>
+          </StackPanel>
+
+          <controls:OverlayPanel.OverlayContent>
+            <Border Background="Gray"
+                    Padding="20"
+                    Margin="15"
+                    CornerRadius="10"
+                    HorizontalAlignment="Left">
+              <StackPanel>
+                <Button>BUTTON</Button>
+                <TextBlock>OVERLAY</TextBlock>
+                <TextBlock>OVERLAY</TextBlock>
+                <TextBlock>OVERLAY</TextBlock>
+              </StackPanel>
+            </Border>
+          </controls:OverlayPanel.OverlayContent>
+
+        </controls:OverlayPanel>
+
+      </StackPanel>
+    </StackPanel>
+  </Design.PreviewWith>
+
+  <ControlTheme x:Key="{x:Type controls:OverlayPanel}" TargetType="controls:OverlayPanel">
+    <Setter Property="Template">
+      <ControlTemplate>
+        <Grid>
+          <ContentControl Name="PART_Content"
+                          Content="{TemplateBinding Content}"
+                          ContentTemplate="{TemplateBinding ContentTemplate}"
+                          Classes.non-interactive="{TemplateBinding IsMainContentInteractionDisabled}"/>
+
+          <ContentControl Name="PART_OverlayContent"
+                          Content="{TemplateBinding OverlayContent}"
+                          ContentTemplate="{TemplateBinding OverlayContentTemplate}"
+                          IsVisible="{TemplateBinding IsOverlayVisible}"
+                          Classes.visible="{TemplateBinding IsOverlayVisible}">
+
+            <ContentControl.Styles>
+              <Style Selector="ContentControl#PART_OverlayContent:not(.visible)">
+                <Setter Property="Opacity" Value="0"/>
+                <Setter Property="RenderTransform" Value="scale(1.25, 1.25)"/>
+              </Style>
+              <Style Selector="ContentControl#PART_OverlayContent.visible">
+                <Setter Property="Opacity" Value="1"/>
+                <Setter Property="RenderTransform" Value="scale(1, 1)"/>
+              </Style>
+            </ContentControl.Styles>
+
+            <ContentControl.Transitions>
+              <Transitions>
+                <DoubleTransition Property="Opacity" Duration="0:0:0:0.1"/>
+                <TransformOperationsTransition Property="RenderTransform" Duration="0:0:0:0.1" Easing="CubicEaseOut"/>
+              </Transitions>
+            </ContentControl.Transitions>
+          </ContentControl>
+
+        </Grid>
+      </ControlTemplate>
+    </Setter>
+  </ControlTheme>
+</ResourceDictionary>

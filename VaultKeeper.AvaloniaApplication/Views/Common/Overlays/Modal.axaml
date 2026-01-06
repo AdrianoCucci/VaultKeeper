@@ -1,0 +1,46 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:controls="using:VaultKeeper.AvaloniaApplication.Views.Common.Overlays">
+
+  <Design.PreviewWith>
+    <StackPanel Width="400" Spacing="10">
+      <StackPanel Background="{DynamicResource SystemRegionBrush}">
+        <controls:Modal CardBackground="Red">
+          <StackPanel>
+            <TextBlock>CONTENT</TextBlock>
+            <TextBlock>CONTENT</TextBlock>
+            <TextBlock>CONTENT</TextBlock>
+          </StackPanel>
+        </controls:Modal>
+      </StackPanel>
+    </StackPanel>
+  </Design.PreviewWith>
+
+  <ControlTheme x:Key="{x:Type controls:Modal}" TargetType="controls:Modal">
+    <Setter Property="CardPadding" Value="20" />
+    <Setter Property="CardBackground" Value="{DynamicResource SystemRegionBrush}" />
+
+    <Setter Property="Template">
+      <ControlTemplate>
+
+        <Grid Name="PART_ModalGrid">
+          <Border Name="PART_Backdrop"
+                  Background="{TemplateBinding BackdropBackground}"
+                  Opacity="{TemplateBinding BackdropOpacity}" />
+
+          <Border HorizontalAlignment="{TemplateBinding CardHorizontalAlignment}"
+                  VerticalAlignment="{TemplateBinding CardVerticalAlignment}"
+                  Margin="{TemplateBinding CardMargin}"
+                  Padding="{TemplateBinding CardPadding}"
+                  CornerRadius="{TemplateBinding CardCornerRadius}"
+                  Background="{TemplateBinding CardBackground}">
+
+            <ContentControl Content="{TemplateBinding Content}"
+                            ContentTemplate="{TemplateBinding ContentTemplate}"/>
+          </Border>
+        </Grid>
+
+      </ControlTemplate>
+    </Setter>
+  </ControlTheme>
+</ResourceDictionary>

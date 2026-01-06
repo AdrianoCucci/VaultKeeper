@@ -48,6 +48,7 @@ public partial class SettingsPageViewModel : ViewModelBase
     private readonly IBackupService? _backupService;
     private readonly IThemeService? _themeService;
     private readonly IAppSessionService? _appSessionService;
+    private readonly IErrorReportingService? _errorReportingService;
 
     private bool _isLoadingSavedSettings = false;
 
@@ -57,13 +58,15 @@ public partial class SettingsPageViewModel : ViewModelBase
         IBackupService backupService,
         IThemeService themeService,
         ICharSetService charSetService,
-        IAppSessionService appSessionService)
+        IAppSessionService appSessionService,
+        IErrorReportingService errorReportingService)
     {
         _userSettingsService = userSettingsService;
         _platformService = platformService;
         _backupService = backupService;
         _themeService = themeService;
         _appSessionService = appSessionService;
+        _errorReportingService = errorReportingService;
 
         Model = userSettingsService?.GetDefaultUserSettings() ?? UserSettings.Default;
         KeyGenerationSettingsVM = new(charSetService, userSettingsService);
@@ -144,9 +147,17 @@ public partial class SettingsPageViewModel : ViewModelBase
         Result<BackupData?> backupResult = await _backupService.SaveBackupAsync(backupSettings);
         if (!backupResult.IsSuccessful)
         {
-            // TODO: Handle error.
+            _errorReportingService?.ReportError(new()
+            {
+                Header = "Create Backup Failure",
+                Message = backupResult.Message ?? "An unknown error occurred",
+                Exception = backupResult.Exception
+            });
             return;
         }
+
+        // Refresh backup directory props.
+        BackupDirectoryProps = new(BackupDirectory, _backupService);
     }
 
     public async Task LoadBackupAsync()
@@ -156,9 +167,17 @@ public partial class SettingsPageViewModel : ViewModelBase
         Result<BackupData?> loadResult = await _backupService.LoadBackupFromFilePickerAsync();
         if (!loadResult.IsSuccessful)
         {
-            // TODO: Handle error.
+            _errorReportingService?.ReportError(new()
+            {
+                Header = "Load Backup Failure",
+                Message = loadResult.Message ?? "An unknown error occurred",
+                Exception = loadResult.Exception
+            });
             return;
         }
+
+        if (loadResult.Value == null)
+            return;
 
         UserSettings? settings = loadResult.Value?.UserData?.Settings;
         if (settings != null)
