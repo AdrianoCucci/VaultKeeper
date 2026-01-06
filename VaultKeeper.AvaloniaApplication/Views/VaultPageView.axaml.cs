@@ -72,4 +72,8 @@ public partial class VaultPageView : ViewBase<VaultPageViewModel>
     private void PromptView_Acknowledged(object? sender, RoutedEventArgs e) => Model?.HideOverlay();
 
     private void Modal_BackdropPressed(object? sender, RoutedEventArgs e) => Model?.HideOverlay();
+
+    private void SelectAllButton_Click(object? sender, RoutedEventArgs e) => Model?.SetAllItemsSelected(true);
+
+    private void DeselectAllButton_Click(object? sender, RoutedEventArgs e) => Model?.SetAllItemsSelected(false);
 }

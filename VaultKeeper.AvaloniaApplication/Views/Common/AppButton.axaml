@@ -8,10 +8,16 @@
       <controls:AppButton Text="Text" Classes="btn-text" />
       <controls:AppButton Text="Text" Classes="btn-outlined" HorizontalAlignment="Center"/>
       <controls:AppButton Text="Text" Classes="btn-link" HorizontalAlignment="Right"/>
-      <controls:AppButton Text="Text" HorizontalAlignment="Stretch"/>
+      <controls:AppButton Text="Text" HorizontalAlignment="Stretch">
+        <controls:AppButton.Flyout>
+          <Flyout>
+            <TextBlock>Flyout</TextBlock>
+          </Flyout>
+        </controls:AppButton.Flyout>
+      </controls:AppButton>
       <controls:AppButton IconStart="{StaticResource IconCheck}"/>
       <controls:AppButton Text="Text" Background="DarkBlue" Foreground="White"/>
-      <controls:AppButton Text="Text" IconStart="{StaticResource IconCheck}"/>
+      <controls:AppButton Text="Text" IconStart="{StaticResource IconCheck}" Classes="btn-link"/>
       <controls:AppButton Text="Text" IconStart="{StaticResource IconCheck}" HorizontalAlignment="Stretch" Background="DarkBlue" Foreground="White"/>
       <controls:AppButton Text="Text" IconEnd="{StaticResource IconCheck}"/>
       <controls:AppButton Text="Text" IconStart="{StaticResource IconCheck}" IconEnd="{StaticResource IconCheck}"/>
@@ -45,7 +51,8 @@
                 VerticalAlignment="{TemplateBinding VerticalAlignment}"
                 Background="{TemplateBinding Background}"
                 Foreground="{TemplateBinding Foreground}"
-                CornerRadius="{TemplateBinding CornerRadius}">
+                CornerRadius="{TemplateBinding CornerRadius}"
+                Flyout="{TemplateBinding Flyout}">
           <StackPanel HorizontalAlignment="Center" Orientation="{TemplateBinding Orientation}" Spacing="{TemplateBinding Spacing}">
             <PathIcon Name="PART_IconStart"
                       Data="{TemplateBinding IconStart}"

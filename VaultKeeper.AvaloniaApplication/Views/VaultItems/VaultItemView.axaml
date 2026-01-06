@@ -7,7 +7,9 @@
              x:Class="VaultKeeper.AvaloniaApplication.Views.VaultItems.VaultItemView"
              x:DataType="vm:VaultItemViewModel"
              Background="Transparent"
-             Classes.focused="{Binding IsFocused}">
+             Classes.focused="{Binding IsFocused}"
+             Classes.selectable="{Binding IsSelectable}"
+             Classes.selected="{Binding IsSelected}">
 
   <Design.DataContext>
     <x:Static Member="vm:VaultItemViewModel.Design"/>
@@ -15,21 +17,40 @@
 
   <UserControl.Styles>
     <Style Selector="Grid SplitButton#SplitButton">
-      <Setter Property="Opacity" Value="0"></Setter>
+      <Setter Property="Opacity" Value="0"/>
       <Setter Property="Transitions">
         <Transitions>
-          <DoubleTransition Property="Opacity" Duration="0:0:0.05"/>
+          <DoubleTransition Property="Opacity" Duration="0:0:0:0.1"/>
+        </Transitions>
+      </Setter>
+    </Style>
+
+    <Style Selector="CheckBox#PART_SelectCheckBox">
+      <Setter Property="Width" Value="0"/>
+      <Setter Property="Opacity" Value="0"/>
+      <Setter Property="Cursor" Value="Hand"/>
+      <Setter Property="Transitions">
+        <Transitions>
+          <DoubleTransition Property="Opacity" Duration="0:0:0:0.1"/>
+          <DoubleTransition Property="Width" Duration="0:0:0:0.1" Easing="CubicEaseInOut"/>
         </Transitions>
       </Setter>
     </Style>
 
     <Style Selector=".focused Grid SplitButton#SplitButton">
-      <Setter Property="Opacity" Value="1"></Setter>
+      <Setter Property="Opacity" Value="1"/>
+    </Style>
+    <Style Selector=".focused CheckBox#PART_SelectCheckBox, .selectable CheckBox#PART_SelectCheckBox">
+      <Setter Property="Width" Value="28"/>
+      <Setter Property="Opacity" Value="1"/>
     </Style>
   </UserControl.Styles>
 
   <Grid RowDefinitions="Auto" ColumnDefinitions="Auto, *, Auto">
-    <CheckBox IsVisible="{Binding IsSelectable}" IsChecked="{Binding IsSelected}" Margin="12 0 0 0" Grid.Column="0"/>
+    <CheckBox Name="PART_SelectCheckBox"
+              IsEnabled="{Binding IsSelectable}"
+              IsChecked="{Binding IsSelected}"
+              Grid.Column="0"/>
 
     <TextBlock Text="{Binding Model.Name}" Padding="12, 6" VerticalAlignment="Center" Grid.Column="1"></TextBlock>
 
@@ -40,28 +61,28 @@
         </Style>
       </SplitButton.Styles>
 
-      <PathIcon Data="{StaticResource IconCopy}"></PathIcon>
+      <PathIcon Data="{StaticResource IconCopy}"/>
       <SplitButton.Flyout>
         <MenuFlyout Placement="BottomEdgeAlignedRight" Opened="MenuFlyout_Opened" Closed="MenuFlyout_Closed">
           <MenuItem Header="Copy name" Click="ActionCopyName_Click">
             <MenuItem.Icon>
-              <PathIcon Data="{StaticResource IconCopy}"></PathIcon>
+              <PathIcon Data="{StaticResource IconCopy}"/>
             </MenuItem.Icon>
           </MenuItem>
           <MenuItem Header="Copy value" Click="ActionCopyValue_Click">
             <MenuItem.Icon>
-              <PathIcon Data="{StaticResource IconCopy}"></PathIcon>
+              <PathIcon Data="{StaticResource IconCopy}"/>
             </MenuItem.Icon>
           </MenuItem>
           <Separator/>
           <MenuItem Header="Edit" Click="ActionEdit_Click">
             <MenuItem.Icon>
-              <PathIcon Data="{StaticResource IconPen}"></PathIcon>
+              <PathIcon Data="{StaticResource IconPen}"/>
             </MenuItem.Icon>
           </MenuItem>
           <MenuItem Header="Delete" Click="ActionDelete_Click">
             <MenuItem.Icon>
-              <PathIcon Data="{StaticResource IconTrash}"></PathIcon>
+              <PathIcon Data="{StaticResource IconTrash}"/>
             </MenuItem.Icon>
           </MenuItem>
         </MenuFlyout>

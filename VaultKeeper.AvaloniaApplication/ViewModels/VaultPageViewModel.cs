@@ -19,6 +19,7 @@ using VaultKeeper.AvaloniaApplication.ViewModels.VaultItems.Common;
 using VaultKeeper.Common.Exceptions;
 using VaultKeeper.Common.Models.Queries;
 using VaultKeeper.Common.Results;
+using VaultKeeper.Models;
 using VaultKeeper.Models.Errors;
 using VaultKeeper.Models.Groups;
 using VaultKeeper.Models.Groups.Extensions;
@@ -50,6 +51,12 @@ public partial class VaultPageViewModel(
     [ObservableProperty, NotifyPropertyChangedFor(nameof(SortIcon))]
     private SortDirection _sortInput = SortDirection.Ascending;
 
+    [ObservableProperty, NotifyPropertyChangedFor(nameof(IsBulkActionModeActive))]
+    private SelectionMode _itemSelectionMode = SelectionMode.OnFocus;
+
+    [ObservableProperty]
+    private int _selectedItemsCount = 0;
+
     [ObservableProperty]
     private bool _isSidePaneOpen = false;
 
@@ -66,11 +73,16 @@ public partial class VaultPageViewModel(
     private object? _overlayContent;
 
     public bool IsEmpty => _vaultItemData.TotalCount < 1 && _groupData.TotalCount < 1;
+
     public Geometry? SortIcon => SortInput == SortDirection.Ascending
         ? applicationService.GetApplication().GetResourceOrDefault<StreamGeometry>(Icons.ArrowUpAZ)
         : applicationService.GetApplication().GetResourceOrDefault<StreamGeometry>(Icons.ArrowDownAZ);
+
     public string EmptyTemplateTitle => IsEmpty ? "No Keys Created" : "No Keys Found";
+
     public string EmptyTemplateDescription => IsEmpty ? "Create your first key or import your existing keys to get started." : "Search returned no results.";
+
+    public bool IsBulkActionModeActive => ItemSelectionMode == SelectionMode.Always;
 
     private CountedData<VaultItem> _vaultItemData = new();
     private CountedData<Group> _groupData = new();
@@ -208,7 +220,7 @@ public partial class VaultPageViewModel(
                 if (itemVM != null)
                     itemVM.Model = item;
                 else
-                    itemVMs = itemVMs.Append(new VaultItemViewModel(item));
+                    itemVMs = itemVMs.Append(CreateNormalVaultItemViewModel(item));
             }
 
             IEnumerable<Guid> groupedItemIds = groupedItems.Select(x => x.Id);
@@ -247,7 +259,7 @@ public partial class VaultPageViewModel(
         TryUpdateVaultItemViewModel(vaultItem, () => CreateVaultItemFormViewModel(vaultItem, FormMode.Edit));
 
     private void HideVaultItemEditForm(VaultItem vaultItem) =>
-        TryUpdateVaultItemViewModel(vaultItem, () => new VaultItemViewModel(vaultItem));
+        TryUpdateVaultItemViewModel(vaultItem, () => CreateNormalVaultItemViewModel(vaultItem));
 
     public async Task HandleItemActionAsync(VaultItemActionEventArgs eventArgs)
     {
@@ -278,6 +290,29 @@ public partial class VaultPageViewModel(
                     }
                 });
                 break;
+            case VaultItemAction.Select:
+                {
+                    SelectedItemsCount++;
+
+                    if (ItemSelectionMode != SelectionMode.Always)
+                    {
+                        ItemSelectionMode = SelectionMode.Always;
+                        UpdateAllItemsSelectionMode();
+                        HideVaultItemCreateForm();
+                    }
+
+                    break;
+                }
+            case VaultItemAction.Deselect:
+                {
+                    SelectedItemsCount = Math.Clamp(SelectedItemsCount - 1, 0, int.MaxValue);
+                    ItemSelectionMode = SelectedItemsCount > 0 ? SelectionMode.Always : SelectionMode.OnFocus;
+
+                    if (ItemSelectionMode != SelectionMode.Always)
+                        UpdateAllItemsSelectionMode();
+
+                    break;
+                }
         }
     }
 
@@ -352,6 +387,38 @@ public partial class VaultPageViewModel(
                 }
                 break;
         }
+    }
+
+    public void SetAllItemsSelected(bool isSelected)
+    {
+        IEnumerable<VaultItemViewModel> items = GetNormalItemViewModels();
+
+        foreach (VaultItemViewModel item in items)
+        {
+            item.IsSelected = isSelected;
+        }
+
+        SelectedItemsCount = isSelected ? items.Count() : 0;
+        ItemSelectionMode = SelectedItemsCount > 0 ? SelectionMode.Always : SelectionMode.OnFocus;
+    }
+
+    private VaultItemViewModel CreateNormalVaultItemViewModel(VaultItem vaultItem) =>
+        new(vaultItem) { SelectionMode = ItemSelectionMode };
+
+    private VaultItemFormViewModel CreateVaultItemFormViewModel(VaultItem vaultItem, FormMode formMode)
+    {
+        IEnumerable<Group> groupOptions = _groupData.Items;
+        Group? selectedGroup = groupOptions.FirstOrDefault(x => x.Id == vaultItem.GroupId);
+
+        VaultItemForm form = new(vaultItem, formMode, selectedGroup)
+        {
+            GroupOptions = groupOptions
+        };
+
+        return new VaultItemFormViewModel(form)
+        {
+            KeyGenerationSettingsVM = serviceProvider.GetRequiredService<KeyGenerationSettingsViewModel>()
+        };
     }
 
     private async Task SaveVaultItemFormAsync(VaultItemFormActionEventArgs formEvent)
@@ -516,6 +583,24 @@ public partial class VaultPageViewModel(
         return true;
     }
 
+    private IEnumerable<VaultItemViewModel> GetNormalItemViewModels() => GroupedVaultItems
+        .SelectMany(x => x.VaultItems)
+        .Where(x => x is VaultItemViewModel)
+        .Cast<VaultItemViewModel>();
+
+    private IEnumerable<VaultItemViewModel> GetSelectedItemViewModels() => GetNormalItemViewModels().Where(x => x.IsSelected);
+
+    private void UpdateAllItemsSelectionMode(SelectionMode? selectionMode = null)
+    {
+        selectionMode ??= ItemSelectionMode;
+        IEnumerable<VaultItemViewModel> itemVMs = GetNormalItemViewModels();
+
+        foreach (var itemVM in itemVMs)
+        {
+            itemVM.SelectionMode = selectionMode.Value;
+        }
+    }
+
     private bool TryUpdateVaultItemViewModel(VaultItem vaultItem, Func<VaultItemViewModelBase?> newModelFunc)
     {
         GroupedVaultItemsViewModel? listItemVM = GroupedVaultItems.FirstOrDefault(x => x.VaultItems.Any(y => y.Model.Id == vaultItem.Id));
@@ -556,22 +641,6 @@ public partial class VaultPageViewModel(
         }
 
         return true;
-    }
-
-    private VaultItemFormViewModel CreateVaultItemFormViewModel(VaultItem vaultItem, FormMode formMode)
-    {
-        IEnumerable<Group> groupOptions = _groupData.Items;
-        Group? selectedGroup = groupOptions.FirstOrDefault(x => x.Id == vaultItem.GroupId);
-
-        VaultItemForm form = new(vaultItem, formMode, selectedGroup)
-        {
-            GroupOptions = groupOptions
-        };
-
-        return new VaultItemFormViewModel(form)
-        {
-            KeyGenerationSettingsVM = serviceProvider.GetRequiredService<KeyGenerationSettingsViewModel>()
-        };
     }
 
     private string Encrypt(string value)
