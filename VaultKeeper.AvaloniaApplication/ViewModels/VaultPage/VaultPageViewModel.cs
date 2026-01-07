@@ -44,9 +44,6 @@ public partial class VaultPageViewModel(
     private ObservableGroupedVaultItemViewModels _groupedVaultItems = [];
 
     [ObservableProperty]
-    private ObservableCollection<VaultItem> _selectedItems = [];
-
-    [ObservableProperty]
     private bool _isSidePaneOpen = false;
 
     [ObservableProperty]
@@ -64,10 +61,11 @@ public partial class VaultPageViewModel(
     public bool IsEmpty => _vaultItemData.TotalCount < 1 && _groupData.TotalCount < 1;
     public string EmptyTemplateTitle => IsEmpty ? "No Keys Created" : "No Keys Found";
     public string EmptyTemplateDescription => IsEmpty ? "Create your first key or import your existing keys to get started." : "Search returned no results.";
-    public SelectionMode ItemSelectionMode => SelectedItems.Count > 0 ? SelectionMode.Always : SelectionMode.OnFocus;
+    public SelectionMode ItemSelectionMode => _selectedItems.Count > 0 ? SelectionMode.Always : SelectionMode.OnFocus;
 
     private CountedData<VaultItem> _vaultItemData = new();
     private CountedData<Group> _groupData = new();
+    private HashSet<VaultItem> _selectedItems = [];
 
     public virtual async Task LoadDataAsync(bool refreshUI = true)
     {
@@ -186,24 +184,24 @@ public partial class VaultPageViewModel(
                 break;
             case VaultItemAction.Select:
                 {
-                    if (SelectedItems.Any(x => x.Id == viewModel.Model.Id)) break;
+                    if (_selectedItems.Any(x => x.Id == viewModel.Model.Id)) break;
 
-                    if (SelectedItems.Count < 1)
+                    if (_selectedItems.Count < 1)
                     {
                         HideAllForms();
                         UpdateAllItemsSelectionMode(SelectionMode.Always);
                     }
 
-                    SetSelectedItems([.. SelectedItems, viewModel.Model]);
+                    SetSelectedItems([.. _selectedItems, viewModel.Model]);
 
                     break;
                 }
             case VaultItemAction.Deselect:
                 {
-                    VaultItem? selectedItem = SelectedItems.FirstOrDefault(x => x.Id == viewModel.Model.Id);
+                    VaultItem? selectedItem = _selectedItems.FirstOrDefault(x => x.Id == viewModel.Model.Id);
                     if (selectedItem == null) break;
 
-                    SetSelectedItems(SelectedItems.Except([selectedItem]));
+                    SetSelectedItems(_selectedItems.Except([selectedItem]));
                     UpdateAllItemsSelectionMode();
 
                     break;
@@ -293,7 +291,7 @@ public partial class VaultPageViewModel(
             item.IsSelected = isSelected;
         }
 
-        SelectedItems = isSelected ? [.. itemVMs.Select(x => x.Model)] : [];
+        _selectedItems = isSelected ? [.. itemVMs.Select(x => x.Model)] : [];
     }
 
     public void ShowVaultItemCreateForm(VaultItem? vaultItem = null)
@@ -415,9 +413,9 @@ public partial class VaultPageViewModel(
 
     private void SetSelectedItems(IEnumerable<VaultItem> selectedItems)
     {
-        SelectedItems = [.. selectedItems];
-        ToolbarVM.SelectedItemsCount = SelectedItems.Count;
-        ToolbarVM.IsBulkActionsModeActive = SelectedItems.Count > 0;
+        _selectedItems = [.. selectedItems];
+        ToolbarVM.SelectedItemsCount = _selectedItems.Count;
+        ToolbarVM.IsBulkActionsModeActive = _selectedItems.Count > 0;
     }
 
     private void ShowVaultItemEditForm(VaultItem vaultItem) =>
@@ -435,7 +433,7 @@ public partial class VaultPageViewModel(
     private VaultItemShellViewModel CreateVaultItemShellViewModel(VaultItemViewModelBase content) => new(content)
     {
         SelectionMode = ItemSelectionMode,
-        IsSelected = SelectedItems.Any(x => x.Id == content.Model.Id)
+        IsSelected = _selectedItems.Any(x => x.Id == content.Model.Id)
     };
 
     private VaultItemFormViewModel CreateVaultItemFormViewModel(VaultItem vaultItem, FormMode formMode)
