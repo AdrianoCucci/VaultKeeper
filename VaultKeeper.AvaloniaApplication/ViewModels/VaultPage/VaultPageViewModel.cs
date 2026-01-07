@@ -13,7 +13,6 @@ using VaultKeeper.AvaloniaApplication.ViewModels.Groups;
 using VaultKeeper.AvaloniaApplication.ViewModels.Settings;
 using VaultKeeper.AvaloniaApplication.ViewModels.VaultItems;
 using VaultKeeper.AvaloniaApplication.ViewModels.VaultItems.Common;
-using VaultKeeper.AvaloniaApplication.Views.VaultPage;
 using VaultKeeper.Common.Exceptions;
 using VaultKeeper.Common.Models.Queries;
 using VaultKeeper.Common.Results;

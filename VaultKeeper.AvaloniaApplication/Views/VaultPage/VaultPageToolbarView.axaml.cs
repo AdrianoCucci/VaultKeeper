@@ -5,29 +5,8 @@ using System;
 using System.ComponentModel;
 using System.Linq;
 using VaultKeeper.AvaloniaApplication.ViewModels.VaultPage;
-using VaultKeeper.Common.Models.Queries;
 
 namespace VaultKeeper.AvaloniaApplication.Views.VaultPage;
-
-public enum VaultPageToolbarAction
-{
-    SearchInput,
-    Sort,
-    AddItem,
-    ImportItems,
-    ExportItems,
-    SelectAllItems,
-    DeselectAllItems,
-    GroupSelectedItems,
-    ExportSelectedItems,
-    DeleteSelectedItems
-}
-
-public class VaultPageToolbarEventArgs(RoutedEvent routedEvent, object? source = null) : RoutedEventArgs(routedEvent, source)
-{
-    public required VaultPageToolbarViewModel ViewModel { get; init; }
-    public required VaultPageToolbarAction Action { get; init; }
-}
 
 public partial class VaultPageToolbarView : ViewBase<VaultPageToolbarViewModel>
 {

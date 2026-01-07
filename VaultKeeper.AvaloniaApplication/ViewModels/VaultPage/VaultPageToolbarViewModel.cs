@@ -23,6 +23,6 @@ public partial class VaultPageToolbarViewModel : ViewModelBase
     [ObservableProperty]
     private int _selectedItemsCount = 0;
 
-    public void ToggleSortInput() => 
+    public void ToggleSortInput() =>
         SortInput = SortInput == SortDirection.Ascending ? SortDirection.Descending : SortDirection.Ascending;
 }
