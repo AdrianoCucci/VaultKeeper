@@ -148,7 +148,20 @@ public partial class VaultPageViewModel(
                 // TODO;
                 break;
             case VaultPageToolbarAction.DeleteSelectedItems:
-                // TODO;
+                ShowOverlay(new ConfirmPromptViewModel
+                {
+                    Header = "Delete Keys",
+                    Message = $"Are you sure you want to delete the following {_selectedItems.Count} selected keys?\n\n- {string.Join("\n- ", _selectedItems.Select(x => x.Name))}",
+                    CancelAction = HideOverlay,
+                    ConfirmAction = async () =>
+                    {
+                        if (await DeleteVaultItemsAsync(_selectedItems))
+                        {
+                            SetAllItemsSelected(false);
+                            HideOverlay();
+                        }
+                    }
+                });
                 break;
         }
     }
@@ -263,16 +276,35 @@ public partial class VaultPageViewModel(
                 break;
             case GroupAction.Delete:
                 {
-                    DeleteGroupConfirmPromptViewModel promptVM = new()
+                    bool groupIsNotEmpty = _vaultItemData.Items.Where(x => x.GroupId == eventArgs.Group.Id).Any();
+                    ConfirmPromptViewModel promptVM;
+
+                    if (groupIsNotEmpty)
                     {
-                        Header = "Delete Group",
-                        Message = $"Choose what should happen to the keys inside of group: \"{eventArgs.Group.Name}\":",
-                        CascadeDeleteMode = CascadeDeleteMode.OrphanChildren,
-                        CancelAction = HideOverlay
-                    };
+                        promptVM = new DeleteGroupConfirmPromptViewModel()
+                        {
+                            Header = "Delete Group",
+                            Message = $"Choose what should happen to the keys inside of group: \"{eventArgs.Group.Name}\":",
+                            CascadeDeleteMode = CascadeDeleteMode.OrphanChildren,
+                        };
+                    }
+                    else
+                    {
+                        promptVM = new ConfirmPromptViewModel
+                        {
+                            Header = "Delete Group",
+                            Message = $"Are you sure you want to delete group: \"{eventArgs.Group.Name}\"?"
+                        };
+                    }
+
+                    promptVM.CancelAction = HideOverlay;
                     promptVM.ConfirmAction = async () =>
                     {
-                        if (await DeleteGroupAsync(eventArgs.Group, promptVM.CascadeDeleteMode))
+                        CascadeDeleteMode cascadeDeleteMode = promptVM is DeleteGroupConfirmPromptViewModel groupPromptVM
+                            ? groupPromptVM.CascadeDeleteMode
+                            : CascadeDeleteMode.DeleteChildren;
+
+                        if (await DeleteGroupAsync(eventArgs.Group, cascadeDeleteMode))
                             HideOverlay();
                     };
 
@@ -286,12 +318,13 @@ public partial class VaultPageViewModel(
     {
         IEnumerable<VaultItemShellViewModel> itemVMs = GetVaultItemViewModels();
 
+        SetSelectedItems(isSelected ? itemVMs.Select(x => x.Model) : []);
+
         foreach (VaultItemShellViewModel item in itemVMs)
         {
             item.IsSelected = isSelected;
+            item.SelectionMode = ItemSelectionMode;
         }
-
-        _selectedItems = isSelected ? [.. itemVMs.Select(x => x.Model)] : [];
     }
 
     public void ShowVaultItemCreateForm(VaultItem? vaultItem = null)
@@ -355,6 +388,12 @@ public partial class VaultPageViewModel(
         Dictionary<Guid, IEnumerable<VaultItem>> groupItemsDict = vaultItemData
             .GroupBy(x => x.GroupId)
             .ToDictionary(x => x.Key ?? Guid.Empty, x => x.AsEnumerable());
+
+        IEnumerable<Group> emptyGroups = groupData.Where(x => !groupItemsDict.ContainsKey(x.Id));
+        foreach (var emptyGroup in emptyGroups)
+        {
+            groupItemsDict[emptyGroup.Id] = [];
+        }
 
         foreach ((Guid groupId, IEnumerable<VaultItem> items) in groupItemsDict)
         {
@@ -576,6 +615,26 @@ public partial class VaultPageViewModel(
         if (TryUpdateVaultItemViewModel(vaultItem, () => null))
             await LoadVaultItemsAsync();
 
+        return true;
+    }
+
+    private async Task<bool> DeleteVaultItemsAsync(IEnumerable<VaultItem> vaultItems)
+    {
+        Result<long> deleteResult = await vaultItemService.DeleteManyAsync(vaultItems);
+
+        if (!deleteResult.IsSuccessful)
+        {
+            errorReportingService.ReportError(new()
+            {
+                Header = "Failed to Delete Keys",
+                Message = deleteResult.Message ?? "An unknown error occurred.",
+                Exception = deleteResult.Exception
+            });
+
+            return false;
+        }
+
+        await LoadDataAsync();
         return true;
     }
 

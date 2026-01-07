@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using VaultKeeper.Common.Models.Queries;
 using VaultKeeper.Common.Results;
 using VaultKeeper.Models.VaultItems;
@@ -11,4 +12,5 @@ public interface IVaultItemService
     Task<Result<VaultItem>> AddAsync(NewVaultItem vaultItem, bool encrypt = false);
     Task<Result<VaultItem>> UpdateAsync(VaultItem vaultItem, bool encrypt = false);
     Task<Result> DeleteAsync(VaultItem vaultItem);
+    Task<Result<long>> DeleteManyAsync(IEnumerable<VaultItem> vaultItems);
 }

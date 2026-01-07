@@ -1,5 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using VaultKeeper.Common.Extensions;
 using VaultKeeper.Common.Models.Queries;
@@ -120,4 +122,28 @@ public class VaultItemService(
             return ex.ToFailedResult().Logged(logger);
         }
     }
+
+    public async Task<Result<long>> DeleteManyAsync(IEnumerable<VaultItem> vaultItems)
+    {
+        logger.LogInformation(nameof(DeleteManyAsync));
+
+        try
+        {
+            IEnumerable<Guid> ids = vaultItems.Select(x => x.Id).Distinct();
+            IEnumerable<VaultItem> existingItems = await repository.GetManyAsync(new() { Where = x => ids.Contains(x.Id) });
+            VaultItem[] notFoundItems = [.. vaultItems.Where(x => !existingItems.Any(y => x.Id == y.Id))];
+
+            if (notFoundItems.Length > 0)
+                return Result.Failed<long>(ResultFailureType.NotFound, $"{notFoundItems.Length} Vault Items do not exist: [{string.Join(", ", notFoundItems.Select(x => x.Id))}]").Logged(logger);
+
+            long deleteCount = await repository.RemoveManyAsync(existingItems);
+
+            return deleteCount.ToOkResult().Logged(logger);
+        }
+        catch (Exception ex)
+        {
+            return ex.ToFailedResult<long>().Logged(logger);
+        }
+    }
+
 }
