@@ -1,25 +1,25 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
-using VaultKeeper.Models;
-using VaultKeeper.Models.VaultItems;
+﻿using Avalonia;
+using CommunityToolkit.Mvvm.ComponentModel;
+using System.Collections.ObjectModel;
+using VaultKeeper.AvaloniaApplication.ViewModels.Groups;
+using VaultKeeper.Models.Groups;
 
 namespace VaultKeeper.AvaloniaApplication.ViewModels.VaultItems;
 
-public partial class VaultItemViewModel(VaultItem vaultItem) : VaultItemViewModelBase(vaultItem)
+public partial class GroupedVaultItemsViewModel(ObservableCollection<VaultItemShellViewModel> vaultItems, GroupShellViewModel? group) : ViewModelBase
 {
-    [ObservableProperty, NotifyPropertyChangedFor(nameof(IsSelectable))]
-    private bool _isFocused = false;
+    public static GroupedVaultItemsViewModel Empty(Group? group = null)
+    {
+        GroupShellViewModel? shellVM = group == null ? null : new(new GroupViewModel(group));
+        return new([], shellVM);
+    }
 
     [ObservableProperty]
-    private bool _optionsMenuOpened = false;
+    private ObservableCollection<VaultItemShellViewModel> _vaultItems = vaultItems;
 
-    [ObservableProperty, NotifyPropertyChangedFor(nameof(IsSelectable))]
-    private SelectionMode _selectionMode = SelectionMode.OnFocus;
+    [ObservableProperty, NotifyPropertyChangedFor(nameof(HasGroup), nameof(BorderThickness))]
+    private GroupShellViewModel? _group = group;
 
-    [ObservableProperty, NotifyPropertyChangedFor(nameof(IsSelectable))]
-    private bool _isSelected = false;
-
-    public bool IsSelectable =>
-        IsSelected ||
-        SelectionMode == SelectionMode.Always ||
-        (SelectionMode == SelectionMode.OnFocus && IsFocused);
+    public bool HasGroup => Group != null;
+    public Thickness? BorderThickness => HasGroup ? new(4, 0, 0, 0) : null;
 }

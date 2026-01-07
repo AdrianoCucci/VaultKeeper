@@ -29,5 +29,7 @@ public partial class GroupView : ViewBase<GroupViewModel>
 
     private void ActionAddKey_Click(object? sender, RoutedEventArgs e) => RaiseEvent(GroupAction.AddItem);
 
+    private void ActionExport_Click(object? sender, RoutedEventArgs e) => RaiseEvent(GroupAction.Export);
+
     private void ActionDelete_Click(object? sender, RoutedEventArgs e) => RaiseEvent(GroupAction.Delete);
 }

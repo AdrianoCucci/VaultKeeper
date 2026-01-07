@@ -5,42 +5,21 @@
              xmlns:common="using:VaultKeeper.AvaloniaApplication.Views.Common"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:local="using:VaultKeeper.AvaloniaApplication.Views.VaultPage"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:overlays="using:VaultKeeper.AvaloniaApplication.Views.Common.Overlays"
              xmlns:system="using:System"
-             xmlns:vm="using:VaultKeeper.AvaloniaApplication.ViewModels"
+             xmlns:vm="using:VaultKeeper.AvaloniaApplication.ViewModels.VaultPage"
              xmlns:uc="using:VaultKeeper.AvaloniaApplication.Views.VaultItems"
              xmlns:converters="clr-namespace:Avalonia.Data.Converters;assembly=Avalonia.Base"
              xmlns:vaultitems="using:VaultKeeper.AvaloniaApplication.ViewModels.VaultItems"
              mc:Ignorable="d" d:DesignWidth="1920" d:DesignHeight="1080"
-             x:Class="VaultKeeper.AvaloniaApplication.Views.VaultPageView"
+             x:Class="VaultKeeper.AvaloniaApplication.Views.VaultPage.VaultPageView"
              x:DataType="vm:VaultPageViewModel">
 
   <Design.DataContext>
     <x:Static Member="vm:VaultPageViewModel.Design"/>
   </Design.DataContext>
-
-  <UserControl.Styles>
-    <Style Selector=":is(Control).toolbar-item">
-      <Setter Property="IsEnabled" Value="False"/>
-      <Setter Property="MaxWidth" Value="0"/>
-      <Setter Property="Opacity" Value="0"/>
-      <Setter Property="Transitions">
-        <Setter.Value>
-          <Transitions>
-            <DoubleTransition Property="MaxWidth" Duration="0:0:0:0.25" Easing="CubicEaseInOut" />
-            <DoubleTransition Property="Opacity" Duration="0:0:0:0.25" Easing="CubicEaseInOut" />
-          </Transitions>
-        </Setter.Value>
-      </Setter>
-
-      <Style Selector="^.visible">
-        <Setter Property="IsEnabled" Value="True"/>
-        <Setter Property="MaxWidth" Value="600"/>
-        <Setter Property="Opacity" Value="1"/>
-      </Style>
-    </Style>
-  </UserControl.Styles>
 
   <overlays:OverlayPanel IsOverlayVisible="{Binding IsOverlayVisible}"
                          OverlayClosed="OverlayPanel_OverlayClosed">
@@ -51,99 +30,7 @@
                PaneClosed="SplitView_PaneClosed">
 
       <Grid RowDefinitions="Auto, *" ColumnDefinitions="*">
-        <Border Name="PART_ToolBar"
-                Height="80"
-                Padding="20"
-                Background="{DynamicResource SystemControlBackgroundListLowBrush}"
-                BorderBrush="{DynamicResource SystemControlBackgroundBaseLowBrush}"
-                BorderThickness="0 0 0 2"
-                Grid.Row="0">
-
-          <Grid RowDefinitions="Auto"
-                ColumnDefinitions="Auto, *, Auto"
-                IsVisible="{Binding !IsEmpty}"
-                IsEnabled="{Binding !IsSidePaneOpen}">
-
-            <StackPanel Name="PART_BulkActionsPanel"
-                        Orientation="Horizontal"
-                        VerticalAlignment="Center"
-                        Spacing="10"
-                        Classes="toolbar-item"
-                        Classes.visible="{Binding IsBulkActionModeActive}"
-                        Grid.Column="0">
-
-              <TextBlock VerticalAlignment="Center">
-                <Run Text="{Binding SelectedItemsCount}"/> Items selected
-              </TextBlock>
-
-              <StackPanel Orientation="Horizontal"
-                          Spacing="-1"
-                          Grid.Column="2">
-                <common:AppButton Text="Select All"
-                                  IconStart="{StaticResource IconCheck}"
-                                  CornerRadius="6 0 0 6"
-                                  Click="SelectAllButton_Click"/>
-                <common:AppButton Text="Deselect All"
-                                  IconStart="{StaticResource IconX}"
-                                  CornerRadius="0 6 6 0"
-                                  Click="DeselectAllButton_Click"/>
-              </StackPanel>
-
-              <common:AppButton Text="Bulk Actions" IconEnd="{StaticResource IconChevronDown}">
-                <common:AppButton.Flyout>
-                  <MenuFlyout>
-                    <MenuItem Header="Group">
-                      <MenuItem.Icon>
-                        <PathIcon Data="{StaticResource IconList}"/>
-                      </MenuItem.Icon>
-                    </MenuItem>
-                    <Separator Background="{StaticResource ColorGray400}"/>
-                    <MenuItem Header="Delete">
-                      <MenuItem.Icon>
-                        <PathIcon Data="{StaticResource IconTrash}"/>
-                      </MenuItem.Icon>
-                    </MenuItem>
-                  </MenuFlyout>
-                </common:AppButton.Flyout>
-              </common:AppButton>
-
-              <Border Width="1" Margin="10 0 20 0" CornerRadius="100" Background="{StaticResource ColorGray500}"/>
-            </StackPanel>
-
-            <Grid RowDefinitions="*"
-                  ColumnDefinitions="Auto, *"
-                  ColumnSpacing="20"
-                  VerticalAlignment="Center"
-                  Grid.Column="1">
-              <common:AppButton IconStart="{Binding SortIcon}"
-                                VerticalAlignment="Center"
-                                Click="SortButton_Click"
-                                Grid.Column="0"
-                                ToolTip.Tip="Sort"/>
-
-              <common:SearchBox Text="{Binding SearchInput}"
-                                Margin="0 0 20 0"
-                                Debounce="SearchBox_Debounce"
-                                Grid.Column="1"/>
-            </Grid>
-
-            <StackPanel Orientation="Horizontal"
-                        Spacing="-1"
-                        Classes="toolbar-item"
-                        Classes.visible="{Binding !IsBulkActionModeActive}"
-                        Grid.Column="2">
-
-              <common:AppButton Text="New Key"
-                                IconStart="{StaticResource IconPlus}"
-                                CornerRadius="6 0 0 6"
-                                Click="ButtonNew_Click"/>
-              <common:AppButton Text="Import Keys"
-                                IconStart="{StaticResource IconUpload}"
-                                CornerRadius="0 6 6 0"
-                                Click="ButtonNew_Click"/>
-            </StackPanel>
-          </Grid>
-        </Border>
+        <local:VaultPageToolbarView DataContext="{Binding ToolbarVM}" ActionInvoked="Toolbar_ActionInvoked" />
 
         <Border Grid.Row="1">
           <ScrollViewer>
@@ -177,13 +64,13 @@
                       <common:AppButton Text="New Key"
                                         HorizontalAlignment="Center"
                                         IconStart="{StaticResource IconPlus}"
-                                        Click="ButtonNew_Click"
+                                        Click="ButtonNewKey_Click"
                                         Grid.Column="0"/>
 
                       <common:AppButton Text="Import Keys"
                                         HorizontalAlignment="Center"
                                         IconStart="{StaticResource IconUpload}"
-                                        Click="ButtonNew_Click"
+                                        Click="ButtonImportKeys_Click"
                                         Grid.Column="1"/>
                     </Grid>
                   </StackPanel>

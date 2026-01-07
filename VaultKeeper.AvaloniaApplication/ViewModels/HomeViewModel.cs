@@ -9,6 +9,7 @@ using VaultKeeper.AvaloniaApplication.Constants;
 using VaultKeeper.AvaloniaApplication.Extensions;
 using VaultKeeper.AvaloniaApplication.ViewModels.Common;
 using VaultKeeper.AvaloniaApplication.ViewModels.Settings;
+using VaultKeeper.AvaloniaApplication.ViewModels.VaultPage;
 using VaultKeeper.Models.Errors;
 using VaultKeeper.Models.Navigation;
 using VaultKeeper.Services.Abstractions;

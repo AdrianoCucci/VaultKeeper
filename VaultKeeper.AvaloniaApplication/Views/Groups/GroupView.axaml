@@ -39,6 +39,11 @@
               <PathIcon Data="{StaticResource IconPlus}" Background="Transparent"/>
             </MenuItem.Icon>
           </MenuItem>
+          <MenuItem Header="Export Group" Click="ActionExport_Click">
+            <MenuItem.Icon>
+              <PathIcon Data="{StaticResource IconDownload}" Background="Transparent"/>
+            </MenuItem.Icon>
+          </MenuItem>
           <Separator Background="{DynamicResource ColorGray400}"/>
           <MenuItem Header="Delete Group" Click="ActionDelete_Click">
             <MenuItem.Icon>

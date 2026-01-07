@@ -93,27 +93,23 @@
                IsReadOnly="{Binding !ValueRevealed}">
 
         <TextBox.InnerLeftContent>
-          <Button IsVisible="{Binding IsValueRevealToggleVisible}"
-                  Classes.unlocked="{Binding ValueRevealed}"
-                  Click="ActionToggleRevealValue_Click">
-            <Button.Styles>
-              <Style Selector="Button">
-                <Setter Property="ToolTip.Tip" Value="Show Value"></Setter>
-              </Style>
-              <Style Selector="PathIcon">
-                <Setter Property="Data" Value="{StaticResource IconLockClosed}"></Setter>
+          <common:AppButton IsVisible="{Binding IsValueRevealToggleVisible}"
+                            Width="34"
+                            IconStartSize="16"
+                            Classes.unlocked="{Binding ValueRevealed}"
+                            Click="ActionToggleRevealValue_Click">
+            <common:AppButton.Styles>
+              <Style Selector="common|AppButton">
+                <Setter Property="IconStart" Value="{StaticResource IconLockClosed}"/>
+                <Setter Property="ToolTip.Tip" Value="Show Value"/>
               </Style>
 
-              <Style Selector="Button.unlocked">
+              <Style Selector="common|AppButton.unlocked">
+                <Setter Property="IconStart" Value="{StaticResource IconLockOpened}"/>
                 <Setter Property="ToolTip.Tip" Value="Hide Value"></Setter>
               </Style>
-              <Style Selector="Button.unlocked PathIcon">
-                <Setter Property="Data" Value="{StaticResource IconLockOpened}"></Setter>
-              </Style>
-            </Button.Styles>
-
-            <PathIcon/>
-          </Button>
+            </common:AppButton.Styles>
+          </common:AppButton>
         </TextBox.InnerLeftContent>
 
         <TextBox.InnerRightContent>

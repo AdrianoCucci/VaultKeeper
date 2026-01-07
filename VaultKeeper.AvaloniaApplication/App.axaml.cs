@@ -8,6 +8,7 @@ using System.Linq;
 using VaultKeeper.AvaloniaApplication.Extensions.DependencyInjection;
 using VaultKeeper.AvaloniaApplication.ViewModels;
 using VaultKeeper.AvaloniaApplication.ViewModels.Settings;
+using VaultKeeper.AvaloniaApplication.ViewModels.VaultPage;
 using VaultKeeper.AvaloniaApplication.Views;
 using VaultKeeper.Models.Navigation;
 using VaultKeeper.Services.Abstractions;

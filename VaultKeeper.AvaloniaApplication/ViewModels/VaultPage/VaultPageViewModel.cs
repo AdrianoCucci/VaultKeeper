@@ -1,5 +1,4 @@
-﻿using Avalonia.Media;
-using CommunityToolkit.Mvvm.ComponentModel;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
@@ -7,8 +6,6 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 using VaultKeeper.AvaloniaApplication.Abstractions;
-using VaultKeeper.AvaloniaApplication.Constants;
-using VaultKeeper.AvaloniaApplication.Extensions;
 using VaultKeeper.AvaloniaApplication.Forms.Common;
 using VaultKeeper.AvaloniaApplication.Forms.VaultItems;
 using VaultKeeper.AvaloniaApplication.ViewModels.Common.Prompts;
@@ -16,6 +13,7 @@ using VaultKeeper.AvaloniaApplication.ViewModels.Groups;
 using VaultKeeper.AvaloniaApplication.ViewModels.Settings;
 using VaultKeeper.AvaloniaApplication.ViewModels.VaultItems;
 using VaultKeeper.AvaloniaApplication.ViewModels.VaultItems.Common;
+using VaultKeeper.AvaloniaApplication.Views.VaultPage;
 using VaultKeeper.Common.Exceptions;
 using VaultKeeper.Common.Models.Queries;
 using VaultKeeper.Common.Results;
@@ -30,32 +28,24 @@ using VaultKeeper.Services.Abstractions;
 using VaultKeeper.Services.Abstractions.Groups;
 using VaultKeeper.Services.Abstractions.VaultItems;
 
-namespace VaultKeeper.AvaloniaApplication.ViewModels;
+namespace VaultKeeper.AvaloniaApplication.ViewModels.VaultPage;
 
 public partial class VaultPageViewModel(
     IVaultItemService vaultItemService,
     IGroupService groupService,
     ISecurityService securityService,
     IPlatformService platformService,
-    IApplicationService applicationService,
     IKeyGeneratorService keyGeneratorService,
     IErrorReportingService errorReportingService,
     IServiceProvider serviceProvider) : ViewModelBase
 {
+    public VaultPageToolbarViewModel ToolbarVM { get; } = new();
+
     [ObservableProperty, NotifyPropertyChangedFor(nameof(IsEmpty), nameof(EmptyTemplateTitle), nameof(EmptyTemplateDescription))]
     private ObservableGroupedVaultItemViewModels _groupedVaultItems = [];
 
     [ObservableProperty]
-    private string? _searchInput;
-
-    [ObservableProperty, NotifyPropertyChangedFor(nameof(SortIcon))]
-    private SortDirection _sortInput = SortDirection.Ascending;
-
-    [ObservableProperty, NotifyPropertyChangedFor(nameof(IsBulkActionModeActive))]
-    private SelectionMode _itemSelectionMode = SelectionMode.OnFocus;
-
-    [ObservableProperty]
-    private int _selectedItemsCount = 0;
+    private ObservableCollection<VaultItem> _selectedItems = [];
 
     [ObservableProperty]
     private bool _isSidePaneOpen = false;
@@ -73,30 +63,22 @@ public partial class VaultPageViewModel(
     private object? _overlayContent;
 
     public bool IsEmpty => _vaultItemData.TotalCount < 1 && _groupData.TotalCount < 1;
-
-    public Geometry? SortIcon => SortInput == SortDirection.Ascending
-        ? applicationService.GetApplication().GetResourceOrDefault<StreamGeometry>(Icons.ArrowUpAZ)
-        : applicationService.GetApplication().GetResourceOrDefault<StreamGeometry>(Icons.ArrowDownAZ);
-
     public string EmptyTemplateTitle => IsEmpty ? "No Keys Created" : "No Keys Found";
-
     public string EmptyTemplateDescription => IsEmpty ? "Create your first key or import your existing keys to get started." : "Search returned no results.";
-
-    public bool IsBulkActionModeActive => ItemSelectionMode == SelectionMode.Always;
+    public SelectionMode ItemSelectionMode => SelectedItems.Count > 0 ? SelectionMode.Always : SelectionMode.OnFocus;
 
     private CountedData<VaultItem> _vaultItemData = new();
     private CountedData<Group> _groupData = new();
 
     public virtual async Task LoadDataAsync(bool refreshUI = true)
     {
-        CountedData<VaultItem>? vaultItemData = null;
-        CountedData<Group>? groupData = null;
-
         await Task.WhenAll(
         [
-            Task.Run(async () => vaultItemData = await LoadVaultItemsAsync(false)),
-            Task.Run(async () => groupData = await LoadGroupsAsync(false))
+            Task.Run(() => LoadVaultItemsAsync(false)),
+            Task.Run(() => LoadGroupsAsync(false))
         ]);
+
+        ToolbarVM.AreInputsVisible = !IsEmpty;
 
         if (refreshUI)
             UpdateMainContent();
@@ -109,6 +91,8 @@ public partial class VaultPageViewModel(
             throw new Exception($"{nameof(VaultPageViewModel)}: Failed to load items - {loadResult.Message}", loadResult.Exception);
 
         _vaultItemData = loadResult.Value!;
+
+        ToolbarVM.AreInputsVisible = !IsEmpty;
 
         if (refreshUI)
             UpdateMainContent();
@@ -124,142 +108,53 @@ public partial class VaultPageViewModel(
 
         _groupData = loadResult.Value!;
 
+        ToolbarVM.AreInputsVisible = !IsEmpty;
+
         if (refreshUI)
             UpdateMainContent();
 
         return _groupData;
     }
 
-    public void ToggleSortDirection()
+    public async Task HandleToolbarActionAsync(VaultPageToolbarEventArgs eventArgs)
     {
-        SortInput = SortInput == SortDirection.Ascending
-            ? SortDirection.Descending
-            : SortDirection.Ascending;
+        VaultPageToolbarViewModel viewModel = eventArgs.ViewModel;
 
-        UpdateMainContent();
-    }
-
-    public void ShowVaultItemCreateForm(VaultItem? vaultItem = null)
-    {
-        SidePaneContent = null;
-        SidePaneContent = CreateVaultItemFormViewModel(vaultItem ?? new(), FormMode.New);
-        SidePaneTitle = "New Key";
-        IsSidePaneOpen = true;
-    }
-
-    public void HideVaultItemCreateForm(bool clearData = false)
-    {
-        IsSidePaneOpen = false;
-
-        if (clearData)
-            SidePaneContent = null;
-    }
-
-    public void HideAllForms()
-    {
-        HideVaultItemCreateForm();
-
-        IEnumerable<VaultItemFormViewModel> itemFormVMs = [..GroupedVaultItems
-            .SelectMany(x => x.VaultItems)
-            .Where(x => x is VaultItemFormViewModel)
-            .Cast<VaultItemFormViewModel>()];
-
-        foreach (var vm in itemFormVMs)
+        switch (eventArgs.Action)
         {
-            HideVaultItemEditForm(vm.Model);
+            case VaultPageToolbarAction.SearchInput:
+                await LoadDataAsync(false);
+                UpdateMainContent(search: viewModel.SearchInput);
+                break;
+            case VaultPageToolbarAction.Sort:
+                UpdateMainContent(sortDirection: viewModel.SortInput);
+                break;
+            case VaultPageToolbarAction.AddItem:
+                ShowVaultItemCreateForm();
+                break;
+            case VaultPageToolbarAction.ImportItems:
+                // TODO;
+                break;
+            case VaultPageToolbarAction.ExportItems:
+                // TODO;
+                break;
+            case VaultPageToolbarAction.SelectAllItems:
+                SetAllItemsSelected(true);
+                break;
+            case VaultPageToolbarAction.DeselectAllItems:
+                SetAllItemsSelected(false);
+                break;
+            case VaultPageToolbarAction.GroupSelectedItems:
+                // TODO;
+                break;
+            case VaultPageToolbarAction.ExportSelectedItems:
+                // TODO;
+                break;
+            case VaultPageToolbarAction.DeleteSelectedItems:
+                // TODO;
+                break;
         }
     }
-
-    private void UpdateMainContent(
-        IEnumerable<VaultItem>? vaultItemData = null,
-        IEnumerable<Group>? groupData = null,
-        string? search = null,
-        SortDirection? sortDirection = null)
-    {
-        vaultItemData ??= _vaultItemData.Items;
-        groupData ??= _groupData.Items;
-        search ??= SearchInput;
-        sortDirection ??= SortInput;
-
-        IEnumerable<GroupedVaultItemsViewModel> existingGroupedItemVMs = GroupedVaultItems.AsEnumerable();
-        IEnumerable<GroupedVaultItemsViewModel> updatedGroupItemVMs = [];
-
-        Dictionary<Guid, IEnumerable<VaultItem>> groupItemsDict = vaultItemData
-            .GroupBy(x => x.GroupId)
-            .ToDictionary(x => x.Key ?? Guid.Empty, x => x.AsEnumerable());
-
-        foreach ((Guid groupId, IEnumerable<VaultItem> items) in groupItemsDict)
-        {
-            Group? group = _groupData.Items.FirstOrDefault(x => x.Id == groupId);
-            IEnumerable<VaultItem> groupedItems = items;
-
-            if (!string.IsNullOrWhiteSpace(search))
-            {
-                if (group == null)
-                {
-                    groupedItems = groupedItems.Where(x => x.Name.Contains(search, StringComparison.OrdinalIgnoreCase));
-                    if (!groupedItems.Any())
-                        continue;
-                }
-                else
-                {
-                    if (!group.Name.Contains(search, StringComparison.OrdinalIgnoreCase) && !groupedItems.Any(x => x.Name.Contains(search, StringComparison.OrdinalIgnoreCase)))
-                        continue;
-                }
-            }
-
-            GroupedVaultItemsViewModel? listItemVM = group == null
-                ? existingGroupedItemVMs.FirstOrDefault(x => x.Group == null) ?? new([], null)
-                : existingGroupedItemVMs.FirstOrDefault(x => x.Group?.Model.Id == groupId) ?? new([], new(new GroupViewModel(group)));
-
-            IEnumerable<VaultItemViewModelBase> itemVMs = listItemVM.VaultItems.AsEnumerable();
-
-            foreach (VaultItem item in groupedItems)
-            {
-                VaultItemViewModelBase? itemVM = itemVMs.FirstOrDefault(x => x.Model.Id == item.Id);
-                if (itemVM != null)
-                    itemVM.Model = item;
-                else
-                    itemVMs = itemVMs.Append(CreateNormalVaultItemViewModel(item));
-            }
-
-            IEnumerable<Guid> groupedItemIds = groupedItems.Select(x => x.Id);
-            IEnumerable<VaultItemViewModelBase> itemVMsToRemove = itemVMs.Where(x => !groupedItemIds.Contains(x.Model.Id));
-            itemVMs = itemVMs.Except(itemVMsToRemove);
-
-            itemVMs = sortDirection == SortDirection.Ascending
-                ? itemVMs.OrderBy(x => x.Model.Name)
-                : itemVMs.OrderByDescending(x => x.Model.Name);
-
-            listItemVM.VaultItems = [.. itemVMs];
-
-            updatedGroupItemVMs = updatedGroupItemVMs.Append(listItemVM);
-        }
-
-        updatedGroupItemVMs = sortDirection == SortDirection.Ascending
-            ? updatedGroupItemVMs.OrderBy(x => x.Group?.Model.Name)
-            : updatedGroupItemVMs.OrderByDescending(x => x.Group?.Model.Name);
-
-        GroupedVaultItems = [.. updatedGroupItemVMs];
-    }
-
-    public void ShowOverlay(object content)
-    {
-        OverlayContent = content;
-        IsOverlayVisible = true;
-    }
-
-    public void HideOverlay()
-    {
-        OverlayContent = null;
-        IsOverlayVisible = false;
-    }
-
-    private void ShowVaultItemEditForm(VaultItem vaultItem) =>
-        TryUpdateVaultItemViewModel(vaultItem, () => CreateVaultItemFormViewModel(vaultItem, FormMode.Edit));
-
-    private void HideVaultItemEditForm(VaultItem vaultItem) =>
-        TryUpdateVaultItemViewModel(vaultItem, () => CreateNormalVaultItemViewModel(vaultItem));
 
     public async Task HandleItemActionAsync(VaultItemActionEventArgs eventArgs)
     {
@@ -292,24 +187,25 @@ public partial class VaultPageViewModel(
                 break;
             case VaultItemAction.Select:
                 {
-                    SelectedItemsCount++;
+                    if (SelectedItems.Any(x => x.Id == viewModel.Model.Id)) break;
 
-                    if (ItemSelectionMode != SelectionMode.Always)
+                    if (SelectedItems.Count < 1)
                     {
-                        ItemSelectionMode = SelectionMode.Always;
-                        UpdateAllItemsSelectionMode();
-                        HideVaultItemCreateForm();
+                        HideAllForms();
+                        UpdateAllItemsSelectionMode(SelectionMode.Always);
                     }
+
+                    SetSelectedItems([.. SelectedItems, viewModel.Model]);
 
                     break;
                 }
             case VaultItemAction.Deselect:
                 {
-                    SelectedItemsCount = Math.Clamp(SelectedItemsCount - 1, 0, int.MaxValue);
-                    ItemSelectionMode = SelectedItemsCount > 0 ? SelectionMode.Always : SelectionMode.OnFocus;
+                    VaultItem? selectedItem = SelectedItems.FirstOrDefault(x => x.Id == viewModel.Model.Id);
+                    if (selectedItem == null) break;
 
-                    if (ItemSelectionMode != SelectionMode.Always)
-                        UpdateAllItemsSelectionMode();
+                    SetSelectedItems(SelectedItems.Except([selectedItem]));
+                    UpdateAllItemsSelectionMode();
 
                     break;
                 }
@@ -353,7 +249,7 @@ public partial class VaultPageViewModel(
                 break;
             case GroupAction.ConfirmEdit:
                 {
-                    var updateResult = await groupService.UpdateAsync(eventArgs.Group);
+                    Result<Group> updateResult = await groupService.UpdateAsync(eventArgs.Group);
                     if (!updateResult.IsSuccessful)
                     {
                         ShowOverlay(new PromptViewModel
@@ -391,19 +287,157 @@ public partial class VaultPageViewModel(
 
     public void SetAllItemsSelected(bool isSelected)
     {
-        IEnumerable<VaultItemViewModel> items = GetNormalItemViewModels();
+        IEnumerable<VaultItemShellViewModel> itemVMs = GetVaultItemViewModels();
 
-        foreach (VaultItemViewModel item in items)
+        foreach (VaultItemShellViewModel item in itemVMs)
         {
             item.IsSelected = isSelected;
         }
 
-        SelectedItemsCount = isSelected ? items.Count() : 0;
-        ItemSelectionMode = SelectedItemsCount > 0 ? SelectionMode.Always : SelectionMode.OnFocus;
+        SelectedItems = isSelected ? [.. itemVMs.Select(x => x.Model)] : [];
     }
 
-    private VaultItemViewModel CreateNormalVaultItemViewModel(VaultItem vaultItem) =>
-        new(vaultItem) { SelectionMode = ItemSelectionMode };
+    public void ShowVaultItemCreateForm(VaultItem? vaultItem = null)
+    {
+        SidePaneContent = null;
+        SidePaneContent = CreateVaultItemFormViewModel(vaultItem ?? new(), FormMode.New);
+        SidePaneTitle = "New Key";
+        IsSidePaneOpen = true;
+        ToolbarVM.AreInputsEnabled = false;
+    }
+
+    public void HideVaultItemCreateForm(bool clearData = false)
+    {
+        IsSidePaneOpen = false;
+        ToolbarVM.AreInputsEnabled = true;
+
+        if (clearData)
+            SidePaneContent = null;
+    }
+
+    public void HideAllForms()
+    {
+        HideVaultItemCreateForm();
+
+        IEnumerable<VaultItemFormViewModel> itemFormVMs = [..GetVaultItemViewModels()
+            .Where(x => x.Content is VaultItemFormViewModel)
+            .Select(x => (x.Content as VaultItemFormViewModel)!)];
+
+        foreach (VaultItemFormViewModel vm in itemFormVMs)
+        {
+            HideVaultItemEditForm(vm.Model);
+        }
+    }
+
+    public void ShowOverlay(object content)
+    {
+        OverlayContent = content;
+        IsOverlayVisible = true;
+    }
+
+    public void HideOverlay()
+    {
+        OverlayContent = null;
+        IsOverlayVisible = false;
+    }
+
+    private void UpdateMainContent(
+        IEnumerable<VaultItem>? vaultItemData = null,
+        IEnumerable<Group>? groupData = null,
+        string? search = null,
+        SortDirection? sortDirection = null)
+    {
+        vaultItemData ??= _vaultItemData.Items;
+        groupData ??= _groupData.Items;
+        search ??= ToolbarVM.SearchInput;
+        sortDirection ??= ToolbarVM.SortInput;
+
+        IEnumerable<GroupedVaultItemsViewModel> existingGroupedItemVMs = GroupedVaultItems.AsEnumerable();
+        IEnumerable<GroupedVaultItemsViewModel> updatedGroupItemVMs = [];
+
+        Dictionary<Guid, IEnumerable<VaultItem>> groupItemsDict = vaultItemData
+            .GroupBy(x => x.GroupId)
+            .ToDictionary(x => x.Key ?? Guid.Empty, x => x.AsEnumerable());
+
+        foreach ((Guid groupId, IEnumerable<VaultItem> items) in groupItemsDict)
+        {
+            Group? group = _groupData.Items.FirstOrDefault(x => x.Id == groupId);
+            IEnumerable<VaultItem> groupedItems = items;
+
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                if (group == null)
+                {
+                    groupedItems = groupedItems.Where(x => x.Name.Contains(search, StringComparison.OrdinalIgnoreCase));
+                    if (!groupedItems.Any())
+                        continue;
+                }
+                else
+                {
+                    if (!group.Name.Contains(search, StringComparison.OrdinalIgnoreCase) && !groupedItems.Any(x => x.Name.Contains(search, StringComparison.OrdinalIgnoreCase)))
+                        continue;
+                }
+            }
+
+            GroupedVaultItemsViewModel? listItemVM = group == null
+                ? existingGroupedItemVMs.FirstOrDefault(x => x.Group == null) ?? new([], null)
+                : existingGroupedItemVMs.FirstOrDefault(x => x.Group?.Model.Id == groupId) ?? new([], new(new GroupViewModel(group)));
+
+            IEnumerable<VaultItemShellViewModel> itemVMs = listItemVM.VaultItems.AsEnumerable();
+
+            foreach (VaultItem item in groupedItems)
+            {
+                VaultItemShellViewModel? itemVM = itemVMs.FirstOrDefault(x => x.Model.Id == item.Id);
+                if (itemVM != null)
+                    itemVM.Model = item;
+                else
+                    itemVMs = itemVMs.Append(CreateVaultItemShellViewModel(new VaultItemViewModel(item)));
+            }
+
+            IEnumerable<Guid> groupedItemIds = groupedItems.Select(x => x.Id);
+            IEnumerable<VaultItemShellViewModel> itemVMsToRemove = itemVMs.Where(x => !groupedItemIds.Contains(x.Model.Id));
+            itemVMs = itemVMs.Except(itemVMsToRemove);
+
+            itemVMs = sortDirection == SortDirection.Ascending
+                ? itemVMs.OrderBy(x => x.Model.Name)
+                : itemVMs.OrderByDescending(x => x.Model.Name);
+
+            listItemVM.VaultItems = [.. itemVMs];
+
+            updatedGroupItemVMs = updatedGroupItemVMs.Append(listItemVM);
+        }
+
+        updatedGroupItemVMs = sortDirection == SortDirection.Ascending
+            ? updatedGroupItemVMs.OrderBy(x => x.Group?.Model.Name)
+            : updatedGroupItemVMs.OrderByDescending(x => x.Group?.Model.Name);
+
+        GroupedVaultItems = [.. updatedGroupItemVMs];
+    }
+
+    private void SetSelectedItems(IEnumerable<VaultItem> selectedItems)
+    {
+        SelectedItems = [.. selectedItems];
+        ToolbarVM.SelectedItemsCount = SelectedItems.Count;
+        ToolbarVM.IsBulkActionsModeActive = SelectedItems.Count > 0;
+    }
+
+    private void ShowVaultItemEditForm(VaultItem vaultItem) =>
+        TryUpdateVaultItemViewModel(vaultItem, () => new(CreateVaultItemFormViewModel(vaultItem, FormMode.Edit))
+        {
+            SelectionMode = SelectionMode.Disabled
+        });
+
+    private void HideVaultItemEditForm(VaultItem vaultItem) =>
+        TryUpdateVaultItemViewModel(vaultItem, () => new(new VaultItemViewModel(vaultItem))
+        {
+            SelectionMode = ItemSelectionMode
+        });
+
+    private VaultItemShellViewModel CreateVaultItemShellViewModel(VaultItemViewModelBase content) => new(content)
+    {
+        SelectionMode = ItemSelectionMode,
+        IsSelected = SelectedItems.Any(x => x.Id == content.Model.Id)
+    };
 
     private VaultItemFormViewModel CreateVaultItemFormViewModel(VaultItem vaultItem, FormMode formMode)
     {
@@ -583,36 +617,43 @@ public partial class VaultPageViewModel(
         return true;
     }
 
-    private IEnumerable<VaultItemViewModel> GetNormalItemViewModels() => GroupedVaultItems
-        .SelectMany(x => x.VaultItems)
-        .Where(x => x is VaultItemViewModel)
-        .Cast<VaultItemViewModel>();
-
-    private IEnumerable<VaultItemViewModel> GetSelectedItemViewModels() => GetNormalItemViewModels().Where(x => x.IsSelected);
+    private IEnumerable<VaultItemShellViewModel> GetVaultItemViewModels() => GroupedVaultItems.SelectMany(x => x.VaultItems);
 
     private void UpdateAllItemsSelectionMode(SelectionMode? selectionMode = null)
     {
         selectionMode ??= ItemSelectionMode;
-        IEnumerable<VaultItemViewModel> itemVMs = GetNormalItemViewModels();
+        IEnumerable<VaultItemShellViewModel> itemVMs = GetVaultItemViewModels();
 
-        foreach (var itemVM in itemVMs)
+        foreach (VaultItemShellViewModel itemVM in itemVMs)
         {
             itemVM.SelectionMode = selectionMode.Value;
+
+            if (itemVM.Content is VaultItemViewModel normalVM)
+            {
+                normalVM.IsActionsButtonVisible = selectionMode != SelectionMode.Always;
+            }
+            else
+            {
+                itemVM.Content = new VaultItemViewModel(itemVM.Model)
+                {
+                    IsActionsButtonVisible = selectionMode != SelectionMode.Always
+                };
+            }
         }
     }
 
-    private bool TryUpdateVaultItemViewModel(VaultItem vaultItem, Func<VaultItemViewModelBase?> newModelFunc)
+    private bool TryUpdateVaultItemViewModel(VaultItem vaultItem, Func<VaultItemShellViewModel?> newModelFunc)
     {
         GroupedVaultItemsViewModel? listItemVM = GroupedVaultItems.FirstOrDefault(x => x.VaultItems.Any(y => y.Model.Id == vaultItem.Id));
         if (listItemVM == null)
             return false;
 
-        ObservableCollection<VaultItemViewModelBase> itemVMCollection = listItemVM.VaultItems;
-        VaultItemViewModelBase? vaultItemVM = itemVMCollection.FirstOrDefault(x => x.Model.Id == vaultItem.Id);
+        ObservableCollection<VaultItemShellViewModel> itemVMCollection = listItemVM.VaultItems;
+        VaultItemShellViewModel? vaultItemVM = itemVMCollection.FirstOrDefault(x => x.Model.Id == vaultItem.Id);
         if (vaultItemVM == null)
             return false;
 
-        VaultItemViewModelBase? newVM = newModelFunc.Invoke();
+        VaultItemShellViewModel? newVM = newModelFunc.Invoke();
         if (newVM != null)
             itemVMCollection[itemVMCollection.IndexOf(vaultItemVM)] = newVM;
         else
@@ -645,13 +686,13 @@ public partial class VaultPageViewModel(
 
     private string Encrypt(string value)
     {
-        var result = securityService.Encrypt(value);
+        Result<string> result = securityService.Encrypt(value);
         return result.Value ?? value;
     }
 
     private string Decrypt(string value)
     {
-        var result = securityService.Decrypt(value);
+        Result<string> result = securityService.Decrypt(value);
         return result.Value ?? value;
     }
 }

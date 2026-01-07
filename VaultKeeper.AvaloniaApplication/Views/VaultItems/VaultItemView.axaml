@@ -7,16 +7,14 @@
              x:Class="VaultKeeper.AvaloniaApplication.Views.VaultItems.VaultItemView"
              x:DataType="vm:VaultItemViewModel"
              Background="Transparent"
-             Classes.focused="{Binding IsFocused}"
-             Classes.selectable="{Binding IsSelectable}"
-             Classes.selected="{Binding IsSelected}">
+             Classes.focused="{Binding IsFocused}">
 
   <Design.DataContext>
     <x:Static Member="vm:VaultItemViewModel.Design"/>
   </Design.DataContext>
 
   <UserControl.Styles>
-    <Style Selector="Grid SplitButton#SplitButton">
+    <Style Selector="Grid#PART_Grid SplitButton#PART_SplitButton">
       <Setter Property="Opacity" Value="0"/>
       <Setter Property="Transitions">
         <Transitions>
@@ -25,36 +23,22 @@
       </Setter>
     </Style>
 
-    <Style Selector="CheckBox#PART_SelectCheckBox">
-      <Setter Property="Width" Value="0"/>
-      <Setter Property="Opacity" Value="0"/>
-      <Setter Property="Cursor" Value="Hand"/>
-      <Setter Property="Transitions">
-        <Transitions>
-          <DoubleTransition Property="Opacity" Duration="0:0:0:0.1"/>
-          <DoubleTransition Property="Width" Duration="0:0:0:0.1" Easing="CubicEaseInOut"/>
-        </Transitions>
-      </Setter>
-    </Style>
-
-    <Style Selector=".focused Grid SplitButton#SplitButton">
-      <Setter Property="Opacity" Value="1"/>
-    </Style>
-    <Style Selector=".focused CheckBox#PART_SelectCheckBox, .selectable CheckBox#PART_SelectCheckBox">
-      <Setter Property="Width" Value="28"/>
+    <Style Selector=".focused Grid#PART_Grid SplitButton#PART_SplitButton">
       <Setter Property="Opacity" Value="1"/>
     </Style>
   </UserControl.Styles>
 
-  <Grid RowDefinitions="Auto" ColumnDefinitions="Auto, *, Auto">
-    <CheckBox Name="PART_SelectCheckBox"
-              IsEnabled="{Binding IsSelectable}"
-              IsChecked="{Binding IsSelected}"
-              Grid.Column="0"/>
+  <Grid Name="PART_Grid" RowDefinitions="Auto" ColumnDefinitions="*, Auto">
+    <TextBlock Text="{Binding Model.Name}"
+               MinHeight="34"
+               Padding="12, 6"
+               VerticalAlignment="Center"
+               Grid.Column="0"/>
 
-    <TextBlock Text="{Binding Model.Name}" Padding="12, 6" VerticalAlignment="Center" Grid.Column="1"></TextBlock>
-
-    <SplitButton Name="SplitButton" Click="ActionCopyValue_Click" Grid.Column="2">
+    <SplitButton Name="PART_SplitButton"
+                 IsVisible="{Binding IsActionsButtonVisible}"
+                 Click="ActionCopyValue_Click"
+                 Grid.Column="1">
       <SplitButton.Styles>
         <Style Selector="SplitButton /template/ Button#PART_PrimaryButton">
           <Setter Property="ToolTip.Tip" Value="Copy value" />

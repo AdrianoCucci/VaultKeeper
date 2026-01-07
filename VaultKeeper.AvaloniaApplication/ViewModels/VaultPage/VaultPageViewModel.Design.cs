@@ -6,14 +6,14 @@ using System.Threading.Tasks;
 using VaultKeeper.Models.Groups;
 using VaultKeeper.Models.VaultItems;
 
-namespace VaultKeeper.AvaloniaApplication.ViewModels;
+namespace VaultKeeper.AvaloniaApplication.ViewModels.VaultPage;
 
 [ExcludeFromCodeCoverage]
 public partial class VaultPageViewModel
 {
     public static readonly DesignContext Design = new();
 
-    public class DesignContext() : VaultPageViewModel(null!, null!, null!, null!, null!, null!, null!, null!)
+    public class DesignContext() : VaultPageViewModel(null!, null!, null!, null!, null!, null!, null!)
     {
         public override async Task LoadDataAsync(bool refreshUI = true)
         {

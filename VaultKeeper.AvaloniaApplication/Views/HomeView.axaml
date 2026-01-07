@@ -5,6 +5,8 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:local="using:VaultKeeper.AvaloniaApplication.Views"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vaultpage="using:VaultKeeper.AvaloniaApplication.Views.VaultPage"
+             xmlns:vaultpageVM="using:VaultKeeper.AvaloniaApplication.ViewModels.VaultPage"
              xmlns:vm="using:VaultKeeper.AvaloniaApplication.ViewModels"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="VaultKeeper.AvaloniaApplication.Views.MainContentView"
@@ -55,8 +57,8 @@
     <Border BorderThickness="2" BorderBrush="Black" Grid.Row="2">
       <TransitioningContentControl Content="{Binding Content}">
         <TransitioningContentControl.DataTemplates>
-          <DataTemplate DataType="vm:VaultPageViewModel">
-            <local:VaultPageView/>
+          <DataTemplate DataType="vaultpageVM:VaultPageViewModel">
+            <vaultpage:VaultPageView/>
           </DataTemplate>
         </TransitioningContentControl.DataTemplates>
       </TransitioningContentControl>
