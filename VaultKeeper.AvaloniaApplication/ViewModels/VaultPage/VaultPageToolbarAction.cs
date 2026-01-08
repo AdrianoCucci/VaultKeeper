@@ -10,6 +10,7 @@ public enum VaultPageToolbarAction
     SelectAllItems,
     DeselectAllItems,
     GroupSelectedItems,
+    UngroupSelectedItems,
     ExportSelectedItems,
     DeleteSelectedItems
 }

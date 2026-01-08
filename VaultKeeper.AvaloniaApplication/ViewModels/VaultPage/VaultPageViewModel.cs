@@ -117,6 +117,13 @@ public partial class VaultPageViewModel(
     {
         VaultPageToolbarViewModel viewModel = eventArgs.ViewModel;
 
+        async Task BulkActionSuccessAsync()
+        {
+            SetSelectedItems([]);
+            await LoadDataAsync();
+            HideOverlay();
+        }
+
         switch (eventArgs.Action)
         {
             case VaultPageToolbarAction.SearchInput:
@@ -166,16 +173,26 @@ public partial class VaultPageViewModel(
 
                             Result<IEnumerable<VaultItem>> updateResult = await UpdateVaultItemsAsync(_selectedItems.Select(x => x with { GroupId = group.Id }));
                             if (updateResult.IsSuccessful)
-                            {
-                                SetSelectedItems([]);
-                                await LoadDataAsync();
-                                HideOverlay();
-                            }
+                                await BulkActionSuccessAsync();
                         }
                     });
 
                     break;
                 }
+            case VaultPageToolbarAction.UngroupSelectedItems:
+                ShowOverlay(new ConfirmPromptViewModel
+                {
+                    Header = "Ungroup Keys",
+                    Message = $"Are you sure you want to ungroup {_selectedItems.Count} selected Keys?",
+                    CancelAction = HideOverlay,
+                    ConfirmAction = async _ =>
+                    {
+                        Result<IEnumerable<VaultItem>> ungroupResult = await UngroupVaultItemsAsync(_selectedItems);
+                        if (ungroupResult.IsSuccessful)
+                            await BulkActionSuccessAsync();
+                    }
+                });
+                break;
             case VaultPageToolbarAction.ExportSelectedItems:
                 // TODO;
                 break;
@@ -183,18 +200,13 @@ public partial class VaultPageViewModel(
                 ShowOverlay(new ConfirmPromptViewModel
                 {
                     Header = "Delete Keys",
-                    Message = $"Are you sure you want to delete the following {_selectedItems.Count} selected keys?\n\n- {string.Join("\n- ", _selectedItems.Select(x => x.Name))}",
+                    Message = $"Are you sure you want to delete the following {_selectedItems.Count} selected keys?\n\n- {string.Join("\n- ", _selectedItems.Select(x => $"\"{x.Name}\""))}",
                     CancelAction = HideOverlay,
                     ConfirmAction = async _ =>
                     {
                         Result<long> deleteResult = await DeleteVaultItemsAsync(_selectedItems);
-
                         if (deleteResult.IsSuccessful)
-                        {
-                            SetSelectedItems([]);
-                            await LoadDataAsync();
-                            HideOverlay();
-                        }
+                            await BulkActionSuccessAsync();
                     }
                 });
                 break;
@@ -476,6 +488,7 @@ public partial class VaultPageViewModel(
 
         ToolbarVM.SelectedItemsCount = newSelectedItemsCount;
         ToolbarVM.IsBulkActionsModeActive = hasSelectedItems;
+        ToolbarVM.IsUngroupSelectedItemsActionVisible = _selectedItems.All(x => x.GroupId.HasValue);
 
         if (hasSelectedItems)
             HideVaultItemCreateForm();
@@ -660,6 +673,16 @@ public partial class VaultPageViewModel(
     private async Task<Result<IEnumerable<VaultItem>>> UpdateVaultItemsAsync(IEnumerable<VaultItem> vaultItems)
     {
         Result<IEnumerable<VaultItem>> result = await vaultItemService.UpdateManyAsync(vaultItems);
+
+        if (!result.IsSuccessful)
+            ReportFailedVaultItemUpsert(result, FormMode.Edit, true);
+
+        return result;
+    }
+
+    private async Task<Result<IEnumerable<VaultItem>>> UngroupVaultItemsAsync(IEnumerable<VaultItem> vaultItems)
+    {
+        Result<IEnumerable<VaultItem>> result = await vaultItemService.UngroupManyAsync(vaultItems);
 
         if (!result.IsSuccessful)
             ReportFailedVaultItemUpsert(result, FormMode.Edit, true);

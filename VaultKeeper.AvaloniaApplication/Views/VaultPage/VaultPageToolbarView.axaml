@@ -87,6 +87,11 @@
                   <PathIcon Data="{StaticResource IconList}"/>
                 </MenuItem.Icon>
               </MenuItem>
+              <MenuItem Header="Ungroup Selected" IsVisible="{Binding IsUngroupSelectedItemsActionVisible}" Click="UngroupSelected_Click">
+                <MenuItem.Icon>
+                  <PathIcon Data="{StaticResource IconList}"/>
+                </MenuItem.Icon>
+              </MenuItem>
               <MenuItem Header="Export Selected" Click="ExportSelected_Click">
                 <MenuItem.Icon>
                   <PathIcon Data="{StaticResource IconDownload}"/>

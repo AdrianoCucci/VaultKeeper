@@ -9,7 +9,7 @@ public partial class ConfirmPromptViewModel : PromptViewModel
     public Func<ConfirmPromptViewModel, Task>? ConfirmAction { get; set; }
 
     private bool _isActionRunning = false;
-    public bool IsActionRunning { get => _isActionRunning; set => SetProperty(ref _isActionRunning, value); }
+    public bool IsActionRunning { get => _isActionRunning; private set => SetProperty(ref _isActionRunning, value); }
 
     public async Task InvokeActionAsync(ConfirmPromptAction action)
     {

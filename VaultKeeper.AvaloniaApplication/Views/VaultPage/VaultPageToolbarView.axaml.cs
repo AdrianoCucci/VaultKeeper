@@ -77,6 +77,8 @@ public partial class VaultPageToolbarView : ViewBase<VaultPageToolbarViewModel>
 
     private void GroupSelected_Click(object? sender, RoutedEventArgs e) => RaiseEvent(VaultPageToolbarAction.GroupSelectedItems);
 
+    private void UngroupSelected_Click(object? sender, RoutedEventArgs e) => RaiseEvent(VaultPageToolbarAction.UngroupSelectedItems);
+
     private void ExportSelected_Click(object? sender, RoutedEventArgs e) => RaiseEvent(VaultPageToolbarAction.ExportSelectedItems);
 
     private void DeleteSelected_Click(object? sender, RoutedEventArgs e) => RaiseEvent(VaultPageToolbarAction.DeleteSelectedItems);

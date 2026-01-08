@@ -138,6 +138,47 @@ public class VaultItemService(
         }
     }
 
+    public async Task<Result<IEnumerable<VaultItem>>> UngroupManyAsync(IEnumerable<VaultItem> vaultItems)
+    {
+        logger.LogInformation(nameof(UngroupManyAsync));
+
+        try
+        {
+            IEnumerable<Guid> ids = vaultItems.Where(x => x.GroupId.HasValue).Select(x => x.Id);
+            IEnumerable<VaultItem> existingItems = await repository.GetManyAsync(new() { Where = x => ids.Contains(x.Id) });
+            VaultItem[] notFoundItems = [.. vaultItems.Where(x => !existingItems.Select(y => y.Id).Contains(x.Id))];
+
+            if (notFoundItems.Length > 0)
+            {
+                string message = $"{notFoundItems.Length} Vault Item IDs do not exist: [{string.Join(", ", notFoundItems.Select(x => x.Id))}]";
+                return Result.Failed<IEnumerable<VaultItem>>(ResultFailureType.NotFound, message).Logged(logger);
+            }
+
+            IEnumerable<string> existingItemNames = existingItems.Select(x => x.Name);
+            VaultItem[] conflictingUngroupedItems = [..await repository.GetManyAsync(new()
+            {
+                Where = x => x.GroupId == null && existingItemNames.Contains(x.Name)
+            })];
+
+            if (conflictingUngroupedItems.Length > 0)
+            {
+                string message = $"{conflictingUngroupedItems.Length} Vault Items have the same names as other existing ungrouped Vault Items:\n- {string.Join("\n- ", conflictingUngroupedItems.Select(x => $"\"{x.Name}\""))}";
+                return Result.Failed<IEnumerable<VaultItem>>(ResultFailureType.Conflict, message).Logged(logger);
+            }
+
+            IEnumerable<KeyValuePair<VaultItem, VaultItem>> updateModels = existingItems
+                .Select(x => new KeyValuePair<VaultItem, VaultItem>(x, vaultItems.First(y => x.Id == y.Id) with { GroupId = null }));
+
+            IEnumerable<VaultItem> updatedItems = await repository.UpdateManyAsync(updateModels);
+
+            return updatedItems.ToOkResult().Logged(logger);
+        }
+        catch (Exception ex)
+        {
+            return ex.ToFailedResult<IEnumerable<VaultItem>>().Logged(logger);
+        }
+    }
+
     public async Task<Result> DeleteAsync(VaultItem vaultItem)
     {
         logger.LogInformation(nameof(DeleteAsync));
