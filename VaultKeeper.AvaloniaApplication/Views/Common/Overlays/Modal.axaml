@@ -5,7 +5,7 @@
   <Design.PreviewWith>
     <StackPanel Width="400" Spacing="10">
       <StackPanel Background="{DynamicResource SystemRegionBrush}">
-        <controls:Modal CardBackground="Red">
+        <controls:Modal CardBackground="Red" CardMinWidth="200" CardMinHeight="150">
           <StackPanel>
             <TextBlock>CONTENT</TextBlock>
             <TextBlock>CONTENT</TextBlock>
@@ -28,8 +28,15 @@
                   Background="{TemplateBinding BackdropBackground}"
                   Opacity="{TemplateBinding BackdropOpacity}" />
 
-          <Border HorizontalAlignment="{TemplateBinding CardHorizontalAlignment}"
+          <Border Name="PART_Card"
+                  HorizontalAlignment="{TemplateBinding CardHorizontalAlignment}"
                   VerticalAlignment="{TemplateBinding CardVerticalAlignment}"
+                  Width="{TemplateBinding CardWidth}"
+                  MinWidth="{TemplateBinding CardMinWidth}"
+                  MaxWidth="{TemplateBinding CardMaxWidth}"
+                  Height="{TemplateBinding CardHeight}"
+                  MinHeight="{TemplateBinding CardMinHeight}"
+                  MaxHeight="{TemplateBinding CardMaxHeight}"
                   Margin="{TemplateBinding CardMargin}"
                   Padding="{TemplateBinding CardPadding}"
                   CornerRadius="{TemplateBinding CardCornerRadius}"

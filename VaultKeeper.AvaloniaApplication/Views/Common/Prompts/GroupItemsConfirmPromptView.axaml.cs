@@ -3,9 +3,9 @@ using VaultKeeper.AvaloniaApplication.ViewModels.Common.Prompts;
 
 namespace VaultKeeper.AvaloniaApplication.Views.Common.Prompts;
 
-public partial class ConfirmPromptView : ConfirmPromptViewBase<ConfirmPromptViewModel>
+public partial class GroupItemsConfirmPromptView : ConfirmPromptViewBase<GroupItemsConfirmPromptViewModel>
 {
-    public ConfirmPromptView() => InitializeComponent();
+    public GroupItemsConfirmPromptView() => InitializeComponent();
 
     private async void CancelButton_Clicked(object? sender, RoutedEventArgs e) => await InvokeActionAsync(ConfirmPromptAction.Cancelled);
 

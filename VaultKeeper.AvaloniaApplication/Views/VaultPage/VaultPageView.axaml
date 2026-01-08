@@ -15,7 +15,8 @@
              xmlns:vaultitems="using:VaultKeeper.AvaloniaApplication.ViewModels.VaultItems"
              mc:Ignorable="d" d:DesignWidth="1920" d:DesignHeight="1080"
              x:Class="VaultKeeper.AvaloniaApplication.Views.VaultPage.VaultPageView"
-             x:DataType="vm:VaultPageViewModel">
+             x:DataType="vm:VaultPageViewModel"
+             Name="Root">
 
   <Design.DataContext>
     <x:Static Member="vm:VaultPageViewModel.Design"/>
@@ -115,14 +116,21 @@
     </SplitView>
 
     <overlays:OverlayPanel.OverlayContent>
-      <overlays:Modal Content="{Binding OverlayContent}" BackdropPressed="Modal_BackdropPressed">
+      <overlays:Modal Content="{Binding OverlayContent}"
+                      CardMinWidth="400"
+                      CardMaxWidth="{Binding #Root.Bounds.Width}"
+                      BackdropPressed="Modal_BackdropPressed">
         <overlays:Modal.DataTemplates>
           <DataTemplate x:DataType="promptVMs:DeleteGroupConfirmPromptViewModel">
-            <prompts:DeleteGroupConfirmPromptView ActionInvoked="ConfirmPromptView_ActionInvoked"/>
+            <prompts:DeleteGroupConfirmPromptView/>
+          </DataTemplate>
+
+          <DataTemplate x:DataType="promptVMs:GroupItemsConfirmPromptViewModel">
+            <prompts:GroupItemsConfirmPromptView/>
           </DataTemplate>
 
           <DataTemplate x:DataType="promptVMs:ConfirmPromptViewModel">
-            <prompts:ConfirmPromptView ActionInvoked="ConfirmPromptView_ActionInvoked"/>
+            <prompts:ConfirmPromptView/>
           </DataTemplate>
 
           <DataTemplate x:DataType="promptVMs:PromptViewModel">

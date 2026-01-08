@@ -9,7 +9,7 @@ public partial class VaultItemViewModel(VaultItem vaultItem) : VaultItemViewMode
     private bool _isFocused = false;
 
     [ObservableProperty]
-    private bool _isActionsButtonVisible = true;
+    private bool _isReadOnly = false;
 
     [ObservableProperty]
     private bool _optionsMenuOpened = false;

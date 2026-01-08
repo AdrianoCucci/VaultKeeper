@@ -36,7 +36,6 @@
                Grid.Column="0"/>
 
     <SplitButton Name="PART_SplitButton"
-                 IsVisible="{Binding IsActionsButtonVisible}"
                  Click="ActionCopyValue_Click"
                  Grid.Column="1">
       <SplitButton.Styles>
@@ -58,13 +57,13 @@
               <PathIcon Data="{StaticResource IconCopy}"/>
             </MenuItem.Icon>
           </MenuItem>
-          <Separator/>
-          <MenuItem Header="Edit" Click="ActionEdit_Click">
+          <Separator IsVisible="{Binding !IsReadOnly}"/>
+          <MenuItem Header="Edit" IsVisible="{Binding !IsReadOnly}" Click="ActionEdit_Click">
             <MenuItem.Icon>
               <PathIcon Data="{StaticResource IconPen}"/>
             </MenuItem.Icon>
           </MenuItem>
-          <MenuItem Header="Delete" Click="ActionDelete_Click">
+          <MenuItem Header="Delete" IsVisible="{Binding !IsReadOnly}" Click="ActionDelete_Click">
             <MenuItem.Icon>
               <PathIcon Data="{StaticResource IconTrash}"/>
             </MenuItem.Icon>
