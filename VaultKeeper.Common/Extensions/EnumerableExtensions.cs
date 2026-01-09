@@ -19,6 +19,17 @@ public static class EnumerableExtensions
         return !enumerable.GetEnumerator().MoveNext();
     }
 
+    public static IEnumerable<T> Duplicates<T>(this IEnumerable<T>? enumerable)
+    {
+        if (enumerable == null)
+            return [];
+
+        return enumerable
+            .GroupBy(x => x)
+            .Where(x => x.Count() > 1)
+            .Select(x => x.Key);
+    }
+
     public static bool HasIndex<T>(this IList<T>? list, int index) => list != null && index.IsBetween(0, list.Count - 1);
 
     public static T? FirstOrDefaultByIndex<T>(this IList<T>? list, int index, T? defaultValue = default) =>

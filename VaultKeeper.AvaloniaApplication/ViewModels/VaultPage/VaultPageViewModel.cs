@@ -160,6 +160,7 @@ public partial class VaultPageViewModel(
                         CancelAction = HideOverlay,
                         ConfirmAction = async _ =>
                         {
+                            // TODO: Maybe refactor this?
                             Group group = groupInputVM.GetGroup();
 
                             if (groupInputVM.WillCreateGroup)
@@ -173,7 +174,24 @@ public partial class VaultPageViewModel(
 
                             Result<IEnumerable<VaultItem>> updateResult = await UpdateVaultItemsAsync(_selectedItems.Select(x => x with { GroupId = group.Id }));
                             if (updateResult.IsSuccessful)
+                            {
                                 await BulkActionSuccessAsync();
+                            }
+                            else if (groupInputVM.WillCreateGroup)
+                            {
+                                Result deleteNewGroupResult = await groupService.DeleteAsync(group);
+                                if (!deleteNewGroupResult.IsSuccessful)
+                                {
+                                    errorReportingService.ReportError(new()
+                                    {
+                                        Header = "Failed to Delete Group",
+                                        Message = $"Group was created as part of bulk-group Vault Items action, but could not be deleted after failing to group items: ({deleteNewGroupResult.FailureType}) - {deleteNewGroupResult.Message}",
+                                        Exception = deleteNewGroupResult.Exception,
+                                        Severity = ErrorSeverity.High,
+                                        Visibility = ErrorVisibility.Internal
+                                    });
+                                }
+                            }
                         }
                     });
 

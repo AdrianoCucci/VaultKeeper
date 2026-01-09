@@ -30,8 +30,20 @@ public class VaultItemValidatorService(
         logger.LogInformation(nameof(ValidateUpsertManyAsync));
 
         Result[] results = await Task.WhenAll(vaultItems.Select(ValidateUpsertInternalAsync));
+        if (results.Any(x => !x.IsSuccessful))
+            return results.ToAggregatedResult(ResultFailureType.BadRequest).Logged(logger);
 
-        return results.ToAggregatedResult(ResultFailureType.BadRequest).Logged(logger);
+        HashSet<string> duplicateNameConflicts = [..vaultItems
+            .GroupBy(x => x.GroupId)
+            .SelectMany(itemGroup => itemGroup.Select(x => x.Name).Duplicates())];
+
+        if (duplicateNameConflicts.Count > 0)
+        {
+            string message = $"{duplicateNameConflicts.Count} Vault Items have duplicate names:\n- {string.Join("\n- ", duplicateNameConflicts.Select(x => $"\"{x}\""))}";
+            return Result.Failed(ResultFailureType.Conflict, message);
+        }
+
+        return Result.Ok();
     }
 
     private async Task<Result> ValidateUpsertInternalAsync(VaultItem vaultItem)
