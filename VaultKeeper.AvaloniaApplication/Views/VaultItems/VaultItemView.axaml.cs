@@ -27,19 +27,19 @@ public partial class VaultItemView : VaultItemViewBase<VaultItemViewModel>
         base.OnLostFocus(e);
     }
 
-    private void VaultItem_ActionInvoked(object? sender, VaultItemActionEventArgs e) => RaiseEvent(e.Action);
+    private void VaultItem_ActionInvoked(object? sender, VaultItemActionEventArgs e) => RaiseEvent(e.Action, Model!);
 
-    private void VaultItemFormView_FormActionInvoked(object? sender, VaultItemFormActionEventArgs e) => RaiseEvent(e.Action, e.Form);
+    private void VaultItemFormView_FormActionInvoked(object? sender, VaultItemFormActionEventArgs e) => RaiseEvent(e.Action, e.ViewModel);
 
     private void MenuFlyout_Opened(object? sender, EventArgs e) => UpdateModel(x => x.OptionsMenuOpened = true);
 
     private void MenuFlyout_Closed(object? sender, EventArgs e) => UpdateModel(x => x.OptionsMenuOpened = false);
 
-    private void ActionCopyValue_Click(object? sender, RoutedEventArgs e) => RaiseEvent(VaultItemAction.CopyValue);
+    private void ActionCopyValue_Click(object? sender, RoutedEventArgs e) => RaiseEvent(VaultItemAction.CopyValue, Model!);
 
-    private void ActionCopyName_Click(object? sender, RoutedEventArgs e) => RaiseEvent(VaultItemAction.CopyName);
+    private void ActionCopyName_Click(object? sender, RoutedEventArgs e) => RaiseEvent(VaultItemAction.CopyName, Model!);
 
-    private void ActionEdit_Click(object? sender, RoutedEventArgs e) => RaiseEvent(VaultItemAction.Edit);
+    private void ActionEdit_Click(object? sender, RoutedEventArgs e) => RaiseEvent(VaultItemAction.Edit, Model!);
 
-    private void ActionDelete_Click(object? sender, RoutedEventArgs e) => RaiseEvent(VaultItemAction.Delete);
+    private void ActionDelete_Click(object? sender, RoutedEventArgs e) => RaiseEvent(VaultItemAction.Delete, Model!);
 }

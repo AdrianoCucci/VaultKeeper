@@ -23,9 +23,11 @@ public partial class GroupedVaultItemsViewModel : ViewModelBase
             });
 
         GroupViewModel groupVM = new(group);
-        ObservableCollection<VaultItemViewModelBase> itemVMs = [.. items.Select(x => new VaultItemViewModel(x))];
 
-        return new(itemVMs, new(groupVM));
+        IEnumerable<VaultItemViewModel> itemVMs = items.Select(x => new VaultItemViewModel(x));
+        ObservableCollection<VaultItemShellViewModel> itemShellVMs = [.. itemVMs.Select(x => new VaultItemShellViewModel(x))];
+
+        return new(itemShellVMs, new(groupVM));
     });
 
     public static GroupedVaultItemsViewModel Design => _designLazy.Value;

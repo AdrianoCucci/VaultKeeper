@@ -4,13 +4,17 @@ using System.Linq;
 using System.Threading.Tasks;
 using VaultKeeper.Common.Extensions;
 using VaultKeeper.Common.Results;
+using VaultKeeper.Models.Groups;
 using VaultKeeper.Models.VaultItems;
 using VaultKeeper.Repositories.Abstractions;
 using VaultKeeper.Services.Abstractions.VaultItems;
 
 namespace VaultKeeper.Services.VaultItems;
 
-public class VaultItemValidatorService(IRepository<VaultItem> repository, ILogger<VaultItemValidatorService> logger) : IVaultItemValidatorService
+public class VaultItemValidatorService(
+    IRepository<VaultItem> repository,
+    IRepository<Group> groupRepository,
+    ILogger<VaultItemValidatorService> logger) : IVaultItemValidatorService
 {
     public async Task<Result> ValidateUpsertAsync(VaultItem vaultItem)
     {
@@ -26,8 +30,20 @@ public class VaultItemValidatorService(IRepository<VaultItem> repository, ILogge
         logger.LogInformation(nameof(ValidateUpsertManyAsync));
 
         Result[] results = await Task.WhenAll(vaultItems.Select(ValidateUpsertInternalAsync));
+        if (results.Any(x => !x.IsSuccessful))
+            return results.ToAggregatedResult(ResultFailureType.BadRequest).Logged(logger);
 
-        return results.ToAggregatedResult().Logged(logger);
+        HashSet<string> duplicateNameConflicts = [..vaultItems
+            .GroupBy(x => x.GroupId)
+            .SelectMany(itemGroup => itemGroup.Select(x => x.Name).Duplicates())];
+
+        if (duplicateNameConflicts.Count > 0)
+        {
+            string message = $"{duplicateNameConflicts.Count} Vault Items have duplicate names:\n- {string.Join("\n- ", duplicateNameConflicts.Select(x => $"\"{x}\""))}";
+            return Result.Failed(ResultFailureType.Conflict, message);
+        }
+
+        return Result.Ok();
     }
 
     private async Task<Result> ValidateUpsertInternalAsync(VaultItem vaultItem)
@@ -47,7 +63,20 @@ public class VaultItemValidatorService(IRepository<VaultItem> repository, ILogge
         });
 
         if (isDuplicate)
-            return Result.Failed<VaultItem>(ResultFailureType.Conflict, $"Another Vault Item named \"{vaultItem.Name}\" already exists.");
+        {
+            var message = $"Another Vault Item named \"{vaultItem.Name}\" already exists";
+            if (vaultItem.GroupId.HasValue)
+                message += " in this group";
+
+            return Result.Failed<VaultItem>(ResultFailureType.Conflict, $"{message}.");
+        }
+
+        if (vaultItem.GroupId.HasValue)
+        {
+            bool groupExists = await groupRepository.HasAnyAsync(new() { Where = x => x.Id == vaultItem.GroupId.Value });
+            if (!groupExists)
+                return Result.Failed(ResultFailureType.NotFound, $"Group ID does not exist ({vaultItem.GroupId.Value}).");
+        }
 
         return Result.Ok();
     }

@@ -1,5 +1,6 @@
 using Avalonia.Interactivity;
 using System;
+using System.Threading.Tasks;
 using VaultKeeper.AvaloniaApplication.ViewModels.Common.Prompts;
 
 namespace VaultKeeper.AvaloniaApplication.Views.Common.Prompts;
@@ -21,5 +22,13 @@ public abstract class ConfirmPromptViewBase<TModel> : PromptViewBase<TModel> whe
             Action = action,
             ViewModel = Model
         });
+    }
+
+    protected async Task InvokeActionAsync(ConfirmPromptAction action)
+    {
+        if (Model == null) return;
+
+        await Model.InvokeActionAsync(action);
+        RaiseEvent(action);
     }
 }

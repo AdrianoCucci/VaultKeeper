@@ -15,6 +15,7 @@
   <Grid RowDefinitions="Auto" ColumnDefinitions="*, Auto">
     <TextBlock Foreground="{DynamicResource SystemControlForegroundAccentBrush}"
                Text="{Binding Model.Name}"
+               MinHeight="32"
                VerticalAlignment="Center"
                Classes="h4"
                Margin="0"
@@ -25,6 +26,7 @@
             Width="32"
             Height="32"
             Classes="btn-text"
+            IsVisible="{Binding !IsReadOnly}"
             Grid.Column="1">
       <PathIcon Data="{StaticResource IconEllipsisVertical}" />
       <Button.Flyout>
@@ -37,6 +39,11 @@
           <MenuItem Header="Add Key" Click="ActionAddKey_Click">
             <MenuItem.Icon>
               <PathIcon Data="{StaticResource IconPlus}" Background="Transparent"/>
+            </MenuItem.Icon>
+          </MenuItem>
+          <MenuItem Header="Export Group" Click="ActionExport_Click">
+            <MenuItem.Icon>
+              <PathIcon Data="{StaticResource IconDownload}" Background="Transparent"/>
             </MenuItem.Icon>
           </MenuItem>
           <Separator Background="{DynamicResource ColorGray400}"/>

@@ -19,7 +19,7 @@ public partial class VaultItemFormView : VaultItemViewBase<VaultItemFormViewMode
     private void RaiseEvent(VaultItemFormAction action)
     {
         if (Model == null) return;
-        RaiseEvent(action, Model.Form);
+        RaiseEvent(action, Model);
     }
 
     private void ActionToggleRevealValue_Click(object? sender, RoutedEventArgs e) => RaiseEvent(VaultItemFormAction.ToggleRevealValue);

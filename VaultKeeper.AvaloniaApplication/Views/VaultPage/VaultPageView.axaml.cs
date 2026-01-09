@@ -1,15 +1,13 @@
 using Avalonia;
 using Avalonia.Controls.Primitives;
-using Avalonia.Input;
 using Avalonia.Interactivity;
 using System.Threading.Tasks;
 using VaultKeeper.AvaloniaApplication.Forms.VaultItems;
-using VaultKeeper.AvaloniaApplication.ViewModels;
-using VaultKeeper.AvaloniaApplication.ViewModels.Common.Prompts;
 using VaultKeeper.AvaloniaApplication.ViewModels.Groups;
 using VaultKeeper.AvaloniaApplication.ViewModels.VaultItems.Common;
+using VaultKeeper.AvaloniaApplication.ViewModels.VaultPage;
 
-namespace VaultKeeper.AvaloniaApplication.Views;
+namespace VaultKeeper.AvaloniaApplication.Views.VaultPage;
 
 public partial class VaultPageView : ViewBase<VaultPageViewModel>
 {
@@ -33,11 +31,18 @@ public partial class VaultPageView : ViewBase<VaultPageViewModel>
             await Model.LoadDataAsync();
     }
 
-    private async void SearchBox_Debounce(object? sender, TextInputEventArgs e) => await LoadDataAsync();
+    private void ButtonNewKey_Click(object? sender, RoutedEventArgs e) => Model?.ShowVaultItemCreateForm();
 
-    private void SortButton_Click(object? sender, RoutedEventArgs e) => Model?.ToggleSortDirection();
+    private void ButtonImportKeys_Click(object? sender, RoutedEventArgs e)
+    {
+        // TODO;
+    }
 
-    private void ButtonNew_Click(object? sender, RoutedEventArgs e) => Model?.ShowVaultItemCreateForm();
+    private async void Toolbar_ActionInvoked(object? sender, VaultPageToolbarEventArgs e)
+    {
+        if (Model != null)
+            await Model.HandleToolbarActionAsync(e);
+    }
 
     private void ButtonCloseSidePane_Click(object? sender, RoutedEventArgs e) => Model?.HideVaultItemCreateForm();
 
@@ -66,8 +71,6 @@ public partial class VaultPageView : ViewBase<VaultPageViewModel>
     }
 
     private void OverlayPanel_OverlayClosed(object? sender, RoutedEventArgs e) => Model?.HideOverlay();
-
-    private async void ConfirmPromptView_ActionInvoked(object? sender, ConfirmPromptEventArgs e) => await e.ViewModel.InvokeActionAsync(e.Action);
 
     private void PromptView_Acknowledged(object? sender, RoutedEventArgs e) => Model?.HideOverlay();
 

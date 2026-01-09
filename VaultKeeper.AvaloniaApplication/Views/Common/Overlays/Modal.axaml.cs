@@ -18,15 +18,27 @@ public class Modal : ContentControl
 
     public static readonly StyledProperty<double> BackdropOpacityProperty = AvaloniaProperty.Register<Modal, double>(nameof(BackdropOpacity), 0.5);
 
+    public static readonly StyledProperty<double> CardWidthProperty = AvaloniaProperty.Register<Modal, double>(nameof(CardWidth), double.NaN);
+
+    public static readonly StyledProperty<double> CardMinWidthProperty = AvaloniaProperty.Register<Modal, double>(nameof(CardMinWidth), double.NaN);
+
+    public static readonly StyledProperty<double> CardMaxWidthProperty = AvaloniaProperty.Register<Modal, double>(nameof(CardMaxWidth), double.NaN);
+
+    public static readonly StyledProperty<double> CardHeightProperty = AvaloniaProperty.Register<Modal, double>(nameof(CardHeight), double.NaN);
+
+    public static readonly StyledProperty<double> CardMinHeightProperty = AvaloniaProperty.Register<Modal, double>(nameof(CardMinHeight), double.NaN);
+
+    public static readonly StyledProperty<double> CardMaxHeightProperty = AvaloniaProperty.Register<Modal, double>(nameof(CardMaxHeight), double.NaN);
+
+    public static readonly StyledProperty<Thickness> CardMarginProperty = AvaloniaProperty.Register<Modal, Thickness>(nameof(CardMargin), new(0));
+
+    public static readonly StyledProperty<Thickness> CardPaddingProperty = AvaloniaProperty.Register<Modal, Thickness>(nameof(CardPadding), new(10));
+
     public static readonly StyledProperty<IBrush?> CardBackgroundProperty = AvaloniaProperty.Register<Modal, IBrush?>(nameof(CardBackground));
 
     public static readonly StyledProperty<HorizontalAlignment> CardHorizontalAlignmentProperty = AvaloniaProperty.Register<Modal, HorizontalAlignment>(nameof(CardHorizontalAlignment), HorizontalAlignment.Center);
 
     public static readonly StyledProperty<VerticalAlignment> CardVerticalAlignmentProperty = AvaloniaProperty.Register<Modal, VerticalAlignment>(nameof(CardHorizontalAlignment), VerticalAlignment.Center);
-
-    public static readonly StyledProperty<Thickness> CardMarginProperty = AvaloniaProperty.Register<Modal, Thickness>(nameof(CardMargin), new(0));
-
-    public static readonly StyledProperty<Thickness> CardPaddingProperty = AvaloniaProperty.Register<Modal, Thickness>(nameof(CardPadding), new(10));
 
     public static readonly StyledProperty<CornerRadius> CardCornerRadiusProperty = AvaloniaProperty.Register<Modal, CornerRadius>(nameof(CardCornerRadius), new(4));
 
@@ -34,11 +46,17 @@ public class Modal : ContentControl
 
     public IBrush? BackdropBackground { get => GetValue(BackdropBackgroundProperty); set => SetValue(BackdropBackgroundProperty, value); }
     public double BackdropOpacity { get => GetValue(BackdropOpacityProperty); set => SetValue(BackdropOpacityProperty, value); }
+    public double CardWidth { get => GetValue(CardWidthProperty); set => SetValue(CardWidthProperty, value); }
+    public double CardMinWidth { get => GetValue(CardMinWidthProperty); set => SetValue(CardMinWidthProperty, value); }
+    public double CardMaxWidth { get => GetValue(CardMaxWidthProperty); set => SetValue(CardMaxWidthProperty, value); }
+    public double CardHeight { get => GetValue(CardHeightProperty); set => SetValue(CardHeightProperty, value); }
+    public double CardMinHeight { get => GetValue(CardMinHeightProperty); set => SetValue(CardMinHeightProperty, value); }
+    public double CardMaxHeight { get => GetValue(CardMaxHeightProperty); set => SetValue(CardMaxHeightProperty, value); }
+    public Thickness CardMargin { get => GetValue(CardMarginProperty); set => SetValue(CardMarginProperty, value); }
+    public Thickness CardPadding { get => GetValue(CardPaddingProperty); set => SetValue(CardPaddingProperty, value); }
     public IBrush? CardBackground { get => GetValue(CardBackgroundProperty); set => SetValue(CardBackgroundProperty, value); }
     public HorizontalAlignment CardHorizontalAlignment { get => GetValue(CardHorizontalAlignmentProperty); set => SetValue(CardHorizontalAlignmentProperty, value); }
     public VerticalAlignment CardVerticalAlignment { get => GetValue(CardVerticalAlignmentProperty); set => SetValue(CardVerticalAlignmentProperty, value); }
-    public Thickness CardMargin { get => GetValue(CardMarginProperty); set => SetValue(CardMarginProperty, value); }
-    public Thickness CardPadding { get => GetValue(CardPaddingProperty); set => SetValue(CardPaddingProperty, value); }
     public CornerRadius CardCornerRadius { get => GetValue(CardCornerRadiusProperty); set => SetValue(CardCornerRadiusProperty, value); }
 
     private Border? _backdrop;

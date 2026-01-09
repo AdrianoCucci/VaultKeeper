@@ -1,0 +1,35 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:vm="using:VaultKeeper.AvaloniaApplication.ViewModels.Groups"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="VaultKeeper.AvaloniaApplication.Views.Groups.GroupSelectInputView"
+             x:DataType="vm:GroupSelectInputViewModel">
+  <Design.DataContext>
+    <vm:GroupSelectInputViewModel/>
+  </Design.DataContext>
+
+  <StackPanel Name="PART_GroupPanel">
+    <Label Target="GroupAutoComplete">Group</Label>
+
+    <AutoCompleteBox Name="GroupAutoComplete"
+                     MinHeight="35"
+                     ItemsSource="{Binding GroupOptions}"
+                     SelectedItem="{Binding SelectedGroup}"
+                     ValueMemberBinding="{Binding Name}"
+                     Text="{Binding InputText}"
+                     FilterMode="Contains">
+    </AutoCompleteBox>
+
+    <TextBlock Margin="0 10 0 0"
+               MaxWidth="400"
+               TextWrapping="Wrap"
+               HorizontalAlignment="Left"
+               Foreground="{DynamicResource SystemAccentColor}"
+               IsVisible="{Binding WillCreateGroup}">
+      Create new "<Run Text="{Binding InputText}" FontWeight="Bold"/>" group.
+    </TextBlock>
+
+  </StackPanel>
+</UserControl>

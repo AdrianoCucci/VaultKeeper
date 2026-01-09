@@ -14,54 +14,58 @@
   </Design.DataContext>
 
   <UserControl.Styles>
-    <Style Selector="Grid SplitButton#SplitButton">
-      <Setter Property="Opacity" Value="0"></Setter>
+    <Style Selector="Grid#PART_Grid SplitButton#PART_SplitButton">
+      <Setter Property="Opacity" Value="0"/>
       <Setter Property="Transitions">
         <Transitions>
-          <DoubleTransition Property="Opacity" Duration="0:0:0.05"/>
+          <DoubleTransition Property="Opacity" Duration="0:0:0:0.1"/>
         </Transitions>
       </Setter>
     </Style>
 
-    <Style Selector=".focused Grid SplitButton#SplitButton">
-      <Setter Property="Opacity" Value="1"></Setter>
+    <Style Selector=".focused Grid#PART_Grid SplitButton#PART_SplitButton">
+      <Setter Property="Opacity" Value="1"/>
     </Style>
   </UserControl.Styles>
 
-  <Grid RowDefinitions="Auto" ColumnDefinitions="Auto, *, Auto">
-    <CheckBox IsVisible="{Binding IsSelectable}" IsChecked="{Binding IsSelected}" Margin="12 0 0 0" Grid.Column="0"/>
+  <Grid Name="PART_Grid" RowDefinitions="Auto" ColumnDefinitions="*, Auto">
+    <TextBlock Text="{Binding Model.Name}"
+               MinHeight="34"
+               Padding="12, 6"
+               VerticalAlignment="Center"
+               Grid.Column="0"/>
 
-    <TextBlock Text="{Binding Model.Name}" Padding="12, 6" VerticalAlignment="Center" Grid.Column="1"></TextBlock>
-
-    <SplitButton Name="SplitButton" Click="ActionCopyValue_Click" Grid.Column="2">
+    <SplitButton Name="PART_SplitButton"
+                 Click="ActionCopyValue_Click"
+                 Grid.Column="1">
       <SplitButton.Styles>
         <Style Selector="SplitButton /template/ Button#PART_PrimaryButton">
           <Setter Property="ToolTip.Tip" Value="Copy value" />
         </Style>
       </SplitButton.Styles>
 
-      <PathIcon Data="{StaticResource IconCopy}"></PathIcon>
+      <PathIcon Data="{StaticResource IconCopy}"/>
       <SplitButton.Flyout>
         <MenuFlyout Placement="BottomEdgeAlignedRight" Opened="MenuFlyout_Opened" Closed="MenuFlyout_Closed">
           <MenuItem Header="Copy name" Click="ActionCopyName_Click">
             <MenuItem.Icon>
-              <PathIcon Data="{StaticResource IconCopy}"></PathIcon>
+              <PathIcon Data="{StaticResource IconCopy}"/>
             </MenuItem.Icon>
           </MenuItem>
           <MenuItem Header="Copy value" Click="ActionCopyValue_Click">
             <MenuItem.Icon>
-              <PathIcon Data="{StaticResource IconCopy}"></PathIcon>
+              <PathIcon Data="{StaticResource IconCopy}"/>
             </MenuItem.Icon>
           </MenuItem>
-          <Separator/>
-          <MenuItem Header="Edit" Click="ActionEdit_Click">
+          <Separator IsVisible="{Binding !IsReadOnly}"/>
+          <MenuItem Header="Edit" IsVisible="{Binding !IsReadOnly}" Click="ActionEdit_Click">
             <MenuItem.Icon>
-              <PathIcon Data="{StaticResource IconPen}"></PathIcon>
+              <PathIcon Data="{StaticResource IconPen}"/>
             </MenuItem.Icon>
           </MenuItem>
-          <MenuItem Header="Delete" Click="ActionDelete_Click">
+          <MenuItem Header="Delete" IsVisible="{Binding !IsReadOnly}" Click="ActionDelete_Click">
             <MenuItem.Icon>
-              <PathIcon Data="{StaticResource IconTrash}"></PathIcon>
+              <PathIcon Data="{StaticResource IconTrash}"/>
             </MenuItem.Icon>
           </MenuItem>
         </MenuFlyout>

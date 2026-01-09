@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using VaultKeeper.AvaloniaApplication.ViewModels.Settings;
+using VaultKeeper.AvaloniaApplication.ViewModels.VaultPage;
 
 namespace VaultKeeper.AvaloniaApplication.ViewModels;
 

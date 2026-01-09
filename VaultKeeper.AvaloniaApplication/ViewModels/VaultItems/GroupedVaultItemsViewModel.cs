@@ -6,7 +6,7 @@ using VaultKeeper.Models.Groups;
 
 namespace VaultKeeper.AvaloniaApplication.ViewModels.VaultItems;
 
-public partial class GroupedVaultItemsViewModel(ObservableCollection<VaultItemViewModelBase> vaultItems, GroupShellViewModel? group) : ViewModelBase
+public partial class GroupedVaultItemsViewModel(ObservableCollection<VaultItemShellViewModel> vaultItems, GroupShellViewModel? group) : ViewModelBase
 {
     public static GroupedVaultItemsViewModel Empty(Group? group = null)
     {
@@ -15,7 +15,7 @@ public partial class GroupedVaultItemsViewModel(ObservableCollection<VaultItemVi
     }
 
     [ObservableProperty]
-    private ObservableCollection<VaultItemViewModelBase> _vaultItems = vaultItems;
+    private ObservableCollection<VaultItemShellViewModel> _vaultItems = vaultItems;
 
     [ObservableProperty, NotifyPropertyChangedFor(nameof(HasGroup), nameof(BorderThickness))]
     private GroupShellViewModel? _group = group;

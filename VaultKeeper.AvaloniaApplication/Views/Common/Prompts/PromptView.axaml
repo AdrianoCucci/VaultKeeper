@@ -1,47 +1,16 @@
 <UserControl xmlns="https://github.com/avaloniaui"
-             xmlns:common="using:VaultKeeper.AvaloniaApplication.Views.Common"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:local="using:VaultKeeper.AvaloniaApplication.Views.Common.Prompts"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             xmlns:prompts="using:VaultKeeper.AvaloniaApplication.ViewModels.Common.Prompts"
-             xmlns:promptViews="using:VaultKeeper.AvaloniaApplication.Views.Common.Prompts"
+             xmlns:vm="using:VaultKeeper.AvaloniaApplication.ViewModels.Common.Prompts"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="VaultKeeper.AvaloniaApplication.Views.Common.Prompts.PromptView"
-             x:DataType="prompts:PromptViewModel"
-             Name="Root">
+             x:DataType="vm:PromptViewModel">
 
-  <StackPanel>
-    <Grid RowDefinitions="Auto" ColumnDefinitions="*, Auto">
-      <TextBlock Text="{Binding Header}"
-                 Margin="0"
-                 Classes="h3"
-                 VerticalAlignment="Center"
-                 Grid.Column="0"/>
+  <Design.DataContext>
+    <vm:PromptViewModel Header="Prompt" Message="This is a prompt message."/>
+  </Design.DataContext>
 
-      <common:AppButton Name="PART_CloseButton"
-                        IconStart="{StaticResource IconX}"
-                        Width="40"
-                        Height="40"
-                        HorizontalAlignment="Right"
-                        VerticalAlignment="Center"
-                        Classes="btn-text"
-                        Click="CloseButton_Click"
-                        Grid.Column="1"/>
-    </Grid>
-
-    <ScrollViewer Margin="0 20 0 0">
-      <StackPanel Spacing="20">
-        <TextBlock Text="{Binding Message}" HorizontalAlignment="Center" TextAlignment="Center" TextWrapping="Wrap"/>
-
-        <common:AppButton Name="PART_OkButton"
-                          IsVisible="{Binding #Root.ShowOkButton}"
-                          HorizontalAlignment="Center"
-                          MinWidth="100"
-                          Text="OK"
-                          Click="OkButton_Click"/>
-
-        <ContentControl Content="{Binding #Root.InnerContent}" />
-      </StackPanel>
-    </ScrollViewer>
-  </StackPanel>
+  <local:Prompt Header="{Binding Header}" Message="{Binding Message}" Acknowledged="Prompt_Acknowledged"/>
 </UserControl>

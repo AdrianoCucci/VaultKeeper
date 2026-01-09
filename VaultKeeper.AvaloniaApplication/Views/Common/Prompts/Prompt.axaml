@@ -1,0 +1,87 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:common="using:VaultKeeper.AvaloniaApplication.Views.Common"
+                    xmlns:controls="using:VaultKeeper.AvaloniaApplication.Views.Common.Prompts">
+
+  <Design.PreviewWith>
+    <StackPanel Width="400" Spacing="10">
+      <StackPanel Background="{DynamicResource SystemRegionBrush}" Spacing="20">
+        <controls:Prompt Header="Prompt" Message="This is a prompt message."/>
+
+        <controls:Prompt Header="Prompt" Message="This is a prompt message.">
+          <controls:Prompt.Content>
+            <TextBlock TextAlignment="Center">Additional content.</TextBlock>
+          </controls:Prompt.Content>
+        </controls:Prompt>
+
+        <controls:Prompt Header="Prompt" Message="This is a prompt message." ShowOkButton="False">
+          <controls:Prompt.Content>
+            <TextBlock TextAlignment="Center">Additional content.</TextBlock>
+          </controls:Prompt.Content>
+
+          <controls:Prompt.FooterContent>
+            <Button HorizontalAlignment="Center">Custom Footer</Button>
+          </controls:Prompt.FooterContent>
+        </controls:Prompt>
+      </StackPanel>
+    </StackPanel>
+  </Design.PreviewWith>
+
+  <ControlTheme x:Key="{x:Type controls:Prompt}" TargetType="controls:Prompt">
+    <Setter Property="ContentMaxHeight" Value="400"/>
+
+    <Setter Property="Template">
+      <ControlTemplate>
+        <StackPanel Spacing="40">
+          <Grid Name="PART_Header" RowDefinitions="Auto" ColumnDefinitions="*, Auto">
+            <TextBlock Text="{TemplateBinding Header}"
+                       Classes="h3"
+                       VerticalAlignment="Center"
+                       Grid.Column="0">
+
+              <TextBlock.Styles>
+                <Style Selector="TextBlock.h3">
+                  <Setter Property="Margin" Value="0"/>
+                </Style>
+              </TextBlock.Styles>
+            </TextBlock>
+
+            <common:AppButton Name="PART_CloseButton"
+                              IconStart="{StaticResource IconX}"
+                              Width="40"
+                              Height="40"
+                              HorizontalAlignment="Right"
+                              VerticalAlignment="Center"
+                              Classes="btn-text"
+                              Grid.Column="1"/>
+          </Grid>
+
+          <ScrollViewer Name="PART_InnerContent"
+                        Width="{TemplateBinding ContentWidth}"
+                        MinWidth="{TemplateBinding ContentMinWidth}"
+                        MaxWidth="{TemplateBinding ContentMaxWidth}"
+                        Height="{TemplateBinding ContentHeight}"
+                        MinHeight="{TemplateBinding ContentMinHeight}"
+                        MaxHeight="{TemplateBinding ContentMaxHeight}">
+            <StackPanel Spacing="20">
+              <TextBlock Text="{TemplateBinding Message}" HorizontalAlignment="Center" TextAlignment="Center" TextWrapping="Wrap"/>
+              <ContentControl Content="{TemplateBinding Content}"
+                              ContentTemplate="{TemplateBinding ContentTemplate}"
+                              IsVisible="{TemplateBinding HasContent}" />
+            </StackPanel>
+          </ScrollViewer>
+
+          <StackPanel Name="PART_Footer">
+            <common:AppButton Name="PART_OkButton"
+                              IsVisible="{TemplateBinding ShowOkButton}"
+                              HorizontalAlignment="Center"
+                              MinWidth="100"
+                              Text="OK"/>
+            <ContentControl Content="{TemplateBinding FooterContent}" ContentTemplate="{TemplateBinding FooterContentTemplate}" />
+          </StackPanel>
+
+        </StackPanel>
+      </ControlTemplate>
+    </Setter>
+  </ControlTheme>
+</ResourceDictionary>

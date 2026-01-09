@@ -4,6 +4,7 @@ public enum GroupAction
 {
     Edit,
     AddItem,
+    Export,
     Delete,
     CancelEdit,
     ConfirmEdit,

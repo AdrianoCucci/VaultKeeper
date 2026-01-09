@@ -2,7 +2,7 @@
              xmlns:common="using:VaultKeeper.AvaloniaApplication.Views.Common"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             xmlns:groups="using:VaultKeeper.Models.Groups"
+             xmlns:groups="using:VaultKeeper.AvaloniaApplication.Views.Groups"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:settings-views="using:VaultKeeper.AvaloniaApplication.ViewModels.Settings"
              xmlns:settings-vms="using:VaultKeeper.AvaloniaApplication.Views.Settings"
@@ -28,7 +28,7 @@
       <Setter Property="Grid.Column" Value="1"></Setter>
       <Setter Property="Grid.ColumnSpan" Value="1"></Setter>
     </Style>
-    <Style Selector=":not(.vertical-layout) StackPanel#PART_GroupPanel">
+    <Style Selector=":not(.vertical-layout) Panel#PART_GroupPanel">
       <Setter Property="Grid.Row" Value="0"></Setter>
       <Setter Property="Grid.Column" Value="2"></Setter>
       <Setter Property="Grid.ColumnSpan" Value="1"></Setter>
@@ -48,7 +48,7 @@
       <Setter Property="Grid.Column" Value="0"></Setter>
       <Setter Property="Grid.ColumnSpan" Value="3"></Setter>
     </Style>
-    <Style Selector=".vertical-layout StackPanel#PART_GroupPanel">
+    <Style Selector=".vertical-layout Panel#PART_GroupPanel">
       <Setter Property="Grid.Row" Value="2"></Setter>
       <Setter Property="Grid.Column" Value="0"></Setter>
       <Setter Property="Grid.ColumnSpan" Value="4"></Setter>
@@ -93,27 +93,23 @@
                IsReadOnly="{Binding !ValueRevealed}">
 
         <TextBox.InnerLeftContent>
-          <Button IsVisible="{Binding IsValueRevealToggleVisible}"
-                  Classes.unlocked="{Binding ValueRevealed}"
-                  Click="ActionToggleRevealValue_Click">
-            <Button.Styles>
-              <Style Selector="Button">
-                <Setter Property="ToolTip.Tip" Value="Show Value"></Setter>
-              </Style>
-              <Style Selector="PathIcon">
-                <Setter Property="Data" Value="{StaticResource IconLockClosed}"></Setter>
+          <common:AppButton IsVisible="{Binding IsValueRevealToggleVisible}"
+                            Width="34"
+                            IconStartSize="16"
+                            Classes.unlocked="{Binding ValueRevealed}"
+                            Click="ActionToggleRevealValue_Click">
+            <common:AppButton.Styles>
+              <Style Selector="common|AppButton">
+                <Setter Property="IconStart" Value="{StaticResource IconLockClosed}"/>
+                <Setter Property="ToolTip.Tip" Value="Show Value"/>
               </Style>
 
-              <Style Selector="Button.unlocked">
+              <Style Selector="common|AppButton.unlocked">
+                <Setter Property="IconStart" Value="{StaticResource IconLockOpened}"/>
                 <Setter Property="ToolTip.Tip" Value="Hide Value"></Setter>
               </Style>
-              <Style Selector="Button.unlocked PathIcon">
-                <Setter Property="Data" Value="{StaticResource IconLockOpened}"></Setter>
-              </Style>
-            </Button.Styles>
-
-            <PathIcon/>
-          </Button>
+            </common:AppButton.Styles>
+          </common:AppButton>
         </TextBox.InnerLeftContent>
 
         <TextBox.InnerRightContent>
@@ -155,28 +151,9 @@
       </ItemsControl>
     </StackPanel>
 
-    <StackPanel Name="PART_GroupPanel">
-      <Label Target="GroupAutoComplete">Group</Label>
-
-      <AutoCompleteBox Name="GroupAutoComplete"
-                       MinHeight="35"
-                       ItemsSource="{Binding Form.GroupOptions}"
-                       SelectedItem="{Binding Form.SelectedGroup}"
-                       ValueMemberBinding="{Binding Name}"
-                       Text="{Binding Form.GroupName}"
-                       FilterMode="Contains">
-      </AutoCompleteBox>
-
-      <TextBlock Margin="0 10 0 0"
-                 MaxWidth="400"
-                 TextWrapping="Wrap"
-                 HorizontalAlignment="Left"
-                 Foreground="{DynamicResource SystemAccentColor}"
-                 IsVisible="{Binding Form.WillCreateGroup}">
-        Create new "<Run Text="{Binding Form.GroupName}" FontWeight="Bold"/>" group.
-      </TextBlock>
-
-    </StackPanel>
+    <Panel Name="PART_GroupPanel">
+      <groups:GroupSelectInputView DataContext="{Binding Form.GroupInputVM}"/>
+    </Panel>
 
     <common:FormButtons Margin="0 20"
                         SubmitButtonText="Save"
