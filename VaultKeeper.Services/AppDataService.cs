@@ -358,12 +358,12 @@ public class AppDataService(
 
     private void UpdateUserCaches(UserData userData, UserSettings? userSettings)
     {
-        userDataCache.Set(userData);
+        userDataCache.Set(userData with { });
 
         if (userSettings == null)
             userSettingsCache.Clear();
         else
-            userSettingsCache.Set(userSettings);
+            userSettingsCache.Set(userSettings with { });
     }
 
     private async Task UpdateEntityRepositoriesAsync(EntityData entityData) => await Task.WhenAll(

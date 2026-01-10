@@ -1,4 +1,4 @@
-﻿namespace VaultKeeper.AvaloniaApplication.Forms.VaultItems;
+﻿namespace VaultKeeper.Models.VaultItems;
 
 public enum VaultItemFormAction
 {

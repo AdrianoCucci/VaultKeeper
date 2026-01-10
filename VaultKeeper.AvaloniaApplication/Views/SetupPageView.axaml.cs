@@ -1,5 +1,7 @@
 using Avalonia.Interactivity;
 using System;
+using VaultKeeper.AvaloniaApplication.Forms;
+using VaultKeeper.AvaloniaApplication.Forms.Common;
 using VaultKeeper.AvaloniaApplication.ViewModels;
 
 namespace VaultKeeper.AvaloniaApplication.Views;
@@ -17,11 +19,11 @@ public partial class SetupPageView : ViewBase<SetupPageViewModel>
 
     public SetupPageView() => InitializeComponent();
 
-    private async void SubmitButton_Click(object? sender, RoutedEventArgs e)
+    private async void SetPasswordFormView_Submitted(object? sender, FormActionEventArgs<SetPasswordForm> e)
     {
         if (Model == null) return;
-        bool didComplete = await Model.SubmitFormAsync();
 
+        bool didComplete = await Model.ProcessFormSubmissionAsync(e.Form);
         if (didComplete)
             RaiseEvent(new(SetupCompletedEvent, this));
     }
@@ -29,8 +31,8 @@ public partial class SetupPageView : ViewBase<SetupPageViewModel>
     private async void ImportDataButton_Click(object? sender, RoutedEventArgs e)
     {
         if (Model == null) return;
-        bool didComplete = await Model.ImportBackupDataAsync();
 
+        bool didComplete = await Model.ImportBackupDataAsync();
         if (didComplete)
             RaiseEvent(new(SetupCompletedEvent, this));
     }

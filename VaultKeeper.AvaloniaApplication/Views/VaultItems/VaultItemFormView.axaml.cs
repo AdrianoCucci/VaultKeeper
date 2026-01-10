@@ -1,8 +1,8 @@
 using Avalonia.Interactivity;
 using System;
 using VaultKeeper.AvaloniaApplication.Extensions;
-using VaultKeeper.AvaloniaApplication.Forms.VaultItems;
 using VaultKeeper.AvaloniaApplication.ViewModels.VaultItems;
+using VaultKeeper.Models.VaultItems;
 
 namespace VaultKeeper.AvaloniaApplication.Views.VaultItems;
 

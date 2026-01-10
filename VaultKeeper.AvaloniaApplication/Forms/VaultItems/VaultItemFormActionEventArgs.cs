@@ -2,6 +2,7 @@ using Avalonia.Interactivity;
 using System.Diagnostics.CodeAnalysis;
 using VaultKeeper.AvaloniaApplication.ViewModels.VaultItems;
 using VaultKeeper.AvaloniaApplication.ViewModels.VaultItems.Common;
+using VaultKeeper.Models.VaultItems;
 
 namespace VaultKeeper.AvaloniaApplication.Forms.VaultItems;
 

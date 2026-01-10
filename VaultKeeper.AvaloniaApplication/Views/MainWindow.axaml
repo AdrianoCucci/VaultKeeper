@@ -19,9 +19,8 @@
         MinWidth="500"
         MinHeight="500">
 
-  <overlays:OverlayPanel IsOverlayVisible="{Binding IsOverlayVisible}">
-
-    <TransitioningContentControl Content="{Binding Content}" IsVisible="{Binding !IsInitializing}">
+  <overlays:OverlayPanel IsVisible="{Binding !IsInitializing}" IsOverlayVisible="{Binding IsOverlayVisible}">
+    <TransitioningContentControl Content="{Binding Content}" Grid.Row="0">
       <TransitioningContentControl.DataTemplates>
         <DataTemplate DataType="vm:SetupPageViewModel">
           <local:SetupPageView SetupCompleted="SetupView_SetupCompleted"
@@ -47,4 +46,5 @@
       </overlays:Modal>
     </overlays:OverlayPanel.OverlayContent>
   </overlays:OverlayPanel>
+
 </Window>

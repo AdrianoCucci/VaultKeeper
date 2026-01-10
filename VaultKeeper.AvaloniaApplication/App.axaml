@@ -18,6 +18,7 @@
         <ResourceInclude Source="/Theme/Controls.axaml"/>
       </ResourceDictionary.MergedDictionaries>
 
+      <sys:String x:Key="AppVersion">1.0.0</sys:String>
       <sys:String x:Key="AppName">Vault Keeper</sys:String>
       <StaticResource x:Key="AppIconData" ResourceKey="IconVault"/>
 

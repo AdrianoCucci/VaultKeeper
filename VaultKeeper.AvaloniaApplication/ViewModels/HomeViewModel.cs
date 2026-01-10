@@ -7,9 +7,12 @@ using System.Threading.Tasks;
 using VaultKeeper.AvaloniaApplication.Abstractions;
 using VaultKeeper.AvaloniaApplication.Constants;
 using VaultKeeper.AvaloniaApplication.Extensions;
+using VaultKeeper.AvaloniaApplication.Forms;
 using VaultKeeper.AvaloniaApplication.ViewModels.Common;
+using VaultKeeper.AvaloniaApplication.ViewModels.Common.Prompts;
 using VaultKeeper.AvaloniaApplication.ViewModels.Settings;
 using VaultKeeper.AvaloniaApplication.ViewModels.VaultPage;
+using VaultKeeper.Common.Results;
 using VaultKeeper.Models.Errors;
 using VaultKeeper.Models.Navigation;
 using VaultKeeper.Services.Abstractions;
@@ -28,13 +31,21 @@ public partial class HomeViewModel : ViewModelBase
     [ObservableProperty]
     private object? _content;
 
+    [ObservableProperty]
+    private bool _isOverlayVisible;
+
+    [ObservableProperty]
+    private object? _overlayContent;
+
     private readonly INavigator _navigator;
     private readonly IAppSessionService _appSessionService;
+    private readonly IUserDataService _userDataService;
     private readonly IErrorReportingService _errorReportingService;
 
     public HomeViewModel(
         INavigatorFactory navFactory,
         IAppSessionService appSessionService,
+        IUserDataService userDataService,
         IApplicationService applicationService,
         IErrorReportingService errorReportingService)
     {
@@ -58,6 +69,7 @@ public partial class HomeViewModel : ViewModelBase
 
         _navigator = navFactory.GetRequiredNavigator(nameof(HomeViewModel));
         _appSessionService = appSessionService;
+        _userDataService = userDataService;
         _errorReportingService = errorReportingService;
 
         _navigator.Navigated += Navigator_Navigated;
@@ -69,6 +81,7 @@ public partial class HomeViewModel : ViewModelBase
     {
         _navigator = null!;
         _appSessionService = null!;
+        _userDataService = null!;
         _errorReportingService = null!;
         _selectedTab = null!;
         _tabNavItems = [];
@@ -94,6 +107,65 @@ public partial class HomeViewModel : ViewModelBase
         string? tabKey = SelectedTab?.Model.Key;
         if (tabKey != null)
             _navigator?.Navigate(tabKey);
+    }
+
+    public void ShowOverlay(object content)
+    {
+        OverlayContent = content;
+        IsOverlayVisible = true;
+    }
+
+    public void HideOverlay()
+    {
+        IsOverlayVisible = false;
+        OverlayContent = null;
+    }
+
+    public void ShowChangePasswordForm()
+    {
+        if (_userDataService == null) return;
+
+        ShowOverlay(new ChangePasswordConfirmPromptViewModel()
+        {
+            Header = "Change Password",
+            Message = "Change your main login password using the form below.",
+            CancelAction = HideOverlay,
+            ConfirmAction = async vm =>
+            {
+                ChangePasswordForm form = (vm as ChangePasswordConfirmPromptViewModel)!.FormVM.Form;
+                Result changePasswordResult = await _userDataService.ChangeMainPasswordAsync(form.CurrentPassword!, form.Password!);
+
+                if (!changePasswordResult.IsSuccessful)
+                {
+                    if (changePasswordResult.FailureType == ResultFailureType.BadRequest)
+                    {
+                        _errorReportingService.ReportError(new()
+                        {
+                            Header = "Failed to Change Password",
+                            Message = changePasswordResult.Message!,
+                            Source = ErrorSource.User
+                        });
+                    }
+                    else
+                    {
+                        _errorReportingService.ReportError(new()
+                        {
+                            Header = "Failed to Change Password",
+                            Message = $"({changePasswordResult.FailureType}) - {changePasswordResult.Message}",
+                            Severity = ErrorSeverity.Critical
+                        });
+                    }
+
+                    return;
+                }
+
+                ShowOverlay(new PromptViewModel
+                {
+                    Header = "Passsword Changed",
+                    Message = "Main login password changed successfully."
+                });
+            }
+        });
     }
 
     public async Task LogoutAsync()

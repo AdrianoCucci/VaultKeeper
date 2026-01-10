@@ -51,6 +51,8 @@
                 VerticalAlignment="{TemplateBinding VerticalAlignment}"
                 Background="{TemplateBinding Background}"
                 Foreground="{TemplateBinding Foreground}"
+                BorderBrush="{TemplateBinding BorderBrush}"
+                BorderThickness="{TemplateBinding BorderThickness}"
                 CornerRadius="{TemplateBinding CornerRadius}"
                 Flyout="{TemplateBinding Flyout}">
           <StackPanel HorizontalAlignment="Center" Orientation="{TemplateBinding Orientation}" Spacing="{TemplateBinding Spacing}">
