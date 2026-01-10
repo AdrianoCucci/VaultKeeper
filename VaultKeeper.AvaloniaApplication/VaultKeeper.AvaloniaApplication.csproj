@@ -37,13 +37,4 @@
     <ProjectReference Include="..\VaultKeeper.Services\VaultKeeper.Services.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Compile Update="Views\ChangePasswordFormView.axaml.cs">
-      <DependentUpon>ChangePasswordFormView.axaml</DependentUpon>
-    </Compile>
-    <Compile Update="Views\Common\Prompts\ChangePasswordConfirmPromptView.axaml.cs">
-      <DependentUpon>ChangePasswordConfirmPromptView.axaml</DependentUpon>
-    </Compile>
-  </ItemGroup>
-
 </Project>
