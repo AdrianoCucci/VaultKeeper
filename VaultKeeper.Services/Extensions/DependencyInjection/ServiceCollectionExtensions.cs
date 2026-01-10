@@ -38,8 +38,9 @@ public static class ServiceCollectionExtensions
             .AddSingleton<IFileService, FileService>()
             .AddSingleton<IAppDataService, AppDataService>()
             .AddSingleton<IAppSessionService, AppSessionService>()
-            .AddSingleton<ICharSetService, CharSetService>()
+            .AddSingleton<IUserDataService, UserDataService>()
             .AddSingleton<IUserSettingsService, UserSettingsService>()
+            .AddSingleton<ICharSetService, CharSetService>()
             .AddSingleton<IKeyGeneratorService, KeyGeneratorService>()
 
             .AddScoped<IVaultItemService, VaultItemService>()

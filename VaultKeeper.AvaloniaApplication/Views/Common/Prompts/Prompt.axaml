@@ -33,7 +33,7 @@
     <Setter Property="Template">
       <ControlTemplate>
         <StackPanel Spacing="40">
-          <Grid Name="PART_Header" RowDefinitions="Auto" ColumnDefinitions="*, Auto">
+          <Grid Name="PART_Header" RowDefinitions="Auto" ColumnDefinitions="*, Auto" ColumnSpacing="20">
             <TextBlock Text="{TemplateBinding Header}"
                        Classes="h3"
                        VerticalAlignment="Center"

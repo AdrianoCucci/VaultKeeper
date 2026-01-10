@@ -27,6 +27,7 @@ public static class Icons
     public const string RightFromBracket = $"{_prefix}RightFromBracket";
     public const string WandMagicSparkles = $"{_prefix}WandMagicSparkles";
     public const string ChevronDown = $"{_prefix}ChevronDown";
+    public const string Key = $"{_prefix}Key";
 
     private const string _prefix = "Icon";
 }

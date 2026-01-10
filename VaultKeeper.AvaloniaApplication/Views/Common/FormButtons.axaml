@@ -40,6 +40,8 @@
                               IconStart="{TemplateBinding SubmitButtonIcon}"
                               IsEnabled="{TemplateBinding IsSubmitButtonEnabled}"
                               HorizontalAlignment="Stretch"
+                              BorderThickness="2"
+                              BorderBrush="{DynamicResource SystemBaseLowColor}"
                               Grid.Column="1"/>
         </Grid>
       </ControlTemplate>

@@ -4,6 +4,7 @@ using VaultKeeper.AvaloniaApplication.Forms.VaultItems;
 using VaultKeeper.AvaloniaApplication.ViewModels;
 using VaultKeeper.AvaloniaApplication.ViewModels.VaultItems;
 using VaultKeeper.AvaloniaApplication.ViewModels.VaultItems.Common;
+using VaultKeeper.Models.VaultItems;
 
 namespace VaultKeeper.AvaloniaApplication.Views.VaultItems;
 

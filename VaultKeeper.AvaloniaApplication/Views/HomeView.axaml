@@ -5,6 +5,9 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:local="using:VaultKeeper.AvaloniaApplication.Views"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:overlays="using:VaultKeeper.AvaloniaApplication.Views.Common.Overlays"
+             xmlns:prompts="using:VaultKeeper.AvaloniaApplication.Views.Common.Prompts"
+             xmlns:promptVMs="using:VaultKeeper.AvaloniaApplication.ViewModels.Common.Prompts"
              xmlns:vaultpage="using:VaultKeeper.AvaloniaApplication.Views.VaultPage"
              xmlns:vaultpageVM="using:VaultKeeper.AvaloniaApplication.ViewModels.VaultPage"
              xmlns:vm="using:VaultKeeper.AvaloniaApplication.ViewModels"
@@ -15,57 +18,82 @@
     <x:Static Member="vm:HomeViewModel.Design"/>
   </Design.DataContext>
 
-  <Grid ColumnDefinitions="*" RowDefinitions="Auto, Auto, *, Auto">
-    <Border BorderThickness="2" Height="25" BorderBrush="Black" Grid.Row="0">
-      <TextBlock>Header</TextBlock>
-    </Border>
+  <overlays:OverlayPanel IsOverlayVisible="{Binding IsOverlayVisible}">
+    <Grid ColumnDefinitions="*" RowDefinitions="Auto, Auto, *, Auto">
 
-    <Border Padding="20 10" Grid.Row="1">
-      <Grid RowDefinitions="Auto" ColumnDefinitions="*, Auto">
-        <TabStrip ItemsSource="{Binding TabNavItems}"
-                  SelectedItem="{Binding SelectedTab}"
-                  SelectionChanged="TabStrip_SelectionChanged"
-                  Grid.Column="0">
+      <Border Background="{DynamicResource SystemControlBackgroundBaseLowBrush}" Grid.Row="1">
+        <Border Padding="20 10"
+                Margin="20"
+                Background="{DynamicResource SystemRegionBrush}"
+                CornerRadius="8">
+          <Grid RowDefinitions="Auto" ColumnDefinitions="*, Auto">
+            <TabStrip ItemsSource="{Binding TabNavItems}"
+                      SelectedItem="{Binding SelectedTab}"
+                      SelectionChanged="TabStrip_SelectionChanged"
+                      Grid.Column="0">
 
-          <TabStrip.ItemTemplate>
-            <DataTemplate x:DataType="common:NavItemViewModel">
-              <StackPanel Orientation="Horizontal"
-                          Spacing="12"
-                          Background="Transparent"
-                          VerticalAlignment="Center">
-                <PathIcon Data="{Binding Icon}"/>
-                <TextBlock Text="{Binding Label}"/>
-              </StackPanel>
+              <TabStrip.ItemTemplate>
+                <DataTemplate x:DataType="common:NavItemViewModel">
+                  <StackPanel Orientation="Horizontal"
+                              Spacing="12"
+                              Background="Transparent"
+                              VerticalAlignment="Center">
+                    <PathIcon Data="{Binding Icon}"/>
+                    <TextBlock Text="{Binding Label}"/>
+                  </StackPanel>
+                </DataTemplate>
+              </TabStrip.ItemTemplate>
+
+              <TabStrip.Styles>
+                <Style Selector="TabStrip TabStripItem">
+                  <Setter Property="Cursor" Value="Hand"/>
+                </Style>
+              </TabStrip.Styles>
+            </TabStrip>
+
+            <StackPanel Orientation="Horizontal"
+                        VerticalAlignment="Center"
+                        Spacing="-1"
+                        Grid.Column="1">
+              <common-views:AppButton Text="Change Password"
+                                      IconStart="{StaticResource IconKey}"
+                                      CornerRadius="4 0 0 4"
+                                      Click="ChangePasswordButton_Click"/>
+
+              <common-views:AppButton Text="Logout"
+                                      IconStart="{StaticResource IconRightFromBracket}"
+                                      CornerRadius="0 4 4 0"
+                                      Click="LogoutButton_Click"/>
+            </StackPanel>
+
+          </Grid>
+        </Border>
+      </Border>
+
+      <Border Grid.Row="2">
+        <TransitioningContentControl Content="{Binding Content}">
+          <TransitioningContentControl.DataTemplates>
+            <DataTemplate DataType="vaultpageVM:VaultPageViewModel">
+              <vaultpage:VaultPageView/>
             </DataTemplate>
-          </TabStrip.ItemTemplate>
+          </TransitioningContentControl.DataTemplates>
+        </TransitioningContentControl>
+      </Border>
 
-          <TabStrip.Styles>
-            <Style Selector="TabStrip TabStripItem">
-              <Setter Property="Cursor" Value="Hand"/>
-            </Style>
-          </TabStrip.Styles>
-        </TabStrip>
+    </Grid>
 
-        <common-views:AppButton Text="Logout"
-                                IconStart="{StaticResource IconRightFromBracket}"
-                                VerticalAlignment="Center"
-                                Grid.Column="1"
-                                Click="LogoutButton_Click"/>
-      </Grid>
-    </Border>
-
-    <Border BorderThickness="2" BorderBrush="Black" Grid.Row="2">
-      <TransitioningContentControl Content="{Binding Content}">
-        <TransitioningContentControl.DataTemplates>
-          <DataTemplate DataType="vaultpageVM:VaultPageViewModel">
-            <vaultpage:VaultPageView/>
+    <overlays:OverlayPanel.OverlayContent>
+      <overlays:Modal Content="{Binding OverlayContent}">
+        <overlays:Modal.DataTemplates>
+          <DataTemplate x:DataType="promptVMs:ChangePasswordConfirmPromptViewModel">
+            <prompts:ChangePasswordConfirmPromptView/>
           </DataTemplate>
-        </TransitioningContentControl.DataTemplates>
-      </TransitioningContentControl>
-    </Border>
 
-    <Border BorderThickness="2" Height="25" BorderBrush="Black" Grid.Row="3">
-      <TextBlock>Footer</TextBlock>
-    </Border>
-  </Grid>
+          <DataTemplate x:DataType="promptVMs:PromptViewModel">
+            <prompts:PromptView Acknowledged="PromptView_Acknowledged"/>
+          </DataTemplate>
+        </overlays:Modal.DataTemplates>
+      </overlays:Modal>
+    </overlays:OverlayPanel.OverlayContent>
+  </overlays:OverlayPanel>
 </UserControl>

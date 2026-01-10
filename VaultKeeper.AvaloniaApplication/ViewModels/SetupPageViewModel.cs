@@ -1,10 +1,10 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
-using System;
 using System.Threading.Tasks;
 using VaultKeeper.AvaloniaApplication.Abstractions;
 using VaultKeeper.AvaloniaApplication.Forms;
 using VaultKeeper.Common.Results;
 using VaultKeeper.Models.ApplicationData;
+using VaultKeeper.Models.Errors;
 using VaultKeeper.Models.Navigation.Extensions;
 using VaultKeeper.Services.Abstractions;
 using VaultKeeper.Services.Abstractions.Navigation;
@@ -13,56 +13,60 @@ namespace VaultKeeper.AvaloniaApplication.ViewModels;
 
 public partial class SetupPageViewModel : ViewModelBase
 {
-    public SetupForm Form { get; } = new();
+    public SetPasswordFormViewModel SetPasswordFormVM { get; } = new();
 
     [ObservableProperty]
     private bool _canNavigateBack = false;
 
-    private readonly IAppDataService _appDataService;
-    private readonly ISecurityService _securityService;
+    private readonly IUserDataService _userDataService;
     private readonly IBackupService _backupService;
+    private readonly IErrorReportingService _errorReportingService;
 
     public SetupPageViewModel(
-        IAppDataService appDataService,
-        ISecurityService securityService,
+        IUserDataService userDataService,
         IBackupService backupService,
+        IErrorReportingService errorReportingService,
         INavigatorFactory? navFactory = null)
     {
-        _appDataService = appDataService;
-        _securityService = securityService;
+        _userDataService = userDataService;
         _backupService = backupService;
+        _errorReportingService = errorReportingService;
 
         INavigator? navigator = navFactory?.GetNavigator(nameof(MainWindowViewModel));
         if (navigator != null)
             _canNavigateBack = navigator.CurrentRoute.GetParamOrDefault<bool>(nameof(CanNavigateBack));
     }
 
-    public async Task<bool> SubmitFormAsync()
+    public async Task<bool> ProcessFormSubmissionAsync(SetPasswordForm form)
     {
-        if (!Form.Validate()) return false;
+        Result setPasswordResult = await _userDataService.SetMainPasswordAsync(form.Password!);
+        bool isSuccessful = setPasswordResult.IsSuccessful;
 
-        Result<string> hashPasswordResult = _securityService.CreateHash(Form.PasswordInput!);
-        if (!hashPasswordResult.IsSuccessful)
-            throw new Exception($"{nameof(SetupPageViewModel)}: Failed to submit form: {hashPasswordResult.Message}", hashPasswordResult.Exception);
-
-        UserData userData = new()
+        if (!isSuccessful)
         {
-            UserId = Guid.NewGuid(),
-            MainPasswordHash = hashPasswordResult.Value!
-        };
+            _errorReportingService.ReportError(new()
+            {
+                Header = "Failed to Set Password",
+                Message = $"({setPasswordResult.FailureType}) - {setPasswordResult.Message}",
+                Severity = ErrorSeverity.Critical
+            });
+        }
 
-        Result<SavedData<UserData>?> saveUserDataResult = await _appDataService.SaveUserDataAsync(userData, updateCaches: true);
-        if (!saveUserDataResult.IsSuccessful)
-            throw new Exception($"{nameof(SetupPageViewModel)}: Failed to submit form: {hashPasswordResult.Message}", saveUserDataResult.Exception);
-
-        return true;
+        return isSuccessful;
     }
 
     public async Task<bool> ImportBackupDataAsync()
     {
         Result<BackupData?> loadBackupResult = await _backupService.LoadBackupFromFilePickerAsync();
         if (!loadBackupResult.IsSuccessful)
-            throw new Exception($"{nameof(SetupPageViewModel)}: Failed to load backup data: {loadBackupResult.Message}", loadBackupResult.Exception);
+        {
+            _errorReportingService.ReportError(new()
+            {
+                Header = "Failed to Import Backup",
+                Message = $"({loadBackupResult.FailureType}) - {loadBackupResult.Message}",
+                Severity = ErrorSeverity.Critical
+            });
+        }
 
         return loadBackupResult.Value != null;
     }
