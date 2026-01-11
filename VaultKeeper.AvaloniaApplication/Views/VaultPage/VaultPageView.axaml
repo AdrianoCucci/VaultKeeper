@@ -124,7 +124,7 @@
                       BackdropPressed="Modal_BackdropPressed">
         <overlays:Modal.DataTemplates>
           <DataTemplate x:DataType="importingVMs:VaultItemImportViewModel">
-            <importing:VaultItemImportView Padding="20" MaxWidth="1000" ImportSuccess="VaultItemImportView_ImportSuccess"/>
+            <importing:VaultItemImportView Padding="20" MaxWidth="1000" ProcessSucceeded="VaultItemImportView_ProcessSucceeded"/>
           </DataTemplate>
 
           <DataTemplate x:DataType="promptVMs:DeleteGroupConfirmPromptViewModel">

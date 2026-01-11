@@ -73,7 +73,7 @@ public partial class VaultPageView : ViewBase<VaultPageViewModel>
 
     private void Modal_BackdropPressed(object? sender, RoutedEventArgs e) => Model?.HideOverlay();
 
-    private async void VaultItemImportView_ImportSuccess(object? sender, RoutedEventArgs e)
+    private async void VaultItemImportView_ProcessSucceeded(object? sender, RoutedEventArgs e)
     {
         if (Model is not VaultPageViewModel model) return;
 

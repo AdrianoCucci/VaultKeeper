@@ -8,17 +8,37 @@
              mc:Ignorable="d" d:DesignWidth="1000" d:DesignHeight="450"
              x:Class="VaultKeeper.AvaloniaApplication.Views.Importing.VaultItemImportView"
              x:DataType="vm:VaultItemImportViewModel"
+             Name="Root"
+             Classes.export="{Binding IsExportMode}"
              LayoutUpdated="Self_LayoutUpdated">
+
+  <UserControl.Styles>
+    <Style Selector="TextBlock#PART_Header">
+      <Setter Property="Text" Value="Where are you importing keys from?"/>
+    </Style>
+    <Style Selector="common|AppButton#PART_Button">
+      <Setter Property="Text" Value="Import File"/>
+      <Setter Property="IconStart" Value="{StaticResource IconUpload}"/>
+    </Style>
+
+    <Style Selector="#Root.export TextBlock#PART_Header">
+      <Setter Property="Text" Value="What format do you want to export to?"/>
+    </Style>
+    <Style Selector="#Root.export common|AppButton#PART_Button">
+      <Setter Property="Text" Value="Export File"/>
+      <Setter Property="IconStart" Value="{StaticResource IconDownload}"/>
+    </Style>
+  </UserControl.Styles>
 
   <Design.DataContext>
     <x:Static Member="vm:VaultItemImportViewModel.Design"/>
   </Design.DataContext>
 
   <StackPanel Spacing="10">
-    <TextBlock Classes="h3" TextAlignment="Center">Where are you importing keys from?</TextBlock>
+    <TextBlock Name="PART_Header" Classes="h3" TextAlignment="Center"/>
 
-    <ListBox ItemsSource="{Binding ImportSources}"
-             SelectedItem="{Binding SelectedImportSource}"
+    <ListBox ItemsSource="{Binding Sources}"
+             SelectedItem="{Binding SelectedSource}"
              Margin="20"
              CornerRadius="8"
              Cursor="Hand">
@@ -68,10 +88,10 @@
       </ListBox.ItemTemplate>
     </ListBox>
 
-    <common:AppButton Text="Import File"
-                      IconStart="{StaticResource IconUpload}"
+    <common:AppButton Name="PART_Button"
+                      IsEnabled="{Binding !IsProcessing}"
                       MinWidth="200"
                       HorizontalAlignment="Center"
-                      Click="ImportButton_Click"/>
+                      Click="Button_Click"/>
   </StackPanel>
 </UserControl>

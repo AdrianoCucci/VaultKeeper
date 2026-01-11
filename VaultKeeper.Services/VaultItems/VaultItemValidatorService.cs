@@ -29,7 +29,7 @@ public class VaultItemValidatorService(
     {
         logger.LogInformation(nameof(ValidateUpsertManyAsync));
 
-        HashSet<string> duplicateNameConflicts = [.. vaultItems.DuplicatesBy(x => x.Name).Select(x => x.Name)];
+        HashSet<string> duplicateNameConflicts = [.. vaultItems.DuplicatesBy(x => new { x.Name, x.GroupId }).Select(x => x.Name)];
         if (duplicateNameConflicts.Count > 0)
         {
             string message = $"{duplicateNameConflicts.Count} Vault Items have duplicate names:\n- {string.Join("\n- ", duplicateNameConflicts.Select(x => $"\"{x}\""))}";

@@ -25,6 +25,7 @@ public class ImportService(
     ICsvService csvService,
     IGroupService groupService,
     IVaultItemService vaultItemService,
+    ISecurityService securityService,
     IAppDataService appDataService) : IImportService
 {
     private static ImportSource[] Sources =>
@@ -33,26 +34,26 @@ public class ImportService(
         {
             Type = ImportSourceType.Application,
             Name = "Vault Keeper",
-            FileType = "*.csv",
+            FileType = ".csv",
             Icon = Icons.VaultKeeper,
-            Description = "Import from a Vault Keeper CSV file."
+            Description = "A Vault Keeper keys CSV file."
         },
         new()
         {
             Type = ImportSourceType.Chromium,
             Name = "Chrome/Chromium",
-            FileType = "*.csv",
+            FileType = ".csv",
             Icon = Icons.GoogleChrome,
-            Description = "Import from a Google Chrome or other Chromium-based browser password CSV file.",
+            Description = "A Google Chrome or other Chromium-based browser password CSV file.",
             AdditionalIcons = [Icons.MicrosoftEdge, Icons.BraveBrowser, Icons.OperaBrowser]
         },
         new()
         {
             Type = ImportSourceType.Firefox,
             Name = "Firefox",
-            FileType = "*.csv",
+            FileType = ".csv",
             Icon = Icons.MozillaFirefox,
-            Description = "Import from a Mozilla Firefox password CSV file."
+            Description = "A Mozilla Firefox password CSV file."
         }
     ];
 
@@ -62,9 +63,9 @@ public class ImportService(
         return Sources;
     }
 
-    public async Task<Result> ProcessImportAsync(ImportSourceType sourceType, string sourceFilePath)
+    public async Task<Result> ImportFromFileAsync(ImportSourceType sourceType, string sourceFilePath)
     {
-        logger.LogInformation($"{nameof(ProcessImportAsync)} | {nameof(sourceType)}: {{sourceType}}, {nameof(sourceFilePath)}: \"{{sourceFilePath}}\"", sourceType, sourceFilePath);
+        logger.LogInformation($"{nameof(ImportFromFileAsync)} | {nameof(sourceType)}: {{sourceType}}, {nameof(sourceFilePath)}: \"{{sourceFilePath}}\"", sourceType, sourceFilePath);
 
         Result<string> readFileResult = fileService.ReadFileText(sourceFilePath);
         if (!readFileResult.IsSuccessful)
@@ -82,9 +83,15 @@ public class ImportService(
         if (importRecords.Length < 1)
             return Result.Failed(ResultFailureType.BadRequest, "File contains no data to import.");
 
-        VaultItemImportRecord[] duplicateImportNameRecords = [.. importRecords.DuplicatesBy(x => x.Name)];
+        VaultItemImportRecord[] duplicateImportNameRecords = [.. importRecords.DuplicatesBy(x => new { x.Name, x.GroupName })];
         if (duplicateImportNameRecords.Length > 0)
-            return Result.Failed(ResultFailureType.BadRequest, $"File contains rows with duplicate names: [{string.Join(", ", duplicateImportNameRecords.Select(x => $"\"{x.Name}\""))}]");
+        {
+            IEnumerable<string> duplicateLines = duplicateImportNameRecords
+                .Select(x => $"- (Group: \"{x.GroupName}\", Name: \"{x.Name}\")")
+                .Distinct();
+
+            return Result.Failed(ResultFailureType.BadRequest, $"File contains rows with duplicate names:\n{string.Join("\n- ", duplicateLines)}");
+        }
 
         Result<CountedData<VaultItem>> getExistingVaultItemsResult = await vaultItemService.GetManyCountedAsync();
         if (!getExistingVaultItemsResult.IsSuccessful)
@@ -116,15 +123,23 @@ public class ImportService(
             existingGroups.UnionWith(createGroupsResult.Value!);
         }
 
-        NewVaultItem[] vaultItemsToCreate = [.. importRecords
-            .Select(x => new NewVaultItem
-            {
-                Name  = x.Name,
-                Value = x.Value,
-                GroupId = existingGroups.FirstOrDefault(g => g.Name == x.GroupName)?.Id
-            })];
+        List<NewVaultItem> vaultItemsToCreate = [];
 
-        Result<IEnumerable<VaultItem>> createVaultItemsResult = await vaultItemService.AddManyAsync(vaultItemsToCreate, encrypt: true);
+        foreach (VaultItemImportRecord importRecord in importRecords)
+        {
+            Result<string> encryptValueResult = securityService.Encrypt(importRecord.Value);
+            if (!encryptValueResult.IsSuccessful)
+                return encryptValueResult.Logged(logger);
+
+            vaultItemsToCreate.Add(new()
+            {
+                Name = importRecord.Name,
+                Value = encryptValueResult.Value!,
+                GroupId = existingGroups.FirstOrDefault(g => g.Name == importRecord.GroupName)?.Id
+            });
+        }
+
+        Result<IEnumerable<VaultItem>> createVaultItemsResult = await vaultItemService.AddManyAsync(vaultItemsToCreate);
         if (!createVaultItemsResult.IsSuccessful)
             return createVaultItemsResult.Logged(logger);
 
@@ -133,6 +148,49 @@ public class ImportService(
             return saveDataResult.Logged(logger);
 
         return Result.Ok($"Imported {importRecords.Length} records successfully.").Logged(logger);
+    }
+
+    public async Task<Result> ExportToFileAsync(ImportSourceType sourceType, string filePath, ExportData exportData)
+    {
+        logger.LogInformation($"{nameof(ExportToFileAsync)} | {nameof(sourceType)}: {{sourceType}}", sourceType);
+
+        VaultItemImportRecord[] records = [.. MapToApplicationRecords(exportData)];
+
+        foreach (VaultItemImportRecord record in records)
+        {
+            Result<string> decryptValueResult = securityService.Decrypt(record.Value);
+            if (!decryptValueResult.IsSuccessful)
+                return decryptValueResult.Logged(logger);
+
+            record.Value = decryptValueResult.Value!;
+        }
+
+        Result<string> serializeResult;
+
+        switch (sourceType)
+        {
+            case ImportSourceType.Application:
+                {
+                    serializeResult = csvService.Serialize(records);
+                    break;
+                }
+            case ImportSourceType.Chromium:
+            case ImportSourceType.Firefox:
+                {
+                    IEnumerable<BrowserImportRecord> browserRecords = MapToBrowserRecords(records);
+                    serializeResult = csvService.Serialize(browserRecords);
+                    break;
+                }
+            default:
+                throw new ArgumentOutOfRangeException(nameof(sourceType), $"Value is not a valid {nameof(ImportSourceType)} enum value.");
+        }
+
+        if (!serializeResult.IsSuccessful)
+            return serializeResult.Logged(logger);
+
+        Result writeFileResult = fileService.WriteFileText(filePath, serializeResult.Value!);
+
+        return writeFileResult.Logged(logger);
     }
 
     private Result<IEnumerable<VaultItemImportRecord>> DeserializeImportFileText(ImportSourceType sourceType, string fileText)
@@ -156,13 +214,7 @@ public class ImportService(
                         break;
                     }
 
-                    IEnumerable<VaultItemImportRecord> mappedRecords = deserializeResult.Value!.Select(x => new VaultItemImportRecord
-                    {
-                        Name = x.Username,
-                        Value = x.Password,
-                        GroupName = x.Url
-                    });
-
+                    IEnumerable<VaultItemImportRecord> mappedRecords = MapToApplicationRecords(deserializeResult.Value!);
                     result = mappedRecords.ToOkResult();
                 }
                 break;
@@ -172,4 +224,52 @@ public class ImportService(
 
         return result.Logged(logger);
     }
+
+    private static IEnumerable<VaultItemImportRecord> MapToApplicationRecords(ExportData exportData) =>
+        exportData.VaultItems.Select(v => new VaultItemImportRecord
+        {
+            Name = v.Name,
+            Value = v.Value,
+            GroupName = exportData.Groups.FirstOrDefault(g => g.Id == v.GroupId)?.Name ?? string.Empty
+        });
+
+    private static IEnumerable<VaultItemImportRecord> MapToApplicationRecords(IEnumerable<BrowserImportRecord> browserRecords) =>
+        browserRecords.Select(x =>
+        {
+            string name = x.Username;
+            bool nameIsUrl = false;
+
+            if (string.IsNullOrWhiteSpace(name))
+            {
+                name = x.Url;
+                nameIsUrl = true;
+            }
+
+            return new VaultItemImportRecord
+            {
+                Name = name,
+                Value = x.Password,
+                GroupName = nameIsUrl ? string.Empty : x.Url
+            };
+        });
+
+    private static IEnumerable<BrowserImportRecord> MapToBrowserRecords(IEnumerable<VaultItemImportRecord> applicationRecords) =>
+        applicationRecords.Select(x =>
+        {
+            string url = x.GroupName;
+            bool nameIsUrl = false;
+
+            if (string.IsNullOrWhiteSpace(url))
+            {
+                url = x.Name;
+                nameIsUrl = true;
+            }
+
+            return new BrowserImportRecord
+            {
+                Url = nameIsUrl ? x.Name : x.GroupName,
+                Username = nameIsUrl ? string.Empty : x.Name,
+                Password = x.Value
+            };
+        });
 };
