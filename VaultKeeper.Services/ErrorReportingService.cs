@@ -11,7 +11,7 @@ public class ErrorReportingService(ILogger<ErrorReportingService> logger) : IErr
 
     public void ReportError(Error error)
     {
-        logger.LogInformation($"{nameof(ReportError)} | Error: {{error}}", error);
+        logger.LogError(error.Exception, $"{nameof(ReportError)} | Error: {{error}}", error);
         ErrorReported?.Invoke(this, error);
     }
 }

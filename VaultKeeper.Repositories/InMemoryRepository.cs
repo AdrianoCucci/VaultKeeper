@@ -48,7 +48,7 @@ public class InMemoryRepository<T> : IRepository<T>
     public Task<IEnumerable<T>> AddManyAsync(IEnumerable<T> items)
     {
         _items.UnionWith(items);
-        return Task.FromResult(items.ToArray() as IEnumerable<T>);
+        return Task.FromResult<IEnumerable<T>>([.. items]);
     }
 
     public Task<T?> UpdateAsync(T originalItem, T newItem)
@@ -77,7 +77,7 @@ public class InMemoryRepository<T> : IRepository<T>
             }
         }
 
-        return Task.FromResult<IEnumerable<T>>(updatedItems);
+        return Task.FromResult<IEnumerable<T>>([.. updatedItems]);
     }
 
     public Task<bool> RemoveAsync(T item)

@@ -85,7 +85,7 @@ public class AppDataService(
             UserData? userData = saveUserDataResult.Value?.Data;
             if (userData != null)
             {
-                Result<SavedData<EntityData>> saveEntitiesResult = await SaveEntityDataAsync(relatedUserData: userData);
+                Result<SavedData<EntityData>?> saveEntitiesResult = await SaveEntityDataAsync(relatedUserData: userData);
                 if (!saveEntitiesResult.IsSuccessful)
                     return saveEntitiesResult.Logged(logger);
             }
@@ -192,13 +192,17 @@ public class AppDataService(
         }
     }
 
-    public async Task<Result<SavedData<EntityData>>> SaveEntityDataAsync(EntityData? entityData = null, UserData? relatedUserData = null)
+    public async Task<Result<SavedData<EntityData>?>> SaveEntityDataAsync(EntityData? entityData = null, UserData? relatedUserData = null)
     {
         logger.LogInformation(nameof(SaveEntityDataAsync));
 
         try
         {
             entityData ??= await CreateEntityDataAsync();
+            relatedUserData ??= userDataCache.Get();
+
+            if (relatedUserData == null)
+                return Result.Failed<SavedData<EntityData>?>(ResultFailureType.BadRequest, $"{nameof(UserData)} not provided and fallback value not set in cache.");
 
             if (entityData.VaultItems.IsNullOrEmpty() && entityData.Groups.IsNullOrEmpty())
                 entityData = new();
@@ -212,11 +216,11 @@ public class AppDataService(
             string filePath = CreateSaveDataPath(AppFileType.Entities);
             Result saveResult = SaveDataInternal(filePath, savedData);
 
-            return saveResult.WithValue(savedData).Logged(logger);
+            return saveResult.WithValue<SavedData<EntityData>?>(savedData).Logged(logger);
         }
         catch (Exception ex)
         {
-            return ex.ToFailedResult<SavedData<EntityData>>().Logged(logger);
+            return ex.ToFailedResult<SavedData<EntityData>?>().Logged(logger);
         }
     }
 
@@ -252,7 +256,6 @@ public class AppDataService(
             }
 
             UserSettings? userSettings = userSettingsCache.Get();
-
             EntityData entityData = await CreateEntityDataAsync();
 
             SavedData<BackupData> savedData = new()
@@ -303,7 +306,7 @@ public class AppDataService(
             if (!saveUserDataResult.IsSuccessful)
                 return saveUserDataResult.WithValue<SavedData<BackupData>?>().Logged(logger);
 
-            Result<SavedData<EntityData>> saveEntityDataResult = await SaveEntityDataAsync(loadedData.Data.EntityData, userData);
+            Result<SavedData<EntityData>?> saveEntityDataResult = await SaveEntityDataAsync(loadedData.Data.EntityData, userData);
             if (!saveEntityDataResult.IsSuccessful)
                 return saveEntityDataResult.WithValue<SavedData<BackupData>?>().Logged(logger);
 

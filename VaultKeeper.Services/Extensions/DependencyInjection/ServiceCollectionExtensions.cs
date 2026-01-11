@@ -10,10 +10,12 @@ using VaultKeeper.Repositories.Extensions.DependencyInjection;
 using VaultKeeper.Services.Abstractions;
 using VaultKeeper.Services.Abstractions.DataFormatting;
 using VaultKeeper.Services.Abstractions.Groups;
+using VaultKeeper.Services.Abstractions.Importing;
 using VaultKeeper.Services.Abstractions.Navigation;
 using VaultKeeper.Services.Abstractions.VaultItems;
 using VaultKeeper.Services.DataFormatting;
 using VaultKeeper.Services.Groups;
+using VaultKeeper.Services.Importing;
 using VaultKeeper.Services.Navigation;
 using VaultKeeper.Services.VaultItems;
 
@@ -42,6 +44,7 @@ public static class ServiceCollectionExtensions
             .AddSingleton<IUserSettingsService, UserSettingsService>()
             .AddSingleton<ICharSetService, CharSetService>()
             .AddSingleton<IKeyGeneratorService, KeyGeneratorService>()
+            .AddSingleton<IImportService, ImportService>()
 
             .AddScoped<IVaultItemService, VaultItemService>()
             .AddScoped<IVaultItemValidatorService, VaultItemValidatorService>()

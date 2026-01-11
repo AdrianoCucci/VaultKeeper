@@ -12,7 +12,7 @@ public interface IAppDataService
     AppFileDefinition GetFileDefinition(AppFileType fileType);
     Task<Result> SaveAllDataAsync();
     Task<Result<SavedData<UserData>?>> SaveUserDataAsync(UserData? userData = null, UserSettings? userSettings = null, bool updateCaches = false);
-    Task<Result<SavedData<EntityData>>> SaveEntityDataAsync(EntityData? entityData = null, UserData? relatedUserData = null);
+    Task<Result<SavedData<EntityData>?>> SaveEntityDataAsync(EntityData? entityData = null, UserData? relatedUserData = null);
     Task<Result<SavedData<UserData>?>> LoadUserDataAsync(bool updateCaches = false);
     Task<Result<SavedData<EntityData>?>> LoadEntityDataAsync(string? filePath = null, Guid? forUserId = null, bool updateRepositories = false);
     Task<Result> ClearCachedEntityDataAsync();

@@ -10,6 +10,7 @@ using VaultKeeper.AvaloniaApplication.Forms.Common;
 using VaultKeeper.AvaloniaApplication.Forms.VaultItems;
 using VaultKeeper.AvaloniaApplication.ViewModels.Common.Prompts;
 using VaultKeeper.AvaloniaApplication.ViewModels.Groups;
+using VaultKeeper.AvaloniaApplication.ViewModels.Importing;
 using VaultKeeper.AvaloniaApplication.ViewModels.Settings;
 using VaultKeeper.AvaloniaApplication.ViewModels.VaultItems;
 using VaultKeeper.AvaloniaApplication.ViewModels.VaultItems.Common;
@@ -20,6 +21,7 @@ using VaultKeeper.Models;
 using VaultKeeper.Models.Errors;
 using VaultKeeper.Models.Groups;
 using VaultKeeper.Models.Groups.Extensions;
+using VaultKeeper.Models.Importing;
 using VaultKeeper.Models.Settings;
 using VaultKeeper.Models.VaultItems;
 using VaultKeeper.Models.VaultItems.Extensions;
@@ -113,6 +115,27 @@ public partial class VaultPageViewModel(
         return _groupData;
     }
 
+    public void ShowImportItemsOverlay() => ShowOverlay(serviceProvider.GetRequiredService<VaultItemImportViewModel>());
+
+    public void ShowExportItemsOverlay()
+    {
+        IReadOnlyCollection<VaultItem> selectedItems = _selectedItems.Count > 0 ? _selectedItems : _vaultItemData.Items;
+        IEnumerable<Guid> relatedGroupIds = selectedItems.Select(x => x.GroupId.GetValueOrDefault()).Distinct();
+        IEnumerable<Group> relatedGroups = _groupData.Items.Where(x => relatedGroupIds.Contains(x.Id));
+
+        ExportData exportData = new()
+        {
+            VaultItems = selectedItems,
+            Groups = relatedGroups
+        };
+
+        VaultItemImportViewModel viewModel = serviceProvider.GetRequiredService<VaultItemImportViewModel>();
+        viewModel.Mode = VaultItemImportViewMode.Export;
+        viewModel.ExportData = exportData;
+
+        ShowOverlay(viewModel);
+    }
+
     public async Task HandleToolbarActionAsync(VaultPageToolbarEventArgs eventArgs)
     {
         VaultPageToolbarViewModel viewModel = eventArgs.ViewModel;
@@ -137,10 +160,10 @@ public partial class VaultPageViewModel(
                 ShowVaultItemCreateForm();
                 break;
             case VaultPageToolbarAction.ImportItems:
-                // TODO;
+                ShowImportItemsOverlay();
                 break;
             case VaultPageToolbarAction.ExportItems:
-                // TODO;
+                ShowExportItemsOverlay();
                 break;
             case VaultPageToolbarAction.SelectAllItems:
                 SetSelectedItems(_vaultItemData.Items);
@@ -212,7 +235,7 @@ public partial class VaultPageViewModel(
                 });
                 break;
             case VaultPageToolbarAction.ExportSelectedItems:
-                // TODO;
+                ShowExportItemsOverlay();
                 break;
             case VaultPageToolbarAction.DeleteSelectedItems:
                 ShowOverlay(new ConfirmPromptViewModel

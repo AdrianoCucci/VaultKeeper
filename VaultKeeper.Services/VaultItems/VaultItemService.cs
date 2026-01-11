@@ -51,7 +51,7 @@ public class VaultItemService(
             {
                 Result<string> encryptValueResult = securityService.Encrypt(model.Value);
                 if (!encryptValueResult.IsSuccessful)
-                    return encryptValueResult.WithValue(model).Logged(logger);
+                    return encryptValueResult.WithValue<VaultItem>().Logged(logger);
 
                 model.Value = encryptValueResult.Value!;
             }
@@ -63,6 +63,40 @@ public class VaultItemService(
         catch (Exception ex)
         {
             return ex.ToFailedResult<VaultItem>().Logged(logger);
+        }
+    }
+
+    public async Task<Result<IEnumerable<VaultItem>>> AddManyAsync(IEnumerable<NewVaultItem> vaultItems, bool encrypt = false)
+    {
+        logger.LogInformation(nameof(AddManyAsync));
+
+        try
+        {
+            VaultItem[] models = [.. vaultItems.Select(x => x.ToVaultItem() with { Id = Guid.NewGuid() })];
+
+            Result validateResult = await validatorService.ValidateUpsertManyAsync(models);
+            if (!validateResult.IsSuccessful)
+                return validateResult.WithValue<IEnumerable<VaultItem>>().Logged(logger);
+
+            if (encrypt)
+            {
+                foreach (var model in models)
+                {
+                    Result<string> encryptValueResult = securityService.Encrypt(model.Value);
+                    if (!encryptValueResult.IsSuccessful)
+                        return encryptValueResult.WithValue<IEnumerable<VaultItem>>().Logged(logger);
+
+                    model.Value = encryptValueResult.Value!;
+                }
+            }
+
+            models = [.. await repository.AddManyAsync(models)];
+
+            return Result.Ok<IEnumerable<VaultItem>>(models).Logged(logger);
+        }
+        catch (Exception ex)
+        {
+            return ex.ToFailedResult<IEnumerable<VaultItem>>().Logged(logger);
         }
     }
 

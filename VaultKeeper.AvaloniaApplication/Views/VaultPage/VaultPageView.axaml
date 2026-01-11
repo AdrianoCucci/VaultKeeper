@@ -5,6 +5,8 @@
              xmlns:common="using:VaultKeeper.AvaloniaApplication.Views.Common"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:importing="using:VaultKeeper.AvaloniaApplication.Views.Importing"
+             xmlns:importingVMs="using:VaultKeeper.AvaloniaApplication.ViewModels.Importing"
              xmlns:local="using:VaultKeeper.AvaloniaApplication.Views.VaultPage"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:overlays="using:VaultKeeper.AvaloniaApplication.Views.Common.Overlays"
@@ -121,6 +123,10 @@
                       CardMaxWidth="{Binding #Root.Bounds.Width}"
                       BackdropPressed="Modal_BackdropPressed">
         <overlays:Modal.DataTemplates>
+          <DataTemplate x:DataType="importingVMs:VaultItemImportViewModel">
+            <importing:VaultItemImportView Padding="20" MaxWidth="1000" ProcessSucceeded="VaultItemImportView_ProcessSucceeded"/>
+          </DataTemplate>
+
           <DataTemplate x:DataType="promptVMs:DeleteGroupConfirmPromptViewModel">
             <prompts:DeleteGroupConfirmPromptView/>
           </DataTemplate>

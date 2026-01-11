@@ -45,7 +45,7 @@ public class GroupService(
 
             Result validateResult = await validatorService.ValidateUpsertAsync(model);
             if (!validateResult.IsSuccessful)
-                return validateResult.WithValue(model).Logged(logger);
+                return validateResult.WithValue<Group>().Logged(logger);
 
             model = await repository.AddAsync(model);
 
@@ -54,6 +54,28 @@ public class GroupService(
         catch (Exception ex)
         {
             return ex.ToFailedResult<Group>().Logged(logger);
+        }
+    }
+
+    public async Task<Result<IEnumerable<Group>>> AddManyAsync(IEnumerable<NewGroup> groups)
+    {
+        logger.LogInformation(nameof(AddManyAsync));
+
+        try
+        {
+            Group[] models = [.. groups.Select(x => x.ToGroup() with { Id = Guid.NewGuid() })];
+
+            Result validateResult = await validatorService.ValidateUpsertManyAsync(models);
+            if (!validateResult.IsSuccessful)
+                return validateResult.WithValue<IEnumerable<Group>>().Logged(logger);
+
+            models = [.. await repository.AddManyAsync(models)];
+
+            return Result.Ok<IEnumerable<Group>>(models).Logged(logger);
+        }
+        catch (Exception ex)
+        {
+            return ex.ToFailedResult<IEnumerable<Group>>().Logged(logger);
         }
     }
 
@@ -73,7 +95,7 @@ public class GroupService(
 
             Result validateResult = await validatorService.ValidateUpsertAsync(group);
             if (!validateResult.IsSuccessful)
-                return validateResult.WithValue(group).Logged(logger);
+                return validateResult.WithValue<Group>().Logged(logger);
 
             Group updateModel = group with { };
 
