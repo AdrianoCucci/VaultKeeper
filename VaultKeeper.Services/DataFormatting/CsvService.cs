@@ -13,8 +13,6 @@ namespace VaultKeeper.Services.DataFormatting;
 
 public class CsvService(ILogger<CsvService> logger) : ICsvService
 {
-    private const char _separator = ',';
-
     public Result<string> Serialize<T>(IEnumerable<T> objs) where T : class
     {
         logger.LogInformation(nameof(Serialize));
@@ -32,12 +30,14 @@ public class CsvService(ILogger<CsvService> logger) : ICsvService
             IEnumerable<IEnumerable<string>> valueRows = objs.Select(obj => properties.Select(property => property.GetValue(obj)?.ToString() ?? string.Empty));
 
             StringBuilder sb = new();
-            sb.AppendJoin(_separator, headers);
+            const char separator = ',';
+
+            sb.AppendJoin(separator, headers);
 
             foreach (var row in valueRows)
             {
                 sb.AppendLine();
-                sb.AppendJoin(_separator, row);
+                sb.AppendJoin(separator, row);
             }
 
             return sb.ToString().ToOkResult().Logged(logger);
@@ -48,40 +48,40 @@ public class CsvService(ILogger<CsvService> logger) : ICsvService
         }
     }
 
-    public Result<IEnumerable<T>> Deserialize<T>(string csv) where T : class, new()
+    public Result<IEnumerable<T>> Deserialize<T>(string csvText) where T : class, new()
     {
         logger.LogInformation(nameof(Deserialize));
 
         try
         {
-            if (string.IsNullOrWhiteSpace(csv))
+            if (string.IsNullOrWhiteSpace(csvText))
                 return Enumerable.Empty<T>().ToOkResult().Logged(logger);
 
-            string[] csvRows = csv.Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries);
+            string[] csvRows = csvText.Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries);
             if (csvRows.Length < 2)
                 return Enumerable.Empty<T>().ToOkResult().Logged(logger);
 
-            string[] headers = csvRows[0].Split(_separator);
             IEnumerable<PropertyInfo> properties = GetCsvProperties(typeof(T));
+            string[] typeHeaders = [.. properties.Select(GetCsvHeaderName)];
+            string[] dataHeaders = ParseCsvRow(csvRows[0]);
+            string[] missingHeaders = [.. typeHeaders.Where(x => !dataHeaders.Contains(x))];
+            if (missingHeaders.Length > 0)
+                return Result.Failed<IEnumerable<T>>(ResultFailureType.BadRequest, $"CSV data is missing the following headers:\n{string.Join(", ", missingHeaders.Select(x => $"\"{x}\""))}");
+
             List<T> objs = [];
 
             for (int csvRowIndex = 1; csvRowIndex < csvRows.Length; csvRowIndex++)
             {
                 string csvRow = csvRows[csvRowIndex];
-                string[] values = csvRow.Split(_separator);
+                string[] values = ParseCsvRow(csvRow);
                 T obj = new();
 
                 for (int valueRowIndex = 0; valueRowIndex < values.Length; valueRowIndex++)
                 {
                     string value = values[valueRowIndex];
-                    string header = headers[valueRowIndex];
+                    string header = dataHeaders[valueRowIndex];
 
-                    PropertyInfo? property = properties.FirstOrDefault(x =>
-                    {
-                        CsvColumnAttribute? csvColumnAttribute = x.GetCustomAttribute<CsvColumnAttribute>();
-                        return string.IsNullOrWhiteSpace(csvColumnAttribute?.Header) ? x.Name == header : csvColumnAttribute.Header == header;
-                    });
-
+                    PropertyInfo? property = properties.FirstOrDefault(x => GetCsvHeaderName(x) == header);
                     property?.SetValue(obj, value);
                 }
 
@@ -96,5 +96,61 @@ public class CsvService(ILogger<CsvService> logger) : ICsvService
         }
     }
 
+    private static string[] ParseCsvRow(string csvRowText)
+    {
+        List<string> values = [];
+        StringBuilder sb = new();
+        bool inOpenQuoteState = false;
+        const char comma = ',';
+        const char quote = '"';
+
+        for (int i = 0; i < csvRowText.Length; i++)
+        {
+            char character = csvRowText[i];
+            char? nextCharacter = i + 1 < csvRowText.Length ? csvRowText[i + 1] : null;
+            char? prevCharacter = i > 0 ? csvRowText[i - 1] : null;
+
+            if (character == quote)
+            {
+                if (nextCharacter == quote)
+                {
+                    sb.Append(character);
+                    inOpenQuoteState = false;
+                    continue; // Escaped quote character.
+                }
+                if (inOpenQuoteState)
+                {
+                    values.Add(sb.ToString());
+                    sb.Clear();
+                }
+
+                inOpenQuoteState = !inOpenQuoteState;
+            }
+            else if (character == comma && !inOpenQuoteState && prevCharacter != quote)
+            {
+                values.Add(sb.ToString());
+                sb.Clear();
+            }
+            else if (character != comma || inOpenQuoteState)
+            {
+                sb.Append(character);
+            }
+        }
+
+        return [.. values];
+    }
+
+    private static string GetCsvHeaderName(PropertyInfo property)
+    {
+        CsvColumnAttribute? csvColumnAttribute = property.GetCustomAttribute<CsvColumnAttribute>();
+        return string.IsNullOrWhiteSpace(csvColumnAttribute?.Header) ? property.Name : csvColumnAttribute.Header;
+    }
+
     private static IEnumerable<PropertyInfo> GetCsvProperties(Type type) => type.GetProperties(BindingFlags.Instance | BindingFlags.Public).Where(x => x.GetCustomAttribute<CsvIgnoreAttribute>() == null);
+
+    private record ParsedCsvData
+    {
+        public required string[] Headers { get; init; }
+        public required string[] Values { get; init; }
+    }
 }

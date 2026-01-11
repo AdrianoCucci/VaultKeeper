@@ -66,7 +66,7 @@ public class BackupService(
         if (files.Count < 1)
             return Result.Ok<BackupData?>(null, "User cancelled file selection.");
 
-        string filePath = files[0].Path.AbsolutePath;
+        string filePath = files[0].Path.LocalPath;
         Result<SavedData<BackupData>?> result = await appDataService.LoadBackupAsync(filePath);
 
         return result.WithValue<BackupData?>(result.Value?.Data).Logged(logger);

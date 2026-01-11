@@ -37,4 +37,10 @@
     <ProjectReference Include="..\VaultKeeper.Services\VaultKeeper.Services.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Compile Update="Views\Importing\VaultItemImportView.axaml.cs">
+      <DependentUpon>VaultItemImportView.axaml</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
 </Project>

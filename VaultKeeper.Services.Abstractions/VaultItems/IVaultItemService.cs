@@ -10,6 +10,7 @@ public interface IVaultItemService
 {
     Task<Result<CountedData<VaultItem>>> GetManyCountedAsync(ReadQuery<VaultItem>? query = null);
     Task<Result<VaultItem>> AddAsync(NewVaultItem vaultItem, bool encrypt = false);
+    Task<Result<IEnumerable<VaultItem>>> AddManyAsync(IEnumerable<NewVaultItem> vaultItems, bool encrypt = false);
     Task<Result<VaultItem>> UpdateAsync(VaultItem vaultItem, bool encrypt = false);
     Task<Result<IEnumerable<VaultItem>>> UpdateManyAsync(IEnumerable<VaultItem> vaultItems);
     Task<Result<IEnumerable<VaultItem>>> UngroupManyAsync(IEnumerable<VaultItem> vaultItems);

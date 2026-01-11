@@ -19,16 +19,18 @@ public static class EnumerableExtensions
         return !enumerable.GetEnumerator().MoveNext();
     }
 
-    public static IEnumerable<T> Duplicates<T>(this IEnumerable<T>? enumerable)
+    public static IEnumerable<TSource> DuplicatesBy<TSource, TKey>(this IEnumerable<TSource>? enumerable, Func<TSource, TKey> keySelector)
     {
         if (enumerable == null)
             return [];
 
         return enumerable
-            .GroupBy(x => x)
+            .GroupBy(keySelector)
             .Where(x => x.Count() > 1)
-            .Select(x => x.Key);
+            .SelectMany(x => x);
     }
+
+    public static IEnumerable<T> Duplicates<T>(this IEnumerable<T>? enumerable) => DuplicatesBy(enumerable, x => x);
 
     public static bool HasIndex<T>(this IList<T>? list, int index) => list != null && index.IsBetween(0, list.Count - 1);
 

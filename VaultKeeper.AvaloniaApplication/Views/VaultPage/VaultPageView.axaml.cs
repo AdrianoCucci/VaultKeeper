@@ -33,10 +33,7 @@ public partial class VaultPageView : ViewBase<VaultPageViewModel>
 
     private void ButtonNewKey_Click(object? sender, RoutedEventArgs e) => Model?.ShowVaultItemCreateForm();
 
-    private void ButtonImportKeys_Click(object? sender, RoutedEventArgs e)
-    {
-        // TODO;
-    }
+    private void ButtonImportKeys_Click(object? sender, RoutedEventArgs e) => Model?.ShowImportItemsOverlay();
 
     private async void Toolbar_ActionInvoked(object? sender, VaultPageToolbarEventArgs e)
     {
@@ -75,4 +72,12 @@ public partial class VaultPageView : ViewBase<VaultPageViewModel>
     private void PromptView_Acknowledged(object? sender, RoutedEventArgs e) => Model?.HideOverlay();
 
     private void Modal_BackdropPressed(object? sender, RoutedEventArgs e) => Model?.HideOverlay();
+
+    private async void VaultItemImportView_ImportSuccess(object? sender, RoutedEventArgs e)
+    {
+        if (Model is not VaultPageViewModel model) return;
+
+        await model.LoadDataAsync();
+        model.HideOverlay();
+    }
 }

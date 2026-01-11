@@ -10,6 +10,7 @@ using VaultKeeper.AvaloniaApplication.Forms.Common;
 using VaultKeeper.AvaloniaApplication.Forms.VaultItems;
 using VaultKeeper.AvaloniaApplication.ViewModels.Common.Prompts;
 using VaultKeeper.AvaloniaApplication.ViewModels.Groups;
+using VaultKeeper.AvaloniaApplication.ViewModels.Importing;
 using VaultKeeper.AvaloniaApplication.ViewModels.Settings;
 using VaultKeeper.AvaloniaApplication.ViewModels.VaultItems;
 using VaultKeeper.AvaloniaApplication.ViewModels.VaultItems.Common;
@@ -113,6 +114,8 @@ public partial class VaultPageViewModel(
         return _groupData;
     }
 
+    public void ShowImportItemsOverlay() => ShowOverlay(serviceProvider.GetRequiredService<VaultItemImportViewModel>());
+
     public async Task HandleToolbarActionAsync(VaultPageToolbarEventArgs eventArgs)
     {
         VaultPageToolbarViewModel viewModel = eventArgs.ViewModel;
@@ -137,7 +140,7 @@ public partial class VaultPageViewModel(
                 ShowVaultItemCreateForm();
                 break;
             case VaultPageToolbarAction.ImportItems:
-                // TODO;
+                ShowImportItemsOverlay();
                 break;
             case VaultPageToolbarAction.ExportItems:
                 // TODO;

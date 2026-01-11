@@ -1,7 +1,8 @@
-﻿namespace VaultKeeper.AvaloniaApplication.Constants;
+﻿namespace VaultKeeper.Models.Constants;
 
 public static class Icons
 {
+    public const string VaultKeeper = Vault;
     public const string Vault = $"{_prefix}Vault";
     public const string Gear = $"{_prefix}Gear";
     public const string LockClosed = $"{_prefix}LockClosed";
@@ -28,6 +29,11 @@ public static class Icons
     public const string WandMagicSparkles = $"{_prefix}WandMagicSparkles";
     public const string ChevronDown = $"{_prefix}ChevronDown";
     public const string Key = $"{_prefix}Key";
+    public const string GoogleChrome = $"{_prefix}GoogleChrome";
+    public const string MozillaFirefox = $"{_prefix}MozillaFirefox";
+    public const string MicrosoftEdge = $"{_prefix}MicrosoftEdge";
+    public const string BraveBrowser = $"{_prefix}BraveBrowser";
+    public const string OperaBrowser = $"{_prefix}OperaBrowser";
 
     private const string _prefix = "Icon";
 }
