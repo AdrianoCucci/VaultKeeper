@@ -4,6 +4,8 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:local="using:VaultKeeper.AvaloniaApplication.Views.Settings"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:models="using:VaultKeeper.AvaloniaApplication.Abstractions.Models"
+             xmlns:settings="using:VaultKeeper.Models.Settings"
              xmlns:vm="using:VaultKeeper.AvaloniaApplication.ViewModels.Settings"
              mc:Ignorable="d" d:DesignWidth="1920" d:DesignHeight="2000"
              x:Class="VaultKeeper.AvaloniaApplication.Views.Settings.SettingsPageView"
@@ -39,7 +41,7 @@
 
               <ListBox.ItemTemplate>
                 <DataTemplate>
-                  <StackPanel>
+                  <StackPanel x:DataType="models:AppThemeDefinition">
                     <Border Width="100" Height="75" CornerRadius="4" Background="{Binding BackgroundBrush}">
                       <Border Margin="10 10 10 20" CornerRadius="4" Background="{Binding ForegroundBrush}">
                         <StackPanel>
@@ -119,6 +121,30 @@
           </StackPanel>
 
         </StackPanel>
+      </local:SettingsSectionShell>
+
+      <local:SettingsSectionShell HeaderText="Group Settings" HeaderIcon="{StaticResource IconList}">
+        <Grid RowDefinitions="Auto" ColumnDefinitions="*, *" ColumnSpacing="10">
+          <StackPanel Grid.Column="0">
+            <TextBlock Classes="h4">Empty Group Mode</TextBlock>
+            <TextBlock TextWrapping="Wrap">When all Keys have been taken out of a Group, what should happen to the empty Group?</TextBlock>
+          </StackPanel>
+
+          <ListBox ItemsSource="{Binding EmptyGroupModeDefinitions}"
+                   SelectedItem="{Binding CurrentEmptyGroupModeDefinition}"
+                   CornerRadius="8"
+                   Cursor="Hand"
+                   Grid.Column="1">
+            <ListBox.ItemTemplate>
+              <DataTemplate x:DataType="settings:EmptyGroupModeDefinition">
+                <StackPanel Spacing="10">
+                  <TextBlock Text="{Binding Name}" Classes="h4" Margin="0"/>
+                  <TextBlock Text="{Binding Description}"/>
+                </StackPanel>
+              </DataTemplate>
+            </ListBox.ItemTemplate>
+          </ListBox>
+        </Grid>
       </local:SettingsSectionShell>
 
       <local:SettingsSectionShell HeaderText="Default Key Generation Settings" HeaderIcon="{StaticResource IconVault}">

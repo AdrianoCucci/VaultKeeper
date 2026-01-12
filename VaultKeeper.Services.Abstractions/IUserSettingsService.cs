@@ -1,4 +1,5 @@
-﻿using VaultKeeper.Models.Settings;
+﻿using System.Collections.Generic;
+using VaultKeeper.Models.Settings;
 
 namespace VaultKeeper.Services.Abstractions;
 
@@ -12,4 +13,6 @@ public interface IUserSettingsService
     UserSettings SetAppThemeSettings(AppThemeSettings value);
     UserSettings SetBackupSettings(BackupSettings value);
     UserSettings SetKeyGenerationSettings(KeyGenerationSettings value);
+    IEnumerable<EmptyGroupModeDefinition> GetEmptyGroupModeDefinitions();
+    UserSettings SetEmptyGroupMode(EmptyGroupMode value);
 }

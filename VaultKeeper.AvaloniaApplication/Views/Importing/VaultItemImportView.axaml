@@ -9,8 +9,11 @@
              x:Class="VaultKeeper.AvaloniaApplication.Views.Importing.VaultItemImportView"
              x:DataType="vm:VaultItemImportViewModel"
              Name="Root"
-             Classes.export="{Binding IsExportMode}"
-             LayoutUpdated="Self_LayoutUpdated">
+             Classes.export="{Binding IsExportMode}">
+
+  <Design.DataContext>
+    <x:Static Member="vm:VaultItemImportViewModel.Design"/>
+  </Design.DataContext>
 
   <UserControl.Styles>
     <Style Selector="TextBlock#PART_Header">
@@ -30,10 +33,6 @@
     </Style>
   </UserControl.Styles>
 
-  <Design.DataContext>
-    <x:Static Member="vm:VaultItemImportViewModel.Design"/>
-  </Design.DataContext>
-
   <StackPanel Spacing="10">
     <TextBlock Name="PART_Header" Classes="h3" TextAlignment="Center"/>
 
@@ -45,48 +44,68 @@
 
       <ListBox.ItemsPanel>
         <ItemsPanelTemplate>
-          <UniformGrid Rows="{Binding ItemsGridRows}" Columns="0" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+          <WrapPanel HorizontalAlignment="Center" VerticalAlignment="Center"/>
         </ItemsPanelTemplate>
       </ListBox.ItemsPanel>
 
       <ListBox.ItemTemplate>
         <DataTemplate x:DataType="importingModels:ImportSource">
-          <StackPanel Spacing="10" Margin="10" HorizontalAlignment="Center" VerticalAlignment="Center">
-            <PathIcon Data="{Binding Icon, Converter={StaticResource StrToResConverter}}"
-                      Width="40"
-                      Height="40"
-                      Foreground="{DynamicResource SystemControlBackgroundBaseHighBrush}"/>
+          <Panel Width="300" Height="175">
+            <StackPanel Spacing="10" HorizontalAlignment="Center" VerticalAlignment="Center">
+              <PathIcon Data="{Binding Icon, Converter={StaticResource StrToResConverter}}"
+                        Width="40"
+                        Height="40"
+                        Foreground="{DynamicResource SystemControlBackgroundBaseHighBrush}"/>
 
-            <ItemsControl ItemsSource="{Binding AdditionalIcons}">
-              <ItemsControl.ItemsPanel>
-                <ItemsPanelTemplate>
-                  <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Spacing="10"/>
-                </ItemsPanelTemplate>
-              </ItemsControl.ItemsPanel>
+              <ItemsControl ItemsSource="{Binding AdditionalIcons}">
+                <ItemsControl.ItemsPanel>
+                  <ItemsPanelTemplate>
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Spacing="10"/>
+                  </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
 
-              <ItemsControl.ItemTemplate>
-                <DataTemplate>
-                  <PathIcon Data="{Binding ., Converter={StaticResource StrToResConverter}}"
-                            Width="25"
-                            Height="25"
-                            Foreground="{DynamicResource SystemControlBackgroundBaseHighBrush}"/>
-                </DataTemplate>
-              </ItemsControl.ItemTemplate>
-            </ItemsControl>
+                <ItemsControl.ItemTemplate>
+                  <DataTemplate>
+                    <PathIcon Data="{Binding ., Converter={StaticResource StrToResConverter}}"
+                              Width="25"
+                              Height="25"
+                              Foreground="{DynamicResource SystemControlBackgroundBaseHighBrush}"/>
+                  </DataTemplate>
+                </ItemsControl.ItemTemplate>
+              </ItemsControl>
 
-            <TextBlock Text="{Binding Name}"
-                       Margin="0"
-                       Classes="h4"
-                       TextAlignment="Center"
-                       TextWrapping="Wrap"/>
+              <TextBlock Text="{Binding Name}"
+                         Margin="0"
+                         Classes="h4"
+                         TextAlignment="Center"
+                         TextWrapping="Wrap"/>
 
-            <TextBlock Text="{Binding Description}"
-                       TextAlignment="Center"
-                       TextWrapping="Wrap"/>
-          </StackPanel>
+              <TextBlock Text="{Binding Description}"
+                         TextAlignment="Center"
+                         TextWrapping="Wrap"/>
+            </StackPanel>
+          </Panel>
         </DataTemplate>
       </ListBox.ItemTemplate>
     </ListBox>
+
+    <Border Padding="10"
+            Margin="0 0 0 20"
+            HorizontalAlignment="Center"
+            CornerRadius="6"
+            IsVisible="{Binding IsExportMode}"
+            Background="{DynamicResource SystemAccentColor}">
+
+      <StackPanel HorizontalAlignment="Center" Spacing="10">
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Spacing="10">
+          <PathIcon Data="{StaticResource IconExclamationTriangle}"/>
+          <TextBlock TextAlignment="Center" FontWeight="Bold">Important Note</TextBlock>
+        </StackPanel>
+
+        <TextBlock TextAlignment="Center">Your keys will be exported in readable plain text.</TextBlock>
+      </StackPanel>
+
+    </Border>
 
     <common:AppButton Name="PART_Button"
                       IsEnabled="{Binding !IsProcessing}"

@@ -125,14 +125,20 @@ public partial class HomeViewModel : ViewModelBase
     {
         if (_userDataService == null) return;
 
-        ShowOverlay(new ChangePasswordConfirmPromptViewModel()
+        ChangePasswordFormViewModel formVM = new();
+
+        ShowOverlay(new ConfirmPromptViewModel()
         {
             Header = "Change Password",
             Message = "Change your main login password using the form below.",
+            Content = formVM,
             CancelAction = HideOverlay,
             ConfirmAction = async vm =>
             {
-                ChangePasswordForm form = (vm as ChangePasswordConfirmPromptViewModel)!.FormVM.Form;
+                ChangePasswordForm form = formVM.Form;
+                if (!form.Validate())
+                    return;
+
                 Result changePasswordResult = await _userDataService.ChangeMainPasswordAsync(form.CurrentPassword!, form.Password!);
 
                 if (!changePasswordResult.IsSuccessful)

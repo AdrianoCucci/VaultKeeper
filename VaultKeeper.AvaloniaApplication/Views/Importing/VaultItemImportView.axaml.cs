@@ -15,8 +15,6 @@ public partial class VaultItemImportView : ViewBase<VaultItemImportViewModel>
 
     public VaultItemImportView() => InitializeComponent();
 
-    private void Self_LayoutUpdated(object? sender, EventArgs e) => UpdateModel(x => x.ItemsGridRows = Bounds.Width > 600 ? 1 : x.Sources.Count);
-
     private async void Button_Click(object? sender, RoutedEventArgs e)
     {
         if (Model is not VaultItemImportViewModel model) return;

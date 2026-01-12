@@ -1,10 +1,10 @@
 ﻿using Avalonia.Media;
-using VaultKeeper.AvaloniaApplication.Abstractions.Models;
+using System.Linq;
 using VaultKeeper.Models.Settings;
 
 namespace VaultKeeper.AvaloniaApplication.ViewModels.Settings;
 
-public partial class SettingsPageViewModel : ViewModelBase
+public partial class SettingsPageViewModel
 {
     public static DesignContext Design { get; } = new();
 
@@ -14,15 +14,20 @@ public partial class SettingsPageViewModel : ViewModelBase
         {
             KeyGenerationSettingsVM = KeyGenerationSettingsViewModel.Design;
 
-            AppThemeDefinition[] themeDefinitions =
+            EmptyGroupModeDefinitions =
+            [
+                new() { Mode = EmptyGroupMode.Keep, Name = "Keep", Description = "Keep Groups." },
+                new() { Mode = EmptyGroupMode.Delete, Name = "Delete", Description = "Delete Groups." }
+            ];
+            CurrentEmptyGroupModeDefinition = EmptyGroupModeDefinitions.First();
+
+            ThemeDefinitions =
             [
                 new() { ThemeType = AppThemeType.System, ThemeName = "System", BackgroundBrush = new SolidColorBrush(Colors.DarkGreen), ForegroundBrush = new SolidColorBrush(Colors.LightGreen) },
                 new() { ThemeType = AppThemeType.Light, ThemeName = "Light", BackgroundBrush = new SolidColorBrush(Colors.WhiteSmoke), ForegroundBrush = new SolidColorBrush(Colors.DarkGray) },
                 new() { ThemeType = AppThemeType.Dark, ThemeName = "Dark", BackgroundBrush = new SolidColorBrush(Colors.DarkGray), ForegroundBrush = new SolidColorBrush(Colors.WhiteSmoke) }
             ];
-
-            ThemeDefinitions = themeDefinitions;
-            CurrentThemeDefinition = themeDefinitions[0];
+            CurrentThemeDefinition = ThemeDefinitions.First();
 
             FontSize = 14;
             MaxBackups = 5;

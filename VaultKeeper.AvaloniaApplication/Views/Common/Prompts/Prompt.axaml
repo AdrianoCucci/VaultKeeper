@@ -64,7 +64,12 @@
                         MinHeight="{TemplateBinding ContentMinHeight}"
                         MaxHeight="{TemplateBinding ContentMaxHeight}">
             <StackPanel Spacing="20">
-              <TextBlock Text="{TemplateBinding Message}" HorizontalAlignment="Center" TextAlignment="Center" TextWrapping="Wrap"/>
+              <TextBlock Text="{TemplateBinding Message}"
+                         IsVisible="{Binding Message, RelativeSource={RelativeSource TemplatedParent}, Converter={x:Static ObjectConverters.IsNotNull}}"
+                         HorizontalAlignment="Center"
+                         TextAlignment="Center"
+                         TextWrapping="Wrap"/>
+
               <ContentControl Content="{TemplateBinding Content}"
                               ContentTemplate="{TemplateBinding ContentTemplate}"
                               IsVisible="{TemplateBinding HasContent}" />
