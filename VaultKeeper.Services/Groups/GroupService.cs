@@ -140,4 +140,28 @@ public class GroupService(
             return ex.ToFailedResult().Logged(logger);
         }
     }
+
+    public async Task<Result<long>> DeleteAllEmptyAsync()
+    {
+        logger.LogInformation(nameof(DeleteAllEmptyAsync));
+
+        try
+        {
+            IEnumerable<Group> groups = await repository.GetManyAsync();
+            IEnumerable<VaultItem> vaultItems = await vaultItemRepository.GetManyAsync();
+            IEnumerable<Guid> vaultItemGroupIds = vaultItems.Select(x => x.GroupId.GetValueOrDefault()).Distinct();
+
+            Group[] emptyGroups = [.. groups.Where(x => !vaultItemGroupIds.Contains(x.Id))];
+            if (emptyGroups.Length < 1)
+                return Result.Ok<long>(0, "Zero empty Groups found - nothing to delete.").Logged(logger);
+
+            long deleteCount = await repository.RemoveManyAsync(emptyGroups);
+
+            return Result.Ok(deleteCount, $"{deleteCount} empty Groups deleted successfully.").Logged(logger);
+        }
+        catch (Exception ex)
+        {
+            return ex.ToFailedResult<long>().Logged(logger);
+        }
+    }
 }

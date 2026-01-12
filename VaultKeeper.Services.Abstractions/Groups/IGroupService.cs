@@ -13,4 +13,5 @@ public interface IGroupService
     Task<Result<IEnumerable<Group>>> AddManyAsync(IEnumerable<NewGroup> groups);
     Task<Result<Group>> UpdateAsync(Group group);
     Task<Result> DeleteAsync(Group group, CascadeDeleteMode cascadeDeleteMode = CascadeDeleteMode.DeleteChildren);
+    Task<Result<long>> DeleteAllEmptyAsync();
 }

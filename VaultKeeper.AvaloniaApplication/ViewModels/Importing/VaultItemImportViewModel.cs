@@ -17,7 +17,7 @@ namespace VaultKeeper.AvaloniaApplication.ViewModels.Importing;
 
 public partial class VaultItemImportViewModel : ViewModelBase
 {
-    public Action? ProcessSucceededAction { get; set; }
+    public Func<Task>? ProcessSucceededAction { get; set; }
 
     public ExportData? ExportData { get; set; }
 
@@ -74,8 +74,8 @@ public partial class VaultItemImportViewModel : ViewModelBase
 
         IsProcessing = false;
 
-        if (isProcessSuccssful)
-            ProcessSucceededAction?.Invoke();
+        if (isProcessSuccssful && ProcessSucceededAction != null)
+            await ProcessSucceededAction.Invoke();
 
         return isProcessSuccssful;
     }

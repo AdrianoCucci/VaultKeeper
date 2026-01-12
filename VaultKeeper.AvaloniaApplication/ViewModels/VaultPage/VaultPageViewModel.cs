@@ -37,6 +37,7 @@ public partial class VaultPageViewModel(
     ISecurityService securityService,
     IPlatformService platformService,
     IKeyGeneratorService keyGeneratorService,
+    IUserSettingsService userSettingsService,
     IErrorReportingService errorReportingService,
     IServiceProvider serviceProvider) : ViewModelBase
 {
@@ -115,67 +116,15 @@ public partial class VaultPageViewModel(
         return _groupData;
     }
 
-    public void ShowImportItemsOverlay()
-    {
-        VaultItemImportViewModel viewModel = serviceProvider.GetRequiredService<VaultItemImportViewModel>();
-
-        viewModel.ProcessSucceededAction = () => ShowOverlay(new PromptViewModel
-        {
-            Header = "Import Success",
-            Message = "Data has been imported successfully.",
-            AckwnoledgedAction = HideOverlay
-        });
-
-        ShowOverlay(new PromptViewModel
-        {
-            Header = "Import Keys",
-            ShowOkButton = false,
-            Content = viewModel,
-            ContentMaxHeight = 600,
-            AckwnoledgedAction = HideOverlay
-        });
-    }
-
-    public void ShowExportItemsOverlay(IEnumerable<VaultItem>? selectedItems = null)
-    {
-        selectedItems ??= _selectedItems.Count > 0 ? _selectedItems : _vaultItemData.Items;
-        IEnumerable<Guid> relatedGroupIds = selectedItems.Select(x => x.GroupId.GetValueOrDefault()).Distinct();
-        IEnumerable<Group> relatedGroups = _groupData.Items.Where(x => relatedGroupIds.Contains(x.Id));
-
-        ExportData exportData = new()
-        {
-            VaultItems = selectedItems,
-            Groups = relatedGroups
-        };
-
-        VaultItemImportViewModel viewModel = serviceProvider.GetRequiredService<VaultItemImportViewModel>();
-        viewModel.Mode = VaultItemImportViewMode.Export;
-        viewModel.ExportData = exportData;
-        viewModel.ProcessSucceededAction = () => ShowOverlay(new PromptViewModel
-        {
-            Header = "Export Success",
-            Message = "Data has been exported successfully.",
-            AckwnoledgedAction = HideOverlay
-        });
-
-        ShowOverlay(new PromptViewModel
-        {
-            Header = "Export Keys",
-            ShowOkButton = false,
-            Content = viewModel,
-            ContentMaxHeight = 600,
-            AckwnoledgedAction = HideOverlay
-        });
-    }
-
     public async Task HandleToolbarActionAsync(VaultPageToolbarEventArgs eventArgs)
     {
         VaultPageToolbarViewModel viewModel = eventArgs.ViewModel;
 
         async Task BulkActionSuccessAsync()
         {
-            SetSelectedItems([]);
+            _ = await TryDeleteEmptyGroupsAsync();
             await LoadDataAsync();
+            SetSelectedItems([]);
             HideOverlay();
         }
 
@@ -310,7 +259,12 @@ public partial class VaultPageViewModel(
                     ConfirmAction = async _ =>
                     {
                         if (await DeleteVaultItemAsync(viewModel.Model))
+                        {
+                            if (await TryDeleteEmptyGroupsAsync())
+                                await LoadDataAsync();
+
                             HideOverlay();
+                        }
                     }
                 });
                 break;
@@ -423,6 +377,69 @@ public partial class VaultPageViewModel(
                 }
                 break;
         }
+    }
+
+    public void ShowImportItemsOverlay()
+    {
+        VaultItemImportViewModel viewModel = serviceProvider.GetRequiredService<VaultItemImportViewModel>();
+
+        viewModel.ProcessSucceededAction = async () =>
+        {
+            ShowOverlay(new PromptViewModel
+            {
+                Header = "Import Success",
+                Message = "Data has been imported successfully.",
+                AckwnoledgedAction = HideOverlay
+            });
+
+            await LoadDataAsync();
+        };
+
+        ShowOverlay(new PromptViewModel
+        {
+            Header = "Import Keys",
+            ShowOkButton = false,
+            Content = viewModel,
+            ContentMaxHeight = 600,
+            AckwnoledgedAction = HideOverlay
+        });
+    }
+
+    public void ShowExportItemsOverlay(IEnumerable<VaultItem>? selectedItems = null)
+    {
+        selectedItems ??= _selectedItems.Count > 0 ? _selectedItems : _vaultItemData.Items;
+        IEnumerable<Guid> relatedGroupIds = selectedItems.Select(x => x.GroupId.GetValueOrDefault()).Distinct();
+        IEnumerable<Group> relatedGroups = _groupData.Items.Where(x => relatedGroupIds.Contains(x.Id));
+
+        ExportData exportData = new()
+        {
+            VaultItems = selectedItems,
+            Groups = relatedGroups
+        };
+
+        VaultItemImportViewModel viewModel = serviceProvider.GetRequiredService<VaultItemImportViewModel>();
+        viewModel.Mode = VaultItemImportViewMode.Export;
+        viewModel.ExportData = exportData;
+        viewModel.ProcessSucceededAction = () =>
+        {
+            ShowOverlay(new PromptViewModel
+            {
+                Header = "Export Success",
+                Message = "Data has been exported successfully.",
+                AckwnoledgedAction = HideOverlay
+            });
+
+            return Task.CompletedTask;
+        };
+
+        ShowOverlay(new PromptViewModel
+        {
+            Header = "Export Keys",
+            ShowOkButton = false,
+            Content = viewModel,
+            ContentMaxHeight = 600,
+            AckwnoledgedAction = HideOverlay
+        });
     }
 
     public void ShowVaultItemCreateForm(VaultItem? vaultItem = null)
@@ -663,6 +680,10 @@ public partial class VaultPageViewModel(
                     if (result.IsSuccessful)
                     {
                         formEvent.ViewModel.UpdateModel(_ => result.Value!);
+
+                        if (await TryDeleteEmptyGroupsAsync())
+                            await LoadDataAsync();
+
                         HideVaultItemEditForm(formEvent.ViewModel.Model);
                     }
 
@@ -834,6 +855,28 @@ public partial class VaultPageViewModel(
         }
 
         return deleteResult;
+    }
+
+    private async Task<bool> TryDeleteEmptyGroupsAsync()
+    {
+        EmptyGroupMode emptyGroupMode = userSettingsService.GetUserSettingsOrDefault().EmptyGroupMode;
+        if (emptyGroupMode != EmptyGroupMode.Delete)
+            return false;
+
+        Result<long> deleteResult = await groupService.DeleteAllEmptyAsync();
+        if (!deleteResult.IsSuccessful)
+        {
+            errorReportingService.ReportError(new()
+            {
+                Header = "Failed to Delete Empty Groups",
+                Message = $"Application Error: ({deleteResult.FailureType}) - {deleteResult.Message}",
+                Exception = deleteResult.Exception,
+                Source = ErrorSource.Application,
+                Severity = ErrorSeverity.High
+            });
+        }
+
+        return deleteResult.IsSuccessful;
     }
 
     private IEnumerable<VaultItemShellViewModel> GetVaultItemViewModels() => GroupedVaultItems.SelectMany(x => x.VaultItems);

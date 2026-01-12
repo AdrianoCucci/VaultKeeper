@@ -29,6 +29,22 @@ public class UserSettingsService(ILogger<UserSettingsService> logger, ICache<Use
         EmptyGroupMode = EmptyGroupMode.Keep
     };
 
+    private IEnumerable<EmptyGroupModeDefinition> EmptyGroupModeDefinitions =>
+    [
+        new()
+        {
+            Mode = EmptyGroupMode.Keep,
+            Name = "Keep",
+            Description = "Keep Groups when all Keys are removed from them."
+        },
+        new()
+        {
+            Mode = EmptyGroupMode.Delete,
+            Name = "Delete",
+            Description = "Automatically delete Groups when all Keys are removed from them."
+        }
+    ];
+
     public UserSettings? GetUserSettings()
     {
         logger.LogInformation(nameof(GetUserSettings));
@@ -77,10 +93,10 @@ public class UserSettingsService(ILogger<UserSettingsService> logger, ICache<Use
         return UpdateUserSettings(settings => settings with { KeyGeneration = value });
     }
 
-    public IEnumerable<EmptyGroupMode> GetEmptyGroupModeOptions()
+    public IEnumerable<EmptyGroupModeDefinition> GetEmptyGroupModeDefinitions()
     {
-        logger.LogInformation(nameof(GetEmptyGroupModeOptions));
-        return Enum.GetValues<EmptyGroupMode>();
+        logger.LogInformation(nameof(GetEmptyGroupModeDefinitions));
+        return EmptyGroupModeDefinitions;
     }
 
     public UserSettings SetEmptyGroupMode(EmptyGroupMode value)

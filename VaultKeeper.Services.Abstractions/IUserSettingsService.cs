@@ -13,6 +13,6 @@ public interface IUserSettingsService
     UserSettings SetAppThemeSettings(AppThemeSettings value);
     UserSettings SetBackupSettings(BackupSettings value);
     UserSettings SetKeyGenerationSettings(KeyGenerationSettings value);
-    IEnumerable<EmptyGroupMode> GetEmptyGroupModeOptions();
+    IEnumerable<EmptyGroupModeDefinition> GetEmptyGroupModeDefinitions();
     UserSettings SetEmptyGroupMode(EmptyGroupMode value);
 }
