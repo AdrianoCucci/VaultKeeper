@@ -14,7 +14,7 @@ public partial class VaultItemImportViewModel
             {
                 Type = ImportSourceType.Application,
                 Name = "Vault Keeper",
-                FileType = "*.csv",
+                FileType = ".csv",
                 Icon = Icons.VaultKeeper,
                 Description = "A Vault Keeper keys CSV file."
             },
@@ -22,7 +22,7 @@ public partial class VaultItemImportViewModel
             {
                 Type = ImportSourceType.Chromium,
                 Name = "Chrome/Chromium",
-                FileType = "*.csv",
+                FileType = ".csv",
                 Icon = Icons.GoogleChrome,
                 Description = "A Google Chrome or other Chromium-based browser password CSV file.",
                 AdditionalIcons = [Icons.MicrosoftEdge, Icons.BraveBrowser, Icons.OperaBrowser]
@@ -31,7 +31,7 @@ public partial class VaultItemImportViewModel
             {
                 Type = ImportSourceType.Firefox,
                 Name = "Firefox",
-                FileType = "*.csv",
+                FileType = ".csv",
                 Icon = Icons.MozillaFirefox,
                 Description = "A Mozilla Firefox password CSV file."
             }

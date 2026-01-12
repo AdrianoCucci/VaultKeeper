@@ -115,11 +115,30 @@ public partial class VaultPageViewModel(
         return _groupData;
     }
 
-    public void ShowImportItemsOverlay() => ShowOverlay(serviceProvider.GetRequiredService<VaultItemImportViewModel>());
-
-    public void ShowExportItemsOverlay()
+    public void ShowImportItemsOverlay()
     {
-        IReadOnlyCollection<VaultItem> selectedItems = _selectedItems.Count > 0 ? _selectedItems : _vaultItemData.Items;
+        VaultItemImportViewModel viewModel = serviceProvider.GetRequiredService<VaultItemImportViewModel>();
+
+        viewModel.ProcessSucceededAction = () => ShowOverlay(new PromptViewModel
+        {
+            Header = "Import Success",
+            Message = "Data has been imported successfully.",
+            AckwnoledgedAction = HideOverlay
+        });
+
+        ShowOverlay(new PromptViewModel
+        {
+            Header = "Import Keys",
+            ShowOkButton = false,
+            Content = viewModel,
+            ContentMaxHeight = 600,
+            AckwnoledgedAction = HideOverlay
+        });
+    }
+
+    public void ShowExportItemsOverlay(IEnumerable<VaultItem>? selectedItems = null)
+    {
+        selectedItems ??= _selectedItems.Count > 0 ? _selectedItems : _vaultItemData.Items;
         IEnumerable<Guid> relatedGroupIds = selectedItems.Select(x => x.GroupId.GetValueOrDefault()).Distinct();
         IEnumerable<Group> relatedGroups = _groupData.Items.Where(x => relatedGroupIds.Contains(x.Id));
 
@@ -132,8 +151,21 @@ public partial class VaultPageViewModel(
         VaultItemImportViewModel viewModel = serviceProvider.GetRequiredService<VaultItemImportViewModel>();
         viewModel.Mode = VaultItemImportViewMode.Export;
         viewModel.ExportData = exportData;
+        viewModel.ProcessSucceededAction = () => ShowOverlay(new PromptViewModel
+        {
+            Header = "Export Success",
+            Message = "Data has been exported successfully.",
+            AckwnoledgedAction = HideOverlay
+        });
 
-        ShowOverlay(viewModel);
+        ShowOverlay(new PromptViewModel
+        {
+            Header = "Export Keys",
+            ShowOkButton = false,
+            Content = viewModel,
+            ContentMaxHeight = 600,
+            AckwnoledgedAction = HideOverlay
+        });
     }
 
     public async Task HandleToolbarActionAsync(VaultPageToolbarEventArgs eventArgs)
@@ -175,15 +207,14 @@ public partial class VaultPageViewModel(
                 {
                     GroupSelectInputViewModel groupInputVM = new(_groupData.Items);
 
-                    ShowOverlay(new GroupItemsConfirmPromptViewModel
+                    ShowOverlay(new ConfirmPromptViewModel
                     {
                         Header = "Group Keys",
                         Message = $"Select or create a group to place {_selectedItems.Count} keys in.",
-                        GroupInputVM = groupInputVM,
+                        Content = groupInputVM,
                         CancelAction = HideOverlay,
                         ConfirmAction = async _ =>
                         {
-                            // TODO: Maybe refactor this?
                             Group group = groupInputVM.GetGroup();
 
                             if (groupInputVM.WillCreateGroup)
@@ -331,6 +362,12 @@ public partial class VaultPageViewModel(
             case GroupAction.AddItem:
                 ShowVaultItemCreateForm(new() { GroupId = eventArgs.Group.Id });
                 break;
+            case GroupAction.Export:
+                {
+                    IEnumerable<VaultItem> itemsInGroup = _vaultItemData.Items.Where(x => x.GroupId == eventArgs.Group.Id);
+                    ShowExportItemsOverlay(itemsInGroup);
+                    break;
+                }
             case GroupAction.Edit:
                 TryUpdateGroupViewModel(eventArgs.Group, () => new GroupFormViewModel(eventArgs.Group, FormMode.Edit));
                 break;
@@ -357,30 +394,20 @@ public partial class VaultPageViewModel(
             case GroupAction.Delete:
                 {
                     bool groupIsNotEmpty = _vaultItemData.Items.Where(x => x.GroupId == eventArgs.Group.Id).Any();
-                    ConfirmPromptViewModel promptVM;
+                    ConfirmPromptViewModel promptVM = new()
+                    {
+                        Header = "Delete Group",
+                        Message = $"Are you sure you want to delete group: \"{eventArgs.Group.Name}\"?",
+                        CancelAction = HideOverlay
+                    };
 
                     if (groupIsNotEmpty)
-                    {
-                        promptVM = new DeleteGroupConfirmPromptViewModel()
-                        {
-                            Header = "Delete Group",
-                            Message = $"Choose what should happen to the keys inside of group: \"{eventArgs.Group.Name}\":",
-                            CascadeDeleteMode = CascadeDeleteMode.OrphanChildren,
-                        };
-                    }
-                    else
-                    {
-                        promptVM = new ConfirmPromptViewModel
-                        {
-                            Header = "Delete Group",
-                            Message = $"Are you sure you want to delete group: \"{eventArgs.Group.Name}\"?"
-                        };
-                    }
+                        promptVM.Content = new GroupDeleteOptionsViewModel();
 
                     promptVM.CancelAction = HideOverlay;
                     promptVM.ConfirmAction = async vm =>
                     {
-                        CascadeDeleteMode cascadeDeleteMode = vm is DeleteGroupConfirmPromptViewModel groupPromptVM
+                        CascadeDeleteMode cascadeDeleteMode = vm.Content is GroupDeleteOptionsViewModel groupPromptVM
                             ? groupPromptVM.CascadeDeleteMode
                             : CascadeDeleteMode.DeleteChildren;
 

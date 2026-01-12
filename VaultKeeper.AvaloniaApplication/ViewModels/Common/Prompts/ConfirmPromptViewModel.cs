@@ -11,6 +11,12 @@ public partial class ConfirmPromptViewModel : PromptViewModel
     private bool _isActionRunning = false;
     public bool IsActionRunning { get => _isActionRunning; private set => SetProperty(ref _isActionRunning, value); }
 
+    public ConfirmPromptViewModel() => ShowOkButton = false;
+
+    public Task ConfirmAsync() => InvokeActionAsync(ConfirmPromptAction.Confirmed);
+
+    public void Cancel() => InvokeActionAsync(ConfirmPromptAction.Cancelled).Wait();
+
     public async Task InvokeActionAsync(ConfirmPromptAction action)
     {
         try

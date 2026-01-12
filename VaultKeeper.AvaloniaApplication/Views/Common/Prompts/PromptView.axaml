@@ -12,5 +12,13 @@
     <vm:PromptViewModel Header="Prompt" Message="This is a prompt message."/>
   </Design.DataContext>
 
-  <local:Prompt Header="{Binding Header}" Message="{Binding Message}" Acknowledged="Prompt_Acknowledged"/>
+  <local:Prompt Header="{Binding Header}"
+                Message="{Binding Message}"
+                Content="{Binding Content}"
+                ContentMinWidth="{Binding ContentMinWidth}"
+                ContentMaxWidth="{Binding ContentMaxWidth}"
+                ContentMinHeight="{Binding ContentMinHeight}"
+                ContentMaxHeight="{Binding ContentMaxHeight}"
+                ShowOkButton="{Binding ShowOkButton}"
+                Acknowledged="Prompt_Acknowledged"/>
 </UserControl>

@@ -123,24 +123,12 @@
                       CardMaxWidth="{Binding #Root.Bounds.Width}"
                       BackdropPressed="Modal_BackdropPressed">
         <overlays:Modal.DataTemplates>
-          <DataTemplate x:DataType="importingVMs:VaultItemImportViewModel">
-            <importing:VaultItemImportView Padding="20" MaxWidth="1000" ProcessSucceeded="VaultItemImportView_ProcessSucceeded"/>
-          </DataTemplate>
-
-          <DataTemplate x:DataType="promptVMs:DeleteGroupConfirmPromptViewModel">
-            <prompts:DeleteGroupConfirmPromptView/>
-          </DataTemplate>
-
-          <DataTemplate x:DataType="promptVMs:GroupItemsConfirmPromptViewModel">
-            <prompts:GroupItemsConfirmPromptView/>
-          </DataTemplate>
-
           <DataTemplate x:DataType="promptVMs:ConfirmPromptViewModel">
             <prompts:ConfirmPromptView/>
           </DataTemplate>
 
           <DataTemplate x:DataType="promptVMs:PromptViewModel">
-            <prompts:PromptView Padding="20 20 20 0" Acknowledged="PromptView_Acknowledged"/>
+            <prompts:PromptView Acknowledged="PromptView_Acknowledged"/>
           </DataTemplate>
         </overlays:Modal.DataTemplates>
       </overlays:Modal>

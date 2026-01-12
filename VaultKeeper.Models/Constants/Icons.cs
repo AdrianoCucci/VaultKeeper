@@ -34,6 +34,7 @@ public static class Icons
     public const string MicrosoftEdge = $"{_prefix}MicrosoftEdge";
     public const string BraveBrowser = $"{_prefix}BraveBrowser";
     public const string OperaBrowser = $"{_prefix}OperaBrowser";
+    public const string ExclamationTriangle = $"{_prefix}ExclamationTriangle";
 
     private const string _prefix = "Icon";
 }

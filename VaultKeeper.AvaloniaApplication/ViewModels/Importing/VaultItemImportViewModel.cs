@@ -10,7 +10,6 @@ using VaultKeeper.AvaloniaApplication.Abstractions;
 using VaultKeeper.Common.Results;
 using VaultKeeper.Models.Errors;
 using VaultKeeper.Models.Importing;
-using VaultKeeper.Models.VaultItems;
 using VaultKeeper.Services.Abstractions;
 using VaultKeeper.Services.Abstractions.Importing;
 
@@ -18,6 +17,8 @@ namespace VaultKeeper.AvaloniaApplication.ViewModels.Importing;
 
 public partial class VaultItemImportViewModel : ViewModelBase
 {
+    public Action? ProcessSucceededAction { get; set; }
+
     public ExportData? ExportData { get; set; }
 
     [ObservableProperty, NotifyPropertyChangedFor(nameof(IsExportMode))]
@@ -28,9 +29,6 @@ public partial class VaultItemImportViewModel : ViewModelBase
 
     [ObservableProperty]
     private ImportSource? _selectedSource;
-
-    [ObservableProperty]
-    private int _itemsGridRows = 1;
 
     private bool _isProcessing = false;
     public bool IsProcessing { get => _isProcessing; private set => SetProperty(ref _isProcessing, value); }
@@ -55,7 +53,12 @@ public partial class VaultItemImportViewModel : ViewModelBase
     }
 
 #if DEBUG
-    public VaultItemImportViewModel() : this(null!, null!, null!) { }
+    public VaultItemImportViewModel()
+    {
+        _importService = null!;
+        _platformService = null!;
+        _errorReportingService = null!;
+    }
 #endif
 
     public async Task<bool> SelectAndProcessFileAsync()
@@ -70,6 +73,9 @@ public partial class VaultItemImportViewModel : ViewModelBase
         };
 
         IsProcessing = false;
+
+        if (isProcessSuccssful)
+            ProcessSucceededAction?.Invoke();
 
         return isProcessSuccssful;
     }

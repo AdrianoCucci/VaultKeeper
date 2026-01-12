@@ -39,6 +39,11 @@ public partial class SettingsPageViewModel : ViewModelBase
     [ObservableProperty]
     private int _fontSize = 14;
 
+    [ObservableProperty]
+    private IEnumerable<EmptyGroupMode> _emptyGroupModes = [];
+
+    [ObservableProperty]
+    private EmptyGroupMode? _currentEmptyGroupMode;
 
     private BackupDirectoryProperties _backupDirectoryProps;
     public BackupDirectoryProperties BackupDirectoryProps { get => _backupDirectoryProps; private set => SetProperty(ref _backupDirectoryProps, value); }
@@ -102,6 +107,9 @@ public partial class SettingsPageViewModel : ViewModelBase
 
         KeyGenerationSettings keyGenerationSettings = Model.KeyGeneration ?? KeyGenerationSettings.Default;
         KeyGenerationSettingsVM.ApplySettings(keyGenerationSettings);
+
+        EmptyGroupModes = _userSettingsService?.GetEmptyGroupModeOptions() ?? [];
+        CurrentEmptyGroupMode = EmptyGroupModes.FirstOrDefault(x => x == Model.EmptyGroupMode);
 
         UpdateServices(Model);
 

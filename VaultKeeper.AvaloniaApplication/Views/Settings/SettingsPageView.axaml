@@ -4,6 +4,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:local="using:VaultKeeper.AvaloniaApplication.Views.Settings"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:models="using:VaultKeeper.AvaloniaApplication.Abstractions.Models"
              xmlns:vm="using:VaultKeeper.AvaloniaApplication.ViewModels.Settings"
              mc:Ignorable="d" d:DesignWidth="1920" d:DesignHeight="2000"
              x:Class="VaultKeeper.AvaloniaApplication.Views.Settings.SettingsPageView"
@@ -39,7 +40,7 @@
 
               <ListBox.ItemTemplate>
                 <DataTemplate>
-                  <StackPanel>
+                  <StackPanel x:DataType="models:AppThemeDefinition">
                     <Border Width="100" Height="75" CornerRadius="4" Background="{Binding BackgroundBrush}">
                       <Border Margin="10 10 10 20" CornerRadius="4" Background="{Binding ForegroundBrush}">
                         <StackPanel>

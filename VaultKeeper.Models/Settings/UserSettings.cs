@@ -6,10 +6,12 @@ public record UserSettings
     {
         Theme = AppThemeSettings.Default,
         Backup = BackupSettings.Default,
-        KeyGeneration = KeyGenerationSettings.Default
+        KeyGeneration = KeyGenerationSettings.Default,
+        EmptyGroupMode = EmptyGroupMode.Keep
     };
 
     public required AppThemeSettings Theme { get; set; }
     public required BackupSettings Backup { get; set; }
     public required KeyGenerationSettings KeyGeneration { get; set; }
+    public EmptyGroupMode EmptyGroupMode { get; set; }
 }

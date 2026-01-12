@@ -50,7 +50,7 @@ public class CsvService(ILogger<CsvService> logger) : ICsvService
                 csvWriter.Context.RegisterClassMap(classMap);
                 csvWriter.WriteRecords(records);
                 csvWriter.Flush();
-                
+
                 serializedBytes = memoryStream.ToArray();
             }
 

@@ -85,8 +85,8 @@
     <overlays:OverlayPanel.OverlayContent>
       <overlays:Modal Content="{Binding OverlayContent}">
         <overlays:Modal.DataTemplates>
-          <DataTemplate x:DataType="promptVMs:ChangePasswordConfirmPromptViewModel">
-            <prompts:ChangePasswordConfirmPromptView/>
+          <DataTemplate x:DataType="promptVMs:ConfirmPromptViewModel">
+            <prompts:ConfirmPromptView/>
           </DataTemplate>
 
           <DataTemplate x:DataType="promptVMs:PromptViewModel">
