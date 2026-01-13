@@ -10,6 +10,7 @@ using VaultKeeper.Models.ApplicationData;
 using VaultKeeper.Models.Constants;
 using VaultKeeper.Models.Groups;
 using VaultKeeper.Models.Importing;
+using VaultKeeper.Models.Security;
 using VaultKeeper.Models.VaultItems;
 using VaultKeeper.Services.Abstractions;
 using VaultKeeper.Services.Abstractions.DataFormatting;
@@ -125,19 +126,21 @@ public class ImportService(
 
         List<NewVaultItem> vaultItemsToCreate = [];
 
-        foreach (VaultItemImportRecord importRecord in importRecords)
+        Result encryptResult = securityService.UsingEncryptionScope(scope =>
         {
-            Result<string> encryptValueResult = securityService.Encrypt(importRecord.Value);
-            if (!encryptValueResult.IsSuccessful)
-                return encryptValueResult.Logged(logger);
-
-            vaultItemsToCreate.Add(new()
+            foreach (VaultItemImportRecord importRecord in importRecords)
             {
-                Name = importRecord.Name,
-                Value = encryptValueResult.Value!,
-                GroupId = existingGroups.FirstOrDefault(g => g.Name == importRecord.GroupName)?.Id
-            });
-        }
+                vaultItemsToCreate.Add(new()
+                {
+                    Name = importRecord.Name,
+                    Value = scope.Encrypt(importRecord.Value),
+                    GroupId = existingGroups.FirstOrDefault(g => g.Name == importRecord.GroupName)?.Id
+                });
+            }
+        });
+
+        if (!encryptResult.IsSuccessful)
+            return encryptResult.Logged(logger);
 
         Result<IEnumerable<VaultItem>> createVaultItemsResult = await vaultItemService.AddManyAsync(vaultItemsToCreate);
         if (!createVaultItemsResult.IsSuccessful)
@@ -156,14 +159,16 @@ public class ImportService(
 
         VaultItemImportRecord[] records = [.. MapToApplicationRecords(exportData)];
 
-        foreach (VaultItemImportRecord record in records)
+        Result decryptResult = securityService.UsingEncryptionScope(scope =>
         {
-            Result<string> decryptValueResult = securityService.Decrypt(record.Value);
-            if (!decryptValueResult.IsSuccessful)
-                return decryptValueResult.Logged(logger);
+            foreach (VaultItemImportRecord record in records)
+            {
+                record.Value = scope.Decrypt(record.Value);
+            }
+        });
 
-            record.Value = decryptValueResult.Value!;
-        }
+        if (!decryptResult.IsSuccessful)
+            return decryptResult.Logged(logger);
 
         Result<string> serializeResult;
 

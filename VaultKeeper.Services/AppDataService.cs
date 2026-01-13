@@ -9,6 +9,7 @@ using VaultKeeper.Common.Results;
 using VaultKeeper.Models.ApplicationData;
 using VaultKeeper.Models.ApplicationData.Files;
 using VaultKeeper.Models.Groups;
+using VaultKeeper.Models.Security;
 using VaultKeeper.Models.Settings;
 using VaultKeeper.Models.VaultItems;
 using VaultKeeper.Repositories.Abstractions;
@@ -379,11 +380,11 @@ public class AppDataService(
         if (!dataSerializeResult.IsSuccessful)
             return dataSerializeResult;
 
-        Result<string> dataEncryptResult = securityService.Encrypt(dataSerializeResult.Value!);
+        Result<EncryptedData> dataEncryptResult = securityService.Encrypt(dataSerializeResult.Value!);
         if (!dataEncryptResult.IsSuccessful)
             return dataEncryptResult;
 
-        Result saveResult = fileService.WriteFileText(filePath, dataEncryptResult.Value!);
+        Result saveResult = fileService.WriteFileText(filePath, dataEncryptResult.Value);
 
         return saveResult;
     }

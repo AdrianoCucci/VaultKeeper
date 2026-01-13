@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using VaultKeeper.Common.Extensions;
 using VaultKeeper.Common.Models.Queries;
 using VaultKeeper.Common.Results;
+using VaultKeeper.Models.Security;
 using VaultKeeper.Models.VaultItems;
 using VaultKeeper.Models.VaultItems.Extensions;
 using VaultKeeper.Repositories.Abstractions;
@@ -49,11 +50,11 @@ public class VaultItemService(
 
             if (encrypt)
             {
-                Result<string> encryptValueResult = securityService.Encrypt(model.Value);
+                Result<EncryptedData> encryptValueResult = securityService.Encrypt(model.Value);
                 if (!encryptValueResult.IsSuccessful)
                     return encryptValueResult.WithValue<VaultItem>().Logged(logger);
 
-                model.Value = encryptValueResult.Value!;
+                model.Value = encryptValueResult.Value;
             }
 
             model = await repository.AddAsync(model);
@@ -82,11 +83,11 @@ public class VaultItemService(
             {
                 foreach (var model in models)
                 {
-                    Result<string> encryptValueResult = securityService.Encrypt(model.Value);
+                    Result<EncryptedData> encryptValueResult = securityService.Encrypt(model.Value);
                     if (!encryptValueResult.IsSuccessful)
                         return encryptValueResult.WithValue<IEnumerable<VaultItem>>().Logged(logger);
 
-                    model.Value = encryptValueResult.Value!;
+                    model.Value = encryptValueResult.Value;
                 }
             }
 
@@ -122,11 +123,11 @@ public class VaultItemService(
 
             if (encrypt)
             {
-                Result<string> encryptValueResult = securityService.Encrypt(updateModel.Value);
+                Result<EncryptedData> encryptValueResult = securityService.Encrypt(updateModel.Value);
                 if (!encryptValueResult.IsSuccessful)
                     return encryptValueResult.WithValue<VaultItem>().Logged(logger);
 
-                updateModel.Value = encryptValueResult.Value!;
+                updateModel.Value = encryptValueResult.Value;
             }
 
             updateModel = (await repository.UpdateAsync(existingItem, updateModel))!;

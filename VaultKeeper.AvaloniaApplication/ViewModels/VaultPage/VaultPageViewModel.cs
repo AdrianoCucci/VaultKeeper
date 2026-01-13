@@ -22,6 +22,7 @@ using VaultKeeper.Models.Errors;
 using VaultKeeper.Models.Groups;
 using VaultKeeper.Models.Groups.Extensions;
 using VaultKeeper.Models.Importing;
+using VaultKeeper.Models.Security;
 using VaultKeeper.Models.Settings;
 using VaultKeeper.Models.VaultItems;
 using VaultKeeper.Models.VaultItems.Extensions;
@@ -925,8 +926,8 @@ public partial class VaultPageViewModel(
 
     private string Encrypt(string value)
     {
-        Result<string> result = securityService.Encrypt(value);
-        return result.Value ?? value;
+        Result<EncryptedData> result = securityService.Encrypt(value);
+        return result.Value;
     }
 
     private string Decrypt(string value)
