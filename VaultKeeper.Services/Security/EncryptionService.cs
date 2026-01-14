@@ -49,30 +49,9 @@ public class EncryptionService(ILogger<EncryptionService> logger, IFileService f
         _encryptionConfigFilePath = filePath;
     }
 
-    public Result<EncryptedData> Encrypt(string data)
+    public Result<string> Encrypt(string data)
     {
         logger.LogInformation(nameof(Encrypt));
-
-        try
-        {
-            Result<EncryptionConfig> getConfigResult = GetEncryptionConfigOrDefault();
-            if (!getConfigResult.IsSuccessful)
-                return getConfigResult.WithValue<EncryptedData>().Logged(logger);
-
-            byte[] key = Convert.FromBase64String(getConfigResult.Value!.Key);
-            EncryptedData encryptedData = EncryptInternal(data, key);
-
-            return encryptedData.ToOkResult().Logged(logger);
-        }
-        catch (Exception ex)
-        {
-            return ex.ToFailedResult<EncryptedData>().Logged(logger);
-        }
-    }
-
-    public Result<string> Decrypt(EncryptedData data)
-    {
-        logger.LogInformation($"{nameof(Decrypt)} ({{paramType}})", data.GetType().Name);
 
         try
         {
@@ -81,9 +60,13 @@ public class EncryptionService(ILogger<EncryptionService> logger, IFileService f
                 return getConfigResult.WithValue<string>().Logged(logger);
 
             byte[] key = Convert.FromBase64String(getConfigResult.Value!.Key);
-            string decryptedData = DecryptInternal(data, key);
+            string encryptedData = EncryptInternal(data, key);
 
-            return decryptedData.ToOkResult().Logged(logger);
+            return encryptedData.ToOkResult().Logged(logger);
+        }
+        catch (FormatException ex)
+        {
+            return ex.ToFailedResult<string>(ResultFailureType.InvalidFormat).Logged(logger);
         }
         catch (Exception ex)
         {
@@ -93,18 +76,16 @@ public class EncryptionService(ILogger<EncryptionService> logger, IFileService f
 
     public Result<string> Decrypt(string data)
     {
-        logger.LogInformation($"{nameof(Decrypt)} ({{paramType}})", data.GetType().Name);
+        logger.LogInformation(nameof(Decrypt));
 
         try
         {
-            EncryptedData encryptedData = EncryptedData.Parse(data);
-
             Result<EncryptionConfig> getConfigResult = GetEncryptionConfigOrDefault();
             if (!getConfigResult.IsSuccessful)
                 return getConfigResult.WithValue<string>().Logged(logger);
 
             byte[] key = Convert.FromBase64String(getConfigResult.Value!.Key);
-            string decryptedData = DecryptInternal(encryptedData, key);
+            string decryptedData = DecryptInternal(data, key);
 
             return decryptedData.ToOkResult().Logged(logger);
         }
@@ -126,7 +107,7 @@ public class EncryptionService(ILogger<EncryptionService> logger, IFileService f
         {
             Result<EncryptionConfig> getConfigResult = GetEncryptionConfigOrDefault();
             if (!getConfigResult.IsSuccessful)
-                return getConfigResult.WithValue<EncryptedData>().Logged(logger);
+                return getConfigResult.Logged(logger);
 
             byte[] key = Convert.FromBase64String(getConfigResult.Value!.Key);
 
@@ -146,7 +127,9 @@ public class EncryptionService(ILogger<EncryptionService> logger, IFileService f
         }
     }
 
-    private static EncryptedData EncryptInternal(AesGcm aes, string data)
+    private static AesGcm CreateAes(byte[] key) => new(key, TagSizeBytes);
+
+    private static string EncryptInternal(AesGcm aes, string data)
     {
         byte[] nonce = new byte[NonceSizeBytes];
         RandomNumberGenerator.Fill(nonce);
@@ -157,26 +140,22 @@ public class EncryptionService(ILogger<EncryptionService> logger, IFileService f
 
         aes.Encrypt(nonce, plaintext, cyphertext, tag);
 
-        string cyphertextString = Convert.ToBase64String(cyphertext);
-        string nonceString = Convert.ToBase64String(nonce);
-        string tagString = Convert.ToBase64String(tag);
+        byte[] packedBytes = PackBytes(cyphertext, nonce, tag);
+        string encryptedString = Convert.ToBase64String(packedBytes);
 
-        return new EncryptedData(cyphertextString, nonceString, tagString);
+        return encryptedString;
     }
 
-    private static EncryptedData EncryptInternal(string data, byte[] key)
+    private static string EncryptInternal(string data, byte[] key)
     {
         using AesGcm aes = CreateAes(key);
         return EncryptInternal(aes, data);
     }
 
-    private static string DecryptInternal(AesGcm aes, EncryptedData data)
+    private static string DecryptInternal(AesGcm aes, string data)
     {
-        EncryptedData.EncryptedDataParts parts = data.Parts;
-
-        byte[] ciphertext = Convert.FromBase64String(parts.Ciphertext);
-        byte[] nonce = Convert.FromBase64String(parts.Nonce);
-        byte[] tag = Convert.FromBase64String(parts.Tag);
+        byte[] packedBytes = Convert.FromBase64String(data);
+        (byte[] nonce, byte[] tag, byte[] ciphertext) = UnpackBytes(packedBytes);
         byte[] plaintext = new byte[ciphertext.Length];
 
         aes.Decrypt(nonce, ciphertext, tag, plaintext);
@@ -184,13 +163,35 @@ public class EncryptionService(ILogger<EncryptionService> logger, IFileService f
         return Encoding.UTF8.GetString(plaintext);
     }
 
-    private static string DecryptInternal(EncryptedData data, byte[] key)
+    private static string DecryptInternal(string data, byte[] key)
     {
         using AesGcm aes = CreateAes(key);
         return DecryptInternal(aes, data);
     }
 
-    private static AesGcm CreateAes(byte[] key) => new(key, TagSizeBytes);
+    private static byte[] PackBytes(byte[] ciphertext, byte[] nonce, byte[] tag)
+    {
+        // Format: [Nonce (12 bytes)][Tag (16 bytes)][Ciphertext (variable)]
+        byte[] packedBytes = new byte[NonceSizeBytes + TagSizeBytes + ciphertext.Length];
+        Span<byte> packedSpan = packedBytes;
+
+        nonce.CopyTo(packedSpan[..NonceSizeBytes]);
+        tag.CopyTo(packedSpan.Slice(NonceSizeBytes, TagSizeBytes));
+        ciphertext.CopyTo(packedSpan[(NonceSizeBytes + TagSizeBytes)..]);
+
+        return packedSpan.ToArray();
+    }
+
+    private static (byte[] Nonce, byte[] Tag, byte[] Ciphertext) UnpackBytes(byte[] packedBytes)
+    {
+        // Format: [Nonce (12 bytes)][Tag (16 bytes)][Ciphertext (variable)]
+        Span<byte> packedSpan = packedBytes;
+        Span<byte> nonce = packedSpan[..NonceSizeBytes];
+        Span<byte> tag = packedSpan.Slice(NonceSizeBytes, TagSizeBytes);
+        Span<byte> ciphertext = packedSpan[(NonceSizeBytes + TagSizeBytes)..];
+
+        return (nonce.ToArray(), tag.ToArray(), ciphertext.ToArray());
+    }
 
     private Result<EncryptionConfig> GetEncryptionConfigOrDefault()
     {

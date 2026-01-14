@@ -1,12 +1,8 @@
-﻿using VaultKeeper.Models.Security;
-
-namespace VaultKeeper.Services.Abstractions.Security;
+﻿namespace VaultKeeper.Services.Abstractions.Security;
 
 public interface IEncryptionScope
 {
-    EncryptedData Encrypt(string data);
-
-    string Decrypt(EncryptedData encryptedData);
+    string Encrypt(string data);
 
     string Decrypt(string encryptedText);
 }

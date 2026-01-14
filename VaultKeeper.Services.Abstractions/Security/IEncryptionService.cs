@@ -6,8 +6,7 @@ namespace VaultKeeper.Services.Abstractions.Security;
 
 public interface IEncryptionService
 {
-    Result<EncryptedData> Encrypt(string data);
-    Result<string> Decrypt(EncryptedData data);
+    Result<string> Encrypt(string data);
     Result<string> Decrypt(string data);
     Result UsingEncryptionScope(Action<IEncryptionScope> scopeFunc);
     void UseEncryptionConfigFromFile(string? filePath);

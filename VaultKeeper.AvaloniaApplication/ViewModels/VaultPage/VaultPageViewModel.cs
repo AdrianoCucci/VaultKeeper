@@ -927,14 +927,14 @@ public partial class VaultPageViewModel(
 
     private string Encrypt(string value)
     {
-        Result<EncryptedData> result = encryptionService.Encrypt(value);
+        Result<string> result = encryptionService.Encrypt(value);
         if (!result.IsSuccessful)
         {
             ReportEncryptionError(result, "Failed to Encrypt Value");
             return value;
         }
 
-        return result.Value;
+        return result.Value!;
     }
 
     private string Decrypt(string value)

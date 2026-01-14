@@ -32,6 +32,10 @@ public class HashService(ILogger<HashService> logger) : IHashService
 
             return result.ToOkResult().Logged(logger);
         }
+        catch (FormatException ex)
+        {
+            return ex.ToFailedResult<string>(ResultFailureType.InvalidFormat).Logged(logger);
+        }
         catch (Exception ex)
         {
             return ex.ToFailedResult<string>().Logged(logger);
@@ -45,7 +49,7 @@ public class HashService(ILogger<HashService> logger) : IHashService
         try
         {
             byte[] packedBytes = Convert.FromBase64String(hash);
-            (byte[] unpackedHash, byte[] salt) = UnpackBytes(packedBytes);
+            (byte[] salt, byte[] unpackedHash) = UnpackBytes(packedBytes);
 
             using Rfc2898DeriveBytes pbkdf2 = new(value, salt, _iterations, _hashAlgorithmName);
             byte[] valueHash = pbkdf2.GetBytes(_hashSize);
@@ -53,6 +57,10 @@ public class HashService(ILogger<HashService> logger) : IHashService
             bool isMatch = CryptographicOperations.FixedTimeEquals(unpackedHash, valueHash);
 
             return isMatch.ToOkResult().Logged(logger);
+        }
+        catch (FormatException ex)
+        {
+            return ex.ToFailedResult<bool>(ResultFailureType.InvalidFormat).Logged(logger);
         }
         catch (Exception ex)
         {
@@ -72,13 +80,13 @@ public class HashService(ILogger<HashService> logger) : IHashService
         return packedSpan.ToArray();
     }
 
-    private static (byte[] Hash, byte[] Salt) UnpackBytes(byte[] packedBytes)
+    private static (byte[] Salt, byte[] Hash) UnpackBytes(byte[] packedBytes)
     {
         // Format: [Salt (32 bytes)][Hash (32 bytes)]
         Span<byte> packedSpan = packedBytes;
         Span<byte> salt = packedSpan[.._saltSize];
         Span<byte> hash = packedSpan[_saltSize..];
 
-        return (hash.ToArray(), salt.ToArray());
+        return (salt.ToArray(), hash.ToArray());
     }
 }

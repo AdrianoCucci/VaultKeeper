@@ -381,11 +381,11 @@ public class AppDataService(
         if (!dataSerializeResult.IsSuccessful)
             return dataSerializeResult;
 
-        Result<EncryptedData> dataEncryptResult = encryptionService.Encrypt(dataSerializeResult.Value!);
+        Result<string> dataEncryptResult = encryptionService.Encrypt(dataSerializeResult.Value!);
         if (!dataEncryptResult.IsSuccessful)
             return dataEncryptResult;
 
-        Result saveResult = fileService.WriteFileText(filePath, dataEncryptResult.Value);
+        Result saveResult = fileService.WriteFileText(filePath, dataEncryptResult.Value!);
 
         return saveResult;
     }
