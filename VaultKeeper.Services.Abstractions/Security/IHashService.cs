@@ -1,10 +1,9 @@
-﻿using System.Text;
-using VaultKeeper.Common.Results;
+﻿using VaultKeeper.Common.Results;
 
 namespace VaultKeeper.Services.Abstractions.Security;
 
 public interface IHashService
 {
-    Result<string> CreateHash(string value, Encoding? encoding = null);
-    Result<bool> CompareHash(string value, string hash, Encoding? encoding = null);
+    Result<string> CreateHash(string value);
+    Result<bool> CompareHash(string value, string hash);
 }

@@ -65,23 +65,24 @@ public class UserDataService(
         logger.LogInformation(nameof(ChangeMainPasswordAsync));
 
         UserData? userData = userDataCache.Get();
-        if (userData == null)
-            return Result.Failed(ResultFailureType.NotFound, "User data not found in cache.");
+        string? currentPasswordHash = userData?.MainPasswordHash;
 
-        Result<string> currentPasswordHashResult = hashService.CreateHash(currentPassword);
-        if (!currentPasswordHashResult.IsSuccessful)
-            return currentPasswordHashResult.Logged(logger);
+        if (string.IsNullOrWhiteSpace(currentPasswordHash))
+            return Result.Failed(ResultFailureType.NotFound, "User password hash not set in User Cache.");
 
-        string currentPasswordHash = currentPasswordHashResult.Value!;
+        var compareCurrentPasswordResult = hashService.CompareHash(currentPassword, currentPasswordHash);
+        if (!compareCurrentPasswordResult.IsSuccessful)
+            return compareCurrentPasswordResult.Logged(logger);
 
-        if (currentPasswordHash != userData.MainPasswordHash)
+        bool currentPasswordIsValid = compareCurrentPasswordResult.Value;
+        if (!currentPasswordIsValid)
             return Result.Failed(ResultFailureType.BadRequest, "Current password is invalid.");
 
         Result<string> newPasswordHashResult = hashService.CreateHash(newPassword);
         if (!newPasswordHashResult.IsSuccessful)
             return newPasswordHashResult.Logged(logger);
 
-        Result saveDataResult = await SaveUserDataAsync(userData with
+        Result saveDataResult = await SaveUserDataAsync(userData! with
         {
             MainPasswordHash = newPasswordHashResult.Value!
         });
