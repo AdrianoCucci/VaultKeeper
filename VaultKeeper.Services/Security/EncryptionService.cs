@@ -140,7 +140,7 @@ public class EncryptionService(ILogger<EncryptionService> logger, IFileService f
 
         aes.Encrypt(nonce, plaintext, cyphertext, tag);
 
-        byte[] packedBytes = PackBytes(cyphertext, nonce, tag);
+        byte[] packedBytes = PackBytes(nonce, tag, cyphertext);
         string encryptedString = Convert.ToBase64String(packedBytes);
 
         return encryptedString;
@@ -169,7 +169,7 @@ public class EncryptionService(ILogger<EncryptionService> logger, IFileService f
         return DecryptInternal(aes, data);
     }
 
-    private static byte[] PackBytes(byte[] ciphertext, byte[] nonce, byte[] tag)
+    private static byte[] PackBytes(byte[] nonce, byte[] tag, byte[] ciphertext)
     {
         // Format: [Nonce (12 bytes)][Tag (16 bytes)][Ciphertext (variable)]
         byte[] packedBytes = new byte[NonceSizeBytes + TagSizeBytes + ciphertext.Length];
