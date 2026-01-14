@@ -5,13 +5,14 @@ using VaultKeeper.Common.Extensions;
 using VaultKeeper.Common.Results;
 using VaultKeeper.Models.ApplicationData;
 using VaultKeeper.Services.Abstractions;
+using VaultKeeper.Services.Abstractions.Security;
 
 namespace VaultKeeper.Services;
 
 public class UserDataService(
     ILogger<UserDataService> logger,
     ICache<UserData> userDataCache,
-    ISecurityService securityService,
+    IHashService hashService,
     IAppDataService appDataService) : IUserDataService
 {
     public Result<UserData?> GetUserData()
@@ -47,7 +48,7 @@ public class UserDataService(
 
         UserData userData = userDataCache.Get() ?? new() { UserId = Guid.NewGuid() };
 
-        Result<string> createHashResult = securityService.CreateHash(password);
+        Result<string> createHashResult = hashService.CreateHash(password);
         if (!createHashResult.IsSuccessful)
             return createHashResult.Logged(logger);
 
@@ -67,7 +68,7 @@ public class UserDataService(
         if (userData == null)
             return Result.Failed(ResultFailureType.NotFound, "User data not found in cache.");
 
-        Result<string> currentPasswordHashResult = securityService.CreateHash(currentPassword);
+        Result<string> currentPasswordHashResult = hashService.CreateHash(currentPassword);
         if (!currentPasswordHashResult.IsSuccessful)
             return currentPasswordHashResult.Logged(logger);
 
@@ -76,7 +77,7 @@ public class UserDataService(
         if (currentPasswordHash != userData.MainPasswordHash)
             return Result.Failed(ResultFailureType.BadRequest, "Current password is invalid.");
 
-        Result<string> newPasswordHashResult = securityService.CreateHash(newPassword);
+        Result<string> newPasswordHashResult = hashService.CreateHash(newPassword);
         if (!newPasswordHashResult.IsSuccessful)
             return newPasswordHashResult.Logged(logger);
 

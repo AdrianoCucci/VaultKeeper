@@ -10,12 +10,12 @@ using VaultKeeper.Models.ApplicationData;
 using VaultKeeper.Models.Constants;
 using VaultKeeper.Models.Groups;
 using VaultKeeper.Models.Importing;
-using VaultKeeper.Models.Security;
 using VaultKeeper.Models.VaultItems;
 using VaultKeeper.Services.Abstractions;
 using VaultKeeper.Services.Abstractions.DataFormatting;
 using VaultKeeper.Services.Abstractions.Groups;
 using VaultKeeper.Services.Abstractions.Importing;
+using VaultKeeper.Services.Abstractions.Security;
 using VaultKeeper.Services.Abstractions.VaultItems;
 
 namespace VaultKeeper.Services.Importing;
@@ -26,7 +26,7 @@ public class ImportService(
     ICsvService csvService,
     IGroupService groupService,
     IVaultItemService vaultItemService,
-    ISecurityService securityService,
+    IEncryptionService encryptionService,
     IAppDataService appDataService) : IImportService
 {
     private static ImportSource[] Sources =>
@@ -126,7 +126,7 @@ public class ImportService(
 
         List<NewVaultItem> vaultItemsToCreate = [];
 
-        Result encryptResult = securityService.UsingEncryptionScope(scope =>
+        Result encryptResult = encryptionService.UsingEncryptionScope(scope =>
         {
             foreach (VaultItemImportRecord importRecord in importRecords)
             {
@@ -159,7 +159,7 @@ public class ImportService(
 
         VaultItemImportRecord[] records = [.. MapToApplicationRecords(exportData)];
 
-        Result decryptResult = securityService.UsingEncryptionScope(scope =>
+        Result decryptResult = encryptionService.UsingEncryptionScope(scope =>
         {
             foreach (VaultItemImportRecord record in records)
             {

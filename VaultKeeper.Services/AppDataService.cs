@@ -15,6 +15,7 @@ using VaultKeeper.Models.VaultItems;
 using VaultKeeper.Repositories.Abstractions;
 using VaultKeeper.Services.Abstractions;
 using VaultKeeper.Services.Abstractions.DataFormatting;
+using VaultKeeper.Services.Abstractions.Security;
 
 namespace VaultKeeper.Services;
 
@@ -22,7 +23,7 @@ public class AppDataService(
     ILogger<AppDataService> logger,
     IFileService fileService,
     IJsonService jsonService,
-    ISecurityService securityService,
+    IEncryptionService encryptionService,
     IRepository<VaultItem> vaultItemRepository,
     IRepository<Group> groupRepository,
     ICache<UserData> userDataCache,
@@ -380,7 +381,7 @@ public class AppDataService(
         if (!dataSerializeResult.IsSuccessful)
             return dataSerializeResult;
 
-        Result<EncryptedData> dataEncryptResult = securityService.Encrypt(dataSerializeResult.Value!);
+        Result<EncryptedData> dataEncryptResult = encryptionService.Encrypt(dataSerializeResult.Value!);
         if (!dataEncryptResult.IsSuccessful)
             return dataEncryptResult;
 
@@ -400,7 +401,7 @@ public class AppDataService(
             return readFileResult.WithValue<SavedData<T>?>();
         }
 
-        Result<string> dataDecryptResult = securityService.Decrypt(readFileResult.Value!);
+        Result<string> dataDecryptResult = encryptionService.Decrypt(readFileResult.Value!);
         if (!dataDecryptResult.IsSuccessful)
             return dataDecryptResult.WithValue<SavedData<T>?>();
 

@@ -12,11 +12,13 @@ using VaultKeeper.Services.Abstractions.DataFormatting;
 using VaultKeeper.Services.Abstractions.Groups;
 using VaultKeeper.Services.Abstractions.Importing;
 using VaultKeeper.Services.Abstractions.Navigation;
+using VaultKeeper.Services.Abstractions.Security;
 using VaultKeeper.Services.Abstractions.VaultItems;
 using VaultKeeper.Services.DataFormatting;
 using VaultKeeper.Services.Groups;
 using VaultKeeper.Services.Importing;
 using VaultKeeper.Services.Navigation;
+using VaultKeeper.Services.Security;
 using VaultKeeper.Services.VaultItems;
 
 namespace VaultKeeper.Services.Extensions.DependencyInjection;
@@ -34,7 +36,8 @@ public static class ServiceCollectionExtensions
         services
             .AddLogging()
             .AddSingleton<IErrorReportingService, ErrorReportingService>()
-            .AddSingleton<ISecurityService, SecurityService>()
+            .AddSingleton<IEncryptionService, EncryptionService>()
+            .AddSingleton<IHashService, HashService>()
             .AddSingleton<IJsonService, JsonService>()
             .AddSingleton<ICsvService, CsvService>()
             .AddSingleton<IFileService, FileService>()

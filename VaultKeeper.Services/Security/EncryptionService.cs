@@ -8,11 +8,10 @@ using VaultKeeper.Models.Security;
 using VaultKeeper.Services.Abstractions;
 using VaultKeeper.Services.Abstractions.DataFormatting;
 using VaultKeeper.Services.Abstractions.Security;
-using VaultKeeper.Services.Security;
 
-namespace VaultKeeper.Services;
+namespace VaultKeeper.Services.Security;
 
-public class SecurityService(ILogger<SecurityService> logger, IFileService fileService, IJsonService jsonService) : ISecurityService
+public class EncryptionService(ILogger<EncryptionService> logger, IFileService fileService, IJsonService jsonService) : IEncryptionService
 {
     private static int NonceSizeBytes => AesGcm.NonceByteSizes.MaxSize;
     private static int TagSizeBytes => AesGcm.TagByteSizes.MaxSize;
@@ -49,30 +48,6 @@ public class SecurityService(ILogger<SecurityService> logger, IFileService fileS
         logger.LogInformation(nameof(UseEncryptionConfigFromFile));
         _encryptionConfigFilePath = filePath;
     }
-
-    //public Result<EncryptionConfig> GenerateEncryptionConfig()
-    //{
-    //    logger.LogInformation(nameof(GenerateEncryptionConfig));
-
-    //    try
-    //    {
-    //        using Aes aes = CreateAes();
-    //        aes.GenerateKey();
-    //        aes.GenerateIV();
-
-    //        EncryptionConfig config = new()
-    //        {
-    //            Key = Convert.ToBase64String(aes.Key),
-    //            IV = Convert.ToBase64String(aes.IV)
-    //        };
-
-    //        return config.ToOkResult().Logged(logger);
-    //    }
-    //    catch (Exception ex)
-    //    {
-    //        return ex.ToFailedResult<EncryptionConfig>().Logged(logger);
-    //    }
-    //}
 
     public Result<EncryptedData> Encrypt(string data)
     {
@@ -213,38 +188,6 @@ public class SecurityService(ILogger<SecurityService> logger, IFileService fileS
     {
         using AesGcm aes = CreateAes(key);
         return DecryptInternal(aes, data);
-    }
-
-    public Result<string> CreateHash(string value, Encoding? encoding = null)
-    {
-        logger.LogInformation(nameof(CreateHash));
-
-        try
-        {
-            encoding ??= Encoding.UTF8;
-            byte[] valueBytes = encoding.GetBytes(value);
-            byte[] hashBytes = SHA256.HashData(valueBytes);
-            string hashText = Convert.ToBase64String(hashBytes);
-
-            return hashText.ToOkResult().Logged(logger);
-        }
-        catch (Exception ex)
-        {
-            return ex.ToFailedResult<string>().Logged(logger);
-        }
-    }
-
-    public Result<bool> CompareHash(string value, string hash, Encoding? encoding = null)
-    {
-        logger.LogInformation(nameof(CompareHash));
-
-        var createHashResult = CreateHash(value, encoding);
-        if (!createHashResult.IsSuccessful)
-            return createHashResult.WithValue<bool>();
-
-        bool isMatch = createHashResult.Value == hash;
-
-        return isMatch.ToOkResult().Logged(logger);
     }
 
     private static AesGcm CreateAes(byte[] key) => new(key, TagSizeBytes);

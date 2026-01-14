@@ -10,7 +10,7 @@ using VaultKeeper.Models.Security;
 using VaultKeeper.Models.VaultItems;
 using VaultKeeper.Models.VaultItems.Extensions;
 using VaultKeeper.Repositories.Abstractions;
-using VaultKeeper.Services.Abstractions;
+using VaultKeeper.Services.Abstractions.Security;
 using VaultKeeper.Services.Abstractions.VaultItems;
 
 namespace VaultKeeper.Services.VaultItems;
@@ -18,7 +18,7 @@ namespace VaultKeeper.Services.VaultItems;
 public class VaultItemService(
     IRepository<VaultItem> repository,
     IVaultItemValidatorService validatorService,
-    ISecurityService securityService,
+    IEncryptionService encryptionService,
     ILogger<VaultItemService> logger) : IVaultItemService
 {
     public async Task<Result<CountedData<VaultItem>>> GetManyCountedAsync(ReadQuery<VaultItem>? query = null)
@@ -50,7 +50,7 @@ public class VaultItemService(
 
             if (encrypt)
             {
-                Result<EncryptedData> encryptValueResult = securityService.Encrypt(model.Value);
+                Result<EncryptedData> encryptValueResult = encryptionService.Encrypt(model.Value);
                 if (!encryptValueResult.IsSuccessful)
                     return encryptValueResult.WithValue<VaultItem>().Logged(logger);
 
@@ -83,7 +83,7 @@ public class VaultItemService(
             {
                 foreach (var model in models)
                 {
-                    Result<EncryptedData> encryptValueResult = securityService.Encrypt(model.Value);
+                    Result<EncryptedData> encryptValueResult = encryptionService.Encrypt(model.Value);
                     if (!encryptValueResult.IsSuccessful)
                         return encryptValueResult.WithValue<IEnumerable<VaultItem>>().Logged(logger);
 
@@ -123,7 +123,7 @@ public class VaultItemService(
 
             if (encrypt)
             {
-                Result<EncryptedData> encryptValueResult = securityService.Encrypt(updateModel.Value);
+                Result<EncryptedData> encryptValueResult = encryptionService.Encrypt(updateModel.Value);
                 if (!encryptValueResult.IsSuccessful)
                     return encryptValueResult.WithValue<VaultItem>().Logged(logger);
 
