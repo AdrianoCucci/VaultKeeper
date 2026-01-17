@@ -7,6 +7,7 @@ using VaultKeeper.Models.ApplicationData;
 using VaultKeeper.Models.Settings;
 using VaultKeeper.Services.Abstractions;
 using VaultKeeper.Services.Abstractions.Navigation;
+using VaultKeeper.Services.Abstractions.Security;
 
 namespace VaultKeeper.Services;
 
@@ -15,7 +16,7 @@ public class AppSessionService(
     ICache<UserData> userDataCache,
     ICache<UserSettings> userSettingsCache,
     IAppDataService appDataService,
-    ISecurityService securityService,
+    IHashService hashService,
     INavigatorFactory? navFactory = null) : IAppSessionService
 {
     private bool _isLoggedIn = false;
@@ -57,7 +58,7 @@ public class AppSessionService(
             if (string.IsNullOrWhiteSpace(expectedPasswordHash))
                 return Result.Failed<bool>(ResultFailureType.Conflict, "User has not setup a main password.").Logged(logger);
 
-            Result<bool> compareHashResult = securityService.CompareHash(password, expectedPasswordHash);
+            Result<bool> compareHashResult = hashService.CompareHash(password, expectedPasswordHash);
             if (!compareHashResult.IsSuccessful)
                 return compareHashResult.WithValue(false).Logged(logger);
 

@@ -38,7 +38,7 @@
                               Spacing="12"
                               Background="Transparent"
                               VerticalAlignment="Center">
-                    <PathIcon Data="{Binding Icon}"/>
+                    <PathIcon Data="{Binding Icon, Converter={StaticResource StrToResConverter}}"/>
                     <TextBlock Text="{Binding Label}"/>
                   </StackPanel>
                 </DataTemplate>

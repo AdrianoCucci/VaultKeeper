@@ -1,11 +1,9 @@
 ﻿using Avalonia;
-using Avalonia.Media;
 using CommunityToolkit.Mvvm.ComponentModel;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 using VaultKeeper.AvaloniaApplication.Abstractions;
-using VaultKeeper.AvaloniaApplication.Extensions;
 using VaultKeeper.AvaloniaApplication.Forms;
 using VaultKeeper.AvaloniaApplication.ViewModels.Common;
 using VaultKeeper.AvaloniaApplication.ViewModels.Common.Prompts;
@@ -57,13 +55,13 @@ public partial class HomeViewModel : ViewModelBase
             {
                 Key = nameof(VaultPageViewModel),
                 Label = "Vault",
-                Icon = application.GetResourceOrDefault<Geometry>(Icons.Vault)
+                Icon = Icons.Vault
             }),
             new(new()
             {
                 Key = nameof(SettingsPageViewModel),
                 Label = "Settings",
-                Icon = application.GetResourceOrDefault<Geometry>(Icons.Gear)
+                Icon = Icons.Gear
             }),
         ];
 

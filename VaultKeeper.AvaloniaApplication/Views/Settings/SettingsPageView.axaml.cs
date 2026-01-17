@@ -1,6 +1,7 @@
 using Avalonia;
-using Avalonia.Controls.Primitives;
 using Avalonia.Interactivity;
+using Avalonia.Threading;
+using System.Threading.Tasks;
 using VaultKeeper.AvaloniaApplication.ViewModels.Settings;
 
 namespace VaultKeeper.AvaloniaApplication.Views.Settings;
@@ -9,15 +10,17 @@ public partial class SettingsPageView : ViewBase<SettingsPageViewModel>
 {
     public SettingsPageView() => InitializeComponent();
 
-    protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
-    {
-        base.OnApplyTemplate(e);
-    }
-
     protected override void OnAttachedToVisualTree(VisualTreeAttachmentEventArgs e)
     {
         base.OnAttachedToVisualTree(e);
         Model?.LoadSavedSettings();
+
+        // For some reason, the ScrollViewer of this page loads scrolled down near the middle. This puts it back to the top.
+        Dispatcher.UIThread.InvokeAsync(async () =>
+        {
+            await Task.Delay(1);
+            PART_ScrollViewer.Offset = Vector.Zero;
+        });
     }
 
     private async void SelectDirectoryButton_Click(object? sender, RoutedEventArgs e)
@@ -39,4 +42,10 @@ public partial class SettingsPageView : ViewBase<SettingsPageViewModel>
     }
 
     private void RestoreDefaultSettingsButton_Click(object? sender, RoutedEventArgs e) => Model?.RestoreDefaultSettings();
+
+    private void EncryptionKeyFileView_GenerateKeyFileClicked(object? sender, RoutedEventArgs e) => Model?.GenerateEncryptionKeyFile();
+
+    private void EncryptionKeyFileView_SelectKeyFileClicked(object? sender, RoutedEventArgs e) => Model?.SelectEncryptionKeyFile();
+
+    private void EncryptionKeyFileView_RemoveKeyReferenceClicked(object? sender, RoutedEventArgs e) => Model?.PromptRemoveEncryptionKeyAsync();
 }

@@ -27,6 +27,7 @@ using VaultKeeper.Models.VaultItems;
 using VaultKeeper.Models.VaultItems.Extensions;
 using VaultKeeper.Services.Abstractions;
 using VaultKeeper.Services.Abstractions.Groups;
+using VaultKeeper.Services.Abstractions.Security;
 using VaultKeeper.Services.Abstractions.VaultItems;
 
 namespace VaultKeeper.AvaloniaApplication.ViewModels.VaultPage;
@@ -34,7 +35,7 @@ namespace VaultKeeper.AvaloniaApplication.ViewModels.VaultPage;
 public partial class VaultPageViewModel(
     IVaultItemService vaultItemService,
     IGroupService groupService,
-    ISecurityService securityService,
+    IEncryptionService encryptionService,
     IPlatformService platformService,
     IKeyGeneratorService keyGeneratorService,
     IUserSettingsService userSettingsService,
@@ -925,13 +926,34 @@ public partial class VaultPageViewModel(
 
     private string Encrypt(string value)
     {
-        Result<string> result = securityService.Encrypt(value);
-        return result.Value ?? value;
+        Result<string> result = encryptionService.Encrypt(value);
+        if (!result.IsSuccessful)
+        {
+            ReportEncryptionError(result, "Failed to Encrypt Value");
+            return value;
+        }
+
+        return result.Value!;
     }
 
     private string Decrypt(string value)
     {
-        Result<string> result = securityService.Decrypt(value);
+        Result<string> result = encryptionService.Decrypt(value);
+        if (!result.IsSuccessful)
+        {
+            ReportEncryptionError(result, "Failed to Decrypt Value");
+            return value;
+        }
+
         return result.Value ?? value;
     }
+
+    private void ReportEncryptionError(Result failedResult, string header) => errorReportingService.ReportError(new()
+    {
+        Header = header,
+        Message = $"Application encryption error: ({failedResult.FailureType}) - {failedResult.Message}",
+        Exception = failedResult.Exception,
+        Source = ErrorSource.Application,
+        Severity = ErrorSeverity.Critical
+    });
 }

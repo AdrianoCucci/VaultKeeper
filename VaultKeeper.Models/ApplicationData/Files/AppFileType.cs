@@ -2,7 +2,9 @@
 
 public enum AppFileType
 {
+    AppConfig,
     User,
     Entities,
-    Backup
+    Backup,
+    EncryptionKey
 };

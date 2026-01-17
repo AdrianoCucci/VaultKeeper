@@ -1,6 +1,7 @@
 ﻿using Avalonia.Media;
 using Avalonia.Platform.Storage;
 using CommunityToolkit.Mvvm.ComponentModel;
+using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -9,6 +10,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using VaultKeeper.AvaloniaApplication.Abstractions;
 using VaultKeeper.AvaloniaApplication.Abstractions.Models;
+using VaultKeeper.AvaloniaApplication.ViewModels.Common.Prompts;
 using VaultKeeper.Common.Results;
 using VaultKeeper.Models.ApplicationData;
 using VaultKeeper.Models.Settings;
@@ -19,6 +21,7 @@ namespace VaultKeeper.AvaloniaApplication.ViewModels.Settings;
 public partial class SettingsPageViewModel : ViewModelBase
 {
     public UserSettings Model { get; private set; }
+    public EncryptionKeyFileViewModel EncryptionKeyFileVM { get; init; }
     public KeyGenerationSettingsViewModel KeyGenerationSettingsVM { get; init; }
 
     [ObservableProperty]
@@ -45,6 +48,12 @@ public partial class SettingsPageViewModel : ViewModelBase
     [ObservableProperty]
     private EmptyGroupModeDefinition? _currentEmptyGroupModeDefinition;
 
+    [ObservableProperty]
+    private object? _overlayContent;
+
+    [ObservableProperty]
+    private bool _isOverlayVisible;
+
     private BackupDirectoryProperties _backupDirectoryProps;
     public BackupDirectoryProperties BackupDirectoryProps { get => _backupDirectoryProps; private set => SetProperty(ref _backupDirectoryProps, value); }
 
@@ -62,9 +71,9 @@ public partial class SettingsPageViewModel : ViewModelBase
         IPlatformService platformService,
         IBackupService backupService,
         IThemeService themeService,
-        ICharSetService charSetService,
         IAppSessionService appSessionService,
-        IErrorReportingService errorReportingService)
+        IErrorReportingService errorReportingService,
+        IServiceProvider serviceProvider)
     {
         _userSettingsService = userSettingsService;
         _platformService = platformService;
@@ -74,14 +83,19 @@ public partial class SettingsPageViewModel : ViewModelBase
         _errorReportingService = errorReportingService;
 
         Model = userSettingsService?.GetDefaultUserSettings() ?? UserSettings.Default;
-        KeyGenerationSettingsVM = new(charSetService, userSettingsService);
+
+        EncryptionKeyFileVM = serviceProvider.GetRequiredService<EncryptionKeyFileViewModel>();
+
+        KeyGenerationSettingsVM = serviceProvider.GetRequiredService<KeyGenerationSettingsViewModel>();
         KeyGenerationSettingsVM.PropertyChanged += KeyGenerationSettingsVM_PropertyChanged;
+
         _backupDirectoryProps = new(BackupDirectory, backupService);
     }
 
     public SettingsPageViewModel()
     {
         Model = UserSettings.Default;
+        EncryptionKeyFileVM = new();
         KeyGenerationSettingsVM = new();
         KeyGenerationSettingsVM.PropertyChanged += KeyGenerationSettingsVM_PropertyChanged;
         _backupDirectoryProps = new(BackupDirectory, null);
@@ -140,11 +154,12 @@ public partial class SettingsPageViewModel : ViewModelBase
             Title = "Select Backup Directory"
         });
 
-        if (storageFolders.Count < 1)
-            return;
+        if (storageFolders.Count < 1) return;
 
-        var selectedFolderUri = storageFolders[0].Path;
-        BackupDirectory = (selectedFolderUri.IsAbsoluteUri ? selectedFolderUri.LocalPath : selectedFolderUri.OriginalString).Replace('\\', '/');
+        string? folderPath = storageFolders[0].TryGetLocalPath();
+        if (string.IsNullOrWhiteSpace(folderPath)) return;
+
+        BackupDirectory = folderPath.Replace('\\', '/');
     }
 
     public async Task CreateBackupAsync()
@@ -166,6 +181,12 @@ public partial class SettingsPageViewModel : ViewModelBase
 
         // Refresh backup directory props.
         BackupDirectoryProps = new(BackupDirectory, _backupService);
+        ShowOverlay(new PromptViewModel
+        {
+            Header = "Backup Successful",
+            Message = $"Backup file was successfully created at:\n\"{backupSettings.BackupDirectory}\"",
+            AckwnoledgedAction = HideOverlay
+        });
     }
 
     public async Task LoadBackupAsync()
@@ -194,6 +215,29 @@ public partial class SettingsPageViewModel : ViewModelBase
         await _appSessionService.LogoutAsync((nameof(MainWindowViewModel), nameof(LockScreenPageViewModel)));
     }
 
+    public void GenerateEncryptionKeyFile() => ChangeEncryptionKeyFile(() => _ = EncryptionKeyFileVM.GenerateKeyFileAsync());
+
+    public void SelectEncryptionKeyFile() => ChangeEncryptionKeyFile(() => _ = EncryptionKeyFileVM.SelectKeyFileAsync());
+
+    public void PromptRemoveEncryptionKeyAsync() => ShowOverlay(new ConfirmPromptViewModel
+    {
+        Header = "Remove Encryption Key",
+        Message = string.Join('\n',
+        [
+            "Are you sure you want to remove the reference to your encryption key file?",
+            "The file will not be deleted, but Vault Keeper will revert back to using its built-in encryption key, and your saved data will be re-encrypted using this key.",
+            "Any backups you have created using this key will no longer be restorable.",
+            string.Empty,
+            "It is highly recommended to create a backup first before continuing."
+        ]),
+        CancelAction = HideOverlay,
+        ConfirmAction = async _ =>
+        {
+            if (await EncryptionKeyFileVM.RemoveEncryptionKeyReferenceAsync())
+                HideOverlay();
+        }
+    });
+
     protected override void OnPropertyChanged(PropertyChangedEventArgs e)
     {
         base.OnPropertyChanged(e);
@@ -203,6 +247,42 @@ public partial class SettingsPageViewModel : ViewModelBase
 
         if (!_isLoadingSavedSettings)
             SaveSettings();
+    }
+
+    private void ChangeEncryptionKeyFile(Action action)
+    {
+        if (!EncryptionKeyFileVM.HasExistingKey)
+        {
+            action.Invoke();
+            return;
+        }
+
+        ShowOverlay(new PromptViewModel
+        {
+            Header = "Changing Your Encryption Key",
+            Message = string.Join('\n',
+            [
+                "Note: Changing your encryption key will re-encrypt your saved data using the new key.",
+                "Any backups you have created using the old encryption key will no longer be restorable.",
+            ]),
+            AckwnoledgedAction = () =>
+            {
+                HideOverlay();
+                action.Invoke();
+            }
+        });
+    }
+
+    private void ShowOverlay(object content)
+    {
+        OverlayContent = content;
+        IsOverlayVisible = true;
+    }
+
+    private void HideOverlay()
+    {
+        IsOverlayVisible = false;
+        OverlayContent = null;
     }
 
     private void UpdateServices(UserSettings settings)

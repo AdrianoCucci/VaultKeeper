@@ -6,6 +6,8 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:overlays="using:VaultKeeper.AvaloniaApplication.Views.Common.Overlays"
         xmlns:prompts="using:VaultKeeper.AvaloniaApplication.Views.Common.Prompts"
+        xmlns:setup="using:VaultKeeper.AvaloniaApplication.Views.Setup"
+        xmlns:setupVMs="using:VaultKeeper.AvaloniaApplication.ViewModels.Setup"
         xmlns:promptVMs="using:VaultKeeper.AvaloniaApplication.ViewModels.Common.Prompts"
         xmlns:vm="using:VaultKeeper.AvaloniaApplication.ViewModels"
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
@@ -22,8 +24,8 @@
   <overlays:OverlayPanel IsVisible="{Binding !IsInitializing}" IsOverlayVisible="{Binding IsOverlayVisible}">
     <TransitioningContentControl Content="{Binding Content}" Grid.Row="0">
       <TransitioningContentControl.DataTemplates>
-        <DataTemplate DataType="vm:SetupPageViewModel">
-          <local:SetupPageView SetupCompleted="SetupView_SetupCompleted"
+        <DataTemplate DataType="setupVMs:SetupPageViewModel">
+          <setup:SetupPageView SetupCompleted="SetupView_SetupCompleted"
                                NavigateBackClicked="SetupPageView_NavigateBackClicked"/>
         </DataTemplate>
         <DataTemplate DataType="vm:LockScreenPageViewModel">

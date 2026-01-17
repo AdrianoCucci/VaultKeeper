@@ -94,7 +94,8 @@ public partial class VaultItemImportViewModel : ViewModelBase
 
         if (fileList.Count < 1) return false;
 
-        string filePath = fileList[0].Path.LocalPath;
+        string? filePath = fileList[0].TryGetLocalPath();
+        if (string.IsNullOrWhiteSpace(filePath)) return false;
 
         Result processResult = await _importService.ImportFromFileAsync(source.Type, filePath);
         if (!processResult.IsSuccessful)
@@ -124,7 +125,8 @@ public partial class VaultItemImportViewModel : ViewModelBase
 
         if (folderList.Count < 1) return false;
 
-        string folderPath = folderList[0].Path.LocalPath;
+        string? folderPath = folderList[0].TryGetLocalPath();
+        if (string.IsNullOrWhiteSpace(folderPath)) return false;
 
         string fileName = "VaultKeeper_keys";
 
