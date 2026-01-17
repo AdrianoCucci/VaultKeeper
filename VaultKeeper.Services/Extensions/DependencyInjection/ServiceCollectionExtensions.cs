@@ -41,8 +41,10 @@ public static class ServiceCollectionExtensions
             .AddSingleton<IJsonService, JsonService>()
             .AddSingleton<ICsvService, CsvService>()
             .AddSingleton<IFileService, FileService>()
+            .AddSingleton<IAppFileDefinitionService, AppFileDefinitionService>()
             .AddSingleton<IAppDataService, AppDataService>()
             .AddSingleton<IAppSessionService, AppSessionService>()
+            .AddSingleton<IAppConfigService, AppConfigService>()
             .AddSingleton<IUserDataService, UserDataService>()
             .AddSingleton<IUserSettingsService, UserSettingsService>()
             .AddSingleton<ICharSetService, CharSetService>()
@@ -54,6 +56,7 @@ public static class ServiceCollectionExtensions
             .AddScoped<IGroupService, GroupService>()
             .AddScoped<IGroupValidatorService, GroupValidatorService>()
 
+            .AddInMemoryCache<AppConfigData>()
             .AddInMemoryCache<UserData>()
             .AddInMemoryCache<UserSettings>()
             .AddInMemoryRepository<VaultItem>()

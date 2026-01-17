@@ -29,7 +29,7 @@ public class UserSettingsService(ILogger<UserSettingsService> logger, ICache<Use
         EmptyGroupMode = EmptyGroupMode.Keep
     };
 
-    private IEnumerable<EmptyGroupModeDefinition> EmptyGroupModeDefinitions =>
+    private static IEnumerable<EmptyGroupModeDefinition> EmptyGroupModeDefinitions =>
     [
         new()
         {

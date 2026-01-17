@@ -22,7 +22,6 @@ using VaultKeeper.Models.Errors;
 using VaultKeeper.Models.Groups;
 using VaultKeeper.Models.Groups.Extensions;
 using VaultKeeper.Models.Importing;
-using VaultKeeper.Models.Security;
 using VaultKeeper.Models.Settings;
 using VaultKeeper.Models.VaultItems;
 using VaultKeeper.Models.VaultItems.Extensions;

@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using VaultKeeper.Common.Extensions;
 using VaultKeeper.Common.Models.Queries;
 using VaultKeeper.Common.Results;
-using VaultKeeper.Models.Security;
 using VaultKeeper.Models.VaultItems;
 using VaultKeeper.Models.VaultItems.Extensions;
 using VaultKeeper.Repositories.Abstractions;

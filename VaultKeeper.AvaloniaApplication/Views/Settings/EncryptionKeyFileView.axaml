@@ -1,0 +1,117 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:common="using:VaultKeeper.AvaloniaApplication.Views.Common"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="using:VaultKeeper.AvaloniaApplication.ViewModels.Settings"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="VaultKeeper.AvaloniaApplication.Views.Settings.EncryptionKeyFileView"
+             x:DataType="vm:EncryptionKeyFileViewModel"
+             Classes.has-existing-key="{Binding HasExistingKey}"
+             Classes.has-path="{Binding HasFilePath}"
+             Classes.path-valid="{Binding IsFilePathValid}"
+             Classes.path-invalid="{Binding !IsFilePathValid}">
+
+  <Design.DataContext>
+    <vm:EncryptionKeyFileViewModel/>
+  </Design.DataContext>
+
+  <UserControl.Styles>
+    <Style Selector=".path-invalid TextBlock.file-path-message">
+      <Setter Property="Foreground" Value="Red"/>
+    </Style>
+  </UserControl.Styles>
+
+  <StackPanel>
+    <Border IsVisible="{Binding !HasExistingKey}"
+            Margin="20"
+            Padding="20"
+            Background="{DynamicResource SystemAccentColor}"
+            CornerRadius="6">
+      <StackPanel Spacing="20">
+        <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Spacing="8">
+          <PathIcon Data="{StaticResource IconExclamationTriangle}"/>
+          <TextBlock Classes="h4" Margin="0" TextWrapping="Wrap">Custom Encryption Key Strongly Recommended</TextBlock>
+        </StackPanel>
+
+        <TextBlock TextWrapping="Wrap">
+          By default, <Run Text="{StaticResource AppName}"/> uses a built-in encryption key to encrypt your saved data.
+          Because this key is the same across all copies of <Run Text="{StaticResource AppName}"/>, it is highly vulnerable to being exposed by attackers,
+          who can then use it to decrypt your data.
+          <LineBreak/>
+          <LineBreak/>
+          Setting a custom encryption key stored in an external file ensures that your data is uniquely encrypted, and
+          attackers would need to know your specifc key to decrypt your data.
+        </TextBlock>
+
+        <Border Padding="20" CornerRadius="6" Background="{DynamicResource SystemRegionBrush}">
+          <Grid RowDefinitions="Auto, Auto" ColumnDefinitions="*, *" ColumnSpacing="10">
+            <common:AppButton IconStart="{StaticResource IconWandMagicSparkles}"
+                              Text="Generate Encryption Key File"
+                              HorizontalAlignment="Stretch"
+                              Click="GenerateKeyButton_Click"
+                              Grid.Row="0"
+                              Grid.Column="0"/>
+
+            <common:AppButton IconStart="{StaticResource IconFolder}"
+                              Text="Select Existing Encryption Key File"
+                              HorizontalAlignment="Stretch"
+                              Click="SelectFilePathButton_Click"
+                              Grid.Row="0"
+                              Grid.Column="1"/>
+
+            <TextBlock Classes="file-path-message"
+                       Margin="0 20 0 0"
+                       FontWeight="SemiBold"
+                       HorizontalAlignment="Center"
+                       TextWrapping="Wrap"
+                       Text="{Binding FilePathMessage}"
+                       IsVisible="{Binding FilePathMessage, Converter={x:Static ObjectConverters.IsNotNull}}"
+                       Grid.Row="1"
+                       Grid.ColumnSpan="2">
+            </TextBlock>
+          </Grid>
+        </Border>
+      </StackPanel>
+    </Border>
+
+    <StackPanel IsVisible="{Binding HasExistingKey}">
+
+      <Label Target="PART_FilePathInput">Encryption Key File Path</Label>
+      <TextBox Name="PART_FilePathInput"
+               Text="{Binding FilePath}"
+               IsReadOnly="True"
+               VerticalContentAlignment="Center">
+        <TextBox.InnerRightContent>
+          <StackPanel Orientation="Horizontal">
+            <common:AppButton IconStart="{StaticResource IconWandMagicSparkles}"
+                              Click="GenerateKeyButton_Click"
+                              IsVisible="{Binding HasExistingKey}"
+                              ToolTip.Tip="Generate new encryption key" />
+
+            <common:AppButton IconStart="{StaticResource IconFolder}"
+                              Click="SelectFilePathButton_Click"
+                              ToolTip.Tip="Select encryption key file path" />
+          </StackPanel>
+        </TextBox.InnerRightContent>
+      </TextBox>
+      <TextBlock Classes="file-path-message"
+                 Margin="0 4 0 0"
+                 FontWeight="SemiBold"
+                 TextWrapping="Wrap"
+                 Text="{Binding FilePathMessage}"
+                 IsVisible="{Binding FilePathMessage, Converter={x:Static ObjectConverters.IsNotNull}}">
+      </TextBlock>
+
+      <StackPanel IsVisible="{Binding HasExistingKey}" Margin="0 8 0 0" Orientation="Horizontal" Spacing="8">
+        <PathIcon Data="{StaticResource IconExclamationTriangle}"/>
+        <TextBlock>
+          Be sure to backup your encryption key file.
+          <Run FontWeight="Black">If you lose it, your data will be irrecoverable.</Run>
+        </TextBlock>
+      </StackPanel>
+
+    </StackPanel>
+
+  </StackPanel>
+</UserControl>

@@ -1,6 +1,7 @@
 ﻿using Avalonia.Media;
 using Avalonia.Platform.Storage;
 using CommunityToolkit.Mvvm.ComponentModel;
+using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -19,6 +20,7 @@ namespace VaultKeeper.AvaloniaApplication.ViewModels.Settings;
 public partial class SettingsPageViewModel : ViewModelBase
 {
     public UserSettings Model { get; private set; }
+    public EncryptionKeyFileViewModel EncryptionKeyFileVM { get; init; }
     public KeyGenerationSettingsViewModel KeyGenerationSettingsVM { get; init; }
 
     [ObservableProperty]
@@ -62,9 +64,9 @@ public partial class SettingsPageViewModel : ViewModelBase
         IPlatformService platformService,
         IBackupService backupService,
         IThemeService themeService,
-        ICharSetService charSetService,
         IAppSessionService appSessionService,
-        IErrorReportingService errorReportingService)
+        IErrorReportingService errorReportingService,
+        IServiceProvider serviceProvider)
     {
         _userSettingsService = userSettingsService;
         _platformService = platformService;
@@ -74,14 +76,19 @@ public partial class SettingsPageViewModel : ViewModelBase
         _errorReportingService = errorReportingService;
 
         Model = userSettingsService?.GetDefaultUserSettings() ?? UserSettings.Default;
-        KeyGenerationSettingsVM = new(charSetService, userSettingsService);
+
+        EncryptionKeyFileVM = serviceProvider.GetRequiredService<EncryptionKeyFileViewModel>();
+
+        KeyGenerationSettingsVM = serviceProvider.GetRequiredService<KeyGenerationSettingsViewModel>();
         KeyGenerationSettingsVM.PropertyChanged += KeyGenerationSettingsVM_PropertyChanged;
+
         _backupDirectoryProps = new(BackupDirectory, backupService);
     }
 
     public SettingsPageViewModel()
     {
         Model = UserSettings.Default;
+        EncryptionKeyFileVM = new();
         KeyGenerationSettingsVM = new();
         KeyGenerationSettingsVM.PropertyChanged += KeyGenerationSettingsVM_PropertyChanged;
         _backupDirectoryProps = new(BackupDirectory, null);
@@ -140,11 +147,12 @@ public partial class SettingsPageViewModel : ViewModelBase
             Title = "Select Backup Directory"
         });
 
-        if (storageFolders.Count < 1)
-            return;
+        if (storageFolders.Count < 1) return;
 
-        var selectedFolderUri = storageFolders[0].Path;
-        BackupDirectory = (selectedFolderUri.IsAbsoluteUri ? selectedFolderUri.LocalPath : selectedFolderUri.OriginalString).Replace('\\', '/');
+        string? folderPath = storageFolders[0].TryGetLocalPath();
+        if (string.IsNullOrWhiteSpace(folderPath)) return;
+
+        BackupDirectory = folderPath.Replace('\\', '/');
     }
 
     public async Task CreateBackupAsync()

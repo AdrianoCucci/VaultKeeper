@@ -49,6 +49,7 @@ public enum ResultFailureType
 {
     Unknown,
     BadRequest,
+    Unauthorized,
     NotFound,
     Conflict,
     InvalidFormat

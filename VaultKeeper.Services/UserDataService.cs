@@ -42,6 +42,12 @@ public class UserDataService(
         return userData.ToOkResult().Logged(logger);
     }
 
+    public void ClearUserDataCache()
+    {
+        logger.LogInformation(nameof(ClearUserDataCache));
+        userDataCache.Clear();
+    }
+
     public async Task<Result> SetMainPasswordAsync(string password)
     {
         logger.LogInformation(nameof(SetMainPasswordAsync));

@@ -76,8 +76,8 @@ public partial class App : Application
             .AddTransient<VaultPageViewModel>()
             .AddTransient<SettingsPageViewModel>()
             .AddTransient<VaultItemImportViewModel>()
-
-            .AddTransient<KeyGenerationSettingsViewModel>();
+            .AddTransient<KeyGenerationSettingsViewModel>()
+            .AddTransient<EncryptionKeyFileViewModel>();
 
         services.AddNavigation(sp => new HashSet<RouteScope>()
         {

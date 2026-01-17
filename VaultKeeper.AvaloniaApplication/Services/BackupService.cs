@@ -15,6 +15,7 @@ namespace VaultKeeper.AvaloniaApplication.Services;
 public class BackupService(
     ILogger<BackupService> logger,
     IAppDataService appDataService,
+    IAppFileDefinitionService fileDefinitionService,
     IFileService fileService,
     IUserSettingsService userSettingsService,
     IPlatformService platformService) : IBackupService
@@ -48,7 +49,7 @@ public class BackupService(
     {
         logger.LogInformation(nameof(LoadBackupFromFilePickerAsync));
 
-        AppFileDefinition backupFileDefinition = appDataService.GetFileDefinition(AppFileType.Backup);
+        AppFileDefinition backupFileDefinition = fileDefinitionService.GetFileDefinitionByType(AppFileType.Backup);
 
         IReadOnlyList<IStorageFile> files = await platformService.OpenFilePickerAsync(new()
         {
@@ -64,9 +65,12 @@ public class BackupService(
         });
 
         if (files.Count < 1)
-            return Result.Ok<BackupData?>(null, "User cancelled file selection.");
+            return Result.Ok<BackupData?>(null, "User cancelled file selection.").Logged(logger);
 
-        string filePath = files[0].Path.LocalPath;
+        string? filePath = files[0].TryGetLocalPath();
+        if (string.IsNullOrWhiteSpace(filePath))
+            return Result.Failed<BackupData?>(ResultFailureType.BadRequest, "File does not have a valid local path.").Logged(logger);
+
         Result<SavedData<BackupData>?> result = await appDataService.LoadBackupAsync(filePath);
 
         return result.WithValue<BackupData?>(result.Value?.Data).Logged(logger);

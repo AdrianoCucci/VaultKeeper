@@ -22,6 +22,12 @@
                         HorizontalAlignment="Right"
                         Click="RestoreDefaultSettingsButton_Click"/>
 
+      <local:SettingsSectionShell HeaderText="Encryption Key" HeaderIcon="{StaticResource IconKey}">
+        <UniformGrid Columns="2">
+          <local:EncryptionKeyFileView DataContext="{Binding EncryptionKeyFileVM}"/>
+        </UniformGrid>
+      </local:SettingsSectionShell>
+
       <local:SettingsSectionShell HeaderText="Theming" HeaderIcon="{StaticResource IconPalette}">
         <StackPanel Spacing="20">
 
