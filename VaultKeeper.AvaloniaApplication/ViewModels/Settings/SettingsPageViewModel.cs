@@ -92,14 +92,17 @@ public partial class SettingsPageViewModel : ViewModelBase
         _backupDirectoryProps = new(BackupDirectory, backupService);
     }
 
+#if DEBUG
     public SettingsPageViewModel()
     {
         Model = UserSettings.Default;
-        EncryptionKeyFileVM = new();
         KeyGenerationSettingsVM = new();
         KeyGenerationSettingsVM.PropertyChanged += KeyGenerationSettingsVM_PropertyChanged;
         _backupDirectoryProps = new(BackupDirectory, null);
+
+        EncryptionKeyFileVM = new();
     }
+#endif
 
     ~SettingsPageViewModel() => KeyGenerationSettingsVM.PropertyChanged -= KeyGenerationSettingsVM_PropertyChanged;
 
