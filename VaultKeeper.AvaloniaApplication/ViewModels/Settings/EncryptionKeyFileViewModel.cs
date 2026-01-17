@@ -149,6 +149,8 @@ public partial class EncryptionKeyFileViewModel : ViewModelBase
         await TryUseEncryptionKeyFileAsync(filePath);
     }
 
+    public Task<bool> RemoveEncryptionKeyReferenceAsync() => TryRemoveEncryptionKeyFileReferenceAsync();
+
     partial void OnFilePathChanged(string? value)
     {
         HasFilePath = !string.IsNullOrWhiteSpace(value);
@@ -177,6 +179,21 @@ public partial class EncryptionKeyFileViewModel : ViewModelBase
 
         HasExistingKey = true;
         FilePath = filePath;
+
+        return true;
+    }
+
+    private async Task<bool> TryRemoveEncryptionKeyFileReferenceAsync()
+    {
+        var result = await _appConfigService.SetEncryptionKeyFilePathAsync(null);
+        if (!result.IsSuccessful)
+        {
+            ReportError(result, "Failed to Remove Encryption Key File Reference");
+            return false;
+        }
+
+        HasExistingKey = false;
+        FilePath = null;
 
         return true;
     }

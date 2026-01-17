@@ -4,7 +4,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:vm="using:VaultKeeper.AvaloniaApplication.ViewModels.Settings"
-             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             mc:Ignorable="d" d:DesignWidth="1920" d:DesignHeight="450"
              x:Class="VaultKeeper.AvaloniaApplication.Views.Settings.EncryptionKeyFileView"
              x:DataType="vm:EncryptionKeyFileViewModel"
              Classes.has-existing-key="{Binding HasExistingKey}"
@@ -24,6 +24,7 @@
 
   <StackPanel>
     <Border IsVisible="{Binding !HasExistingKey}"
+            MaxWidth="800"
             Margin="20"
             Padding="20"
             Background="{DynamicResource SystemAccentColor}"
@@ -82,16 +83,24 @@
                Text="{Binding FilePath}"
                IsReadOnly="True"
                VerticalContentAlignment="Center">
+
+        <TextBox.InnerLeftContent>
+          <common:AppButton IconStart="{StaticResource IconX}"
+                            Click="RemoveKeyReferenceButton_Click"
+                            ToolTip.Tip="Remove encryption key reference"/>
+        </TextBox.InnerLeftContent>
+
         <TextBox.InnerRightContent>
           <StackPanel Orientation="Horizontal">
             <common:AppButton IconStart="{StaticResource IconWandMagicSparkles}"
+                              CornerRadius="4 0 0 4"
                               Click="GenerateKeyButton_Click"
-                              IsVisible="{Binding HasExistingKey}"
-                              ToolTip.Tip="Generate new encryption key" />
+                              ToolTip.Tip="Generate new encryption key"/>
 
             <common:AppButton IconStart="{StaticResource IconFolder}"
+                              CornerRadius="0 4 4 0"
                               Click="SelectFilePathButton_Click"
-                              ToolTip.Tip="Select encryption key file path" />
+                              ToolTip.Tip="Select encryption key file path"/>
           </StackPanel>
         </TextBox.InnerRightContent>
       </TextBox>

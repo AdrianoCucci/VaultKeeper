@@ -42,4 +42,6 @@ public partial class SettingsPageView : ViewBase<SettingsPageViewModel>
     }
 
     private void RestoreDefaultSettingsButton_Click(object? sender, RoutedEventArgs e) => Model?.RestoreDefaultSettings();
+
+    private void EncryptionKeyFileView_RemoveKeyReferenceClicked(object? sender, RoutedEventArgs e) => Model?.PromptRemoveEncryptionKeyAsync();
 }

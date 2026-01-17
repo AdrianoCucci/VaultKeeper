@@ -10,6 +10,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using VaultKeeper.AvaloniaApplication.Abstractions;
 using VaultKeeper.AvaloniaApplication.Abstractions.Models;
+using VaultKeeper.AvaloniaApplication.ViewModels.Common.Prompts;
 using VaultKeeper.Common.Results;
 using VaultKeeper.Models.ApplicationData;
 using VaultKeeper.Models.Settings;
@@ -46,6 +47,12 @@ public partial class SettingsPageViewModel : ViewModelBase
 
     [ObservableProperty]
     private EmptyGroupModeDefinition? _currentEmptyGroupModeDefinition;
+
+    [ObservableProperty]
+    private object? _overlayContent;
+
+    [ObservableProperty]
+    private bool _isOverlayVisible;
 
     private BackupDirectoryProperties _backupDirectoryProps;
     public BackupDirectoryProperties BackupDirectoryProps { get => _backupDirectoryProps; private set => SetProperty(ref _backupDirectoryProps, value); }
@@ -174,6 +181,12 @@ public partial class SettingsPageViewModel : ViewModelBase
 
         // Refresh backup directory props.
         BackupDirectoryProps = new(BackupDirectory, _backupService);
+        ShowOverlay(new PromptViewModel
+        {
+            Header = "Backup Successful",
+            Message = $"Backup file was successfully created at:\n\"{backupSettings.BackupDirectory}\"",
+            AckwnoledgedAction = HideOverlay
+        });
     }
 
     public async Task LoadBackupAsync()
@@ -202,6 +215,25 @@ public partial class SettingsPageViewModel : ViewModelBase
         await _appSessionService.LogoutAsync((nameof(MainWindowViewModel), nameof(LockScreenPageViewModel)));
     }
 
+    public void PromptRemoveEncryptionKeyAsync() => ShowOverlay(new ConfirmPromptViewModel
+    {
+        Header = "Remove Encryption Key",
+        Message = string.Join('\n',
+        [
+            "Are you sure you want to remove the reference to your encryption key file?",
+            "The file will not be deleted, but Vault Keeper will revert back to using its built-in encryption key, and your saved data will be re-encrypted using this key.",
+            "Any backups you have created using this key will no longer be restorable.",
+            string.Empty,
+            "It is highly recommended to create a backup first before continuing."
+        ]),
+        CancelAction = HideOverlay,
+        ConfirmAction = async _ =>
+        {
+            if (await EncryptionKeyFileVM.RemoveEncryptionKeyReferenceAsync())
+                HideOverlay();
+        }
+    });
+
     protected override void OnPropertyChanged(PropertyChangedEventArgs e)
     {
         base.OnPropertyChanged(e);
@@ -211,6 +243,18 @@ public partial class SettingsPageViewModel : ViewModelBase
 
         if (!_isLoadingSavedSettings)
             SaveSettings();
+    }
+
+    private void ShowOverlay(object content)
+    {
+        OverlayContent = content;
+        IsOverlayVisible = true;
+    }
+
+    private void HideOverlay()
+    {
+        IsOverlayVisible = false;
+        OverlayContent = null;
     }
 
     private void UpdateServices(UserSettings settings)
