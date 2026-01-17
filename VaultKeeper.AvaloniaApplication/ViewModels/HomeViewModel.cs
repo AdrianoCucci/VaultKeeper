@@ -1,18 +1,16 @@
 ﻿using Avalonia;
-using Avalonia.Media;
 using CommunityToolkit.Mvvm.ComponentModel;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 using VaultKeeper.AvaloniaApplication.Abstractions;
-using VaultKeeper.AvaloniaApplication.Constants;
-using VaultKeeper.AvaloniaApplication.Extensions;
 using VaultKeeper.AvaloniaApplication.Forms;
 using VaultKeeper.AvaloniaApplication.ViewModels.Common;
 using VaultKeeper.AvaloniaApplication.ViewModels.Common.Prompts;
 using VaultKeeper.AvaloniaApplication.ViewModels.Settings;
 using VaultKeeper.AvaloniaApplication.ViewModels.VaultPage;
 using VaultKeeper.Common.Results;
+using VaultKeeper.Models.Constants;
 using VaultKeeper.Models.Errors;
 using VaultKeeper.Models.Navigation;
 using VaultKeeper.Services.Abstractions;
@@ -57,13 +55,13 @@ public partial class HomeViewModel : ViewModelBase
             {
                 Key = nameof(VaultPageViewModel),
                 Label = "Vault",
-                Icon = application.GetResourceOrDefault<Geometry>(Icons.Vault)
+                Icon = Icons.Vault
             }),
             new(new()
             {
                 Key = nameof(SettingsPageViewModel),
                 Label = "Settings",
-                Icon = application.GetResourceOrDefault<Geometry>(Icons.Gear)
+                Icon = Icons.Gear
             }),
         ];
 
@@ -125,14 +123,20 @@ public partial class HomeViewModel : ViewModelBase
     {
         if (_userDataService == null) return;
 
-        ShowOverlay(new ChangePasswordConfirmPromptViewModel()
+        ChangePasswordFormViewModel formVM = new();
+
+        ShowOverlay(new ConfirmPromptViewModel()
         {
             Header = "Change Password",
             Message = "Change your main login password using the form below.",
+            Content = formVM,
             CancelAction = HideOverlay,
             ConfirmAction = async vm =>
             {
-                ChangePasswordForm form = (vm as ChangePasswordConfirmPromptViewModel)!.FormVM.Form;
+                ChangePasswordForm form = formVM.Form;
+                if (!form.Validate())
+                    return;
+
                 Result changePasswordResult = await _userDataService.ChangeMainPasswordAsync(form.CurrentPassword!, form.Password!);
 
                 if (!changePasswordResult.IsSuccessful)

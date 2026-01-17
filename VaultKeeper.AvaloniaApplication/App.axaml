@@ -1,6 +1,6 @@
 <Application xmlns="https://github.com/avaloniaui"
+             xmlns:converters="using:VaultKeeper.AvaloniaApplication.Converters"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:sys="clr-namespace:System;assembly=netstandard"
              xmlns:local="using:VaultKeeper.AvaloniaApplication"
              x:Class="VaultKeeper.AvaloniaApplication.App"
              RequestedThemeVariant="Default">
@@ -18,8 +18,10 @@
         <ResourceInclude Source="/Theme/Controls.axaml"/>
       </ResourceDictionary.MergedDictionaries>
 
-      <sys:String x:Key="AppVersion">1.0.0</sys:String>
-      <sys:String x:Key="AppName">Vault Keeper</sys:String>
+      <converters:StringToResourceConverter x:Key="StrToResConverter"/>
+
+      <x:String x:Key="AppVersion">1.0.0</x:String>
+      <x:String x:Key="AppName">Vault Keeper</x:String>
       <StaticResource x:Key="AppIconData" ResourceKey="IconVault"/>
 
       <x:Double x:Key="ControlContentThemeFontSize">14</x:Double>

@@ -1,6 +1,10 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using CsvHelper;
+using CsvHelper.Configuration;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -13,9 +17,7 @@ namespace VaultKeeper.Services.DataFormatting;
 
 public class CsvService(ILogger<CsvService> logger) : ICsvService
 {
-    private const char _separator = ',';
-
-    public Result<string> Serialize<T>(IEnumerable<T> objs) where T : class
+    public Result<string> Serialize<T>(IEnumerable<T> records, Encoding? encoding = null) where T : class
     {
         logger.LogInformation(nameof(Serialize));
 
@@ -23,24 +25,37 @@ public class CsvService(ILogger<CsvService> logger) : ICsvService
         {
             IEnumerable<PropertyInfo> properties = GetCsvProperties(typeof(T));
 
-            IEnumerable<string> headers = properties.Select(property =>
+            encoding ??= Encoding.UTF8;
+            CsvConfiguration config = new(CultureInfo.InvariantCulture)
             {
-                CsvColumnAttribute? csvColumnAttribute = property.GetCustomAttribute<CsvColumnAttribute>();
-                return string.IsNullOrWhiteSpace(csvColumnAttribute?.Header) ? property.Name : csvColumnAttribute.Header;
-            });
+                Encoding = encoding
+            };
 
-            IEnumerable<IEnumerable<string>> valueRows = objs.Select(obj => properties.Select(property => property.GetValue(obj)?.ToString() ?? string.Empty));
+            byte[] serializedBytes;
 
-            StringBuilder sb = new();
-            sb.AppendJoin(_separator, headers);
-
-            foreach (var row in valueRows)
+            using (MemoryStream memoryStream = new())
             {
-                sb.AppendLine();
-                sb.AppendJoin(_separator, row);
+                using StreamWriter writer = new(memoryStream);
+                using CsvWriter csvWriter = new(writer, config);
+
+                DefaultClassMap<T> classMap = new();
+
+                foreach (PropertyInfo property in properties)
+                {
+                    string header = GetCsvHeaderName(property);
+                    MemberMap map = classMap.Map(typeof(T), property);
+                    map.Name(header);
+                }
+
+                csvWriter.Context.RegisterClassMap(classMap);
+                csvWriter.WriteRecords(records);
+                csvWriter.Flush();
+
+                serializedBytes = memoryStream.ToArray();
             }
 
-            return sb.ToString().ToOkResult().Logged(logger);
+            string serializedText = encoding.GetString(serializedBytes);
+            return serializedText.ToOkResult().Logged(logger);
         }
         catch (Exception ex)
         {
@@ -48,52 +63,69 @@ public class CsvService(ILogger<CsvService> logger) : ICsvService
         }
     }
 
-    public Result<IEnumerable<T>> Deserialize<T>(string csv) where T : class, new()
+    public Result<IEnumerable<T>> Deserialize<T>(string csvText, Encoding? encoding = null) where T : class, new()
     {
         logger.LogInformation(nameof(Deserialize));
 
         try
         {
-            if (string.IsNullOrWhiteSpace(csv))
+            if (string.IsNullOrWhiteSpace(csvText))
                 return Enumerable.Empty<T>().ToOkResult().Logged(logger);
 
-            string[] csvRows = csv.Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries);
-            if (csvRows.Length < 2)
-                return Enumerable.Empty<T>().ToOkResult().Logged(logger);
-
-            string[] headers = csvRows[0].Split(_separator);
             IEnumerable<PropertyInfo> properties = GetCsvProperties(typeof(T));
-            List<T> objs = [];
+            Dictionary<string, string> typeHeadersMap = properties
+                .Select(x => new KeyValuePair<string, string>(x.Name, GetCsvHeaderName(x)))
+                .ToDictionary();
 
-            for (int csvRowIndex = 1; csvRowIndex < csvRows.Length; csvRowIndex++)
+            encoding ??= Encoding.UTF8;
+            List<T> records = [];
+
+            CsvConfiguration config = new(CultureInfo.InvariantCulture)
             {
-                string csvRow = csvRows[csvRowIndex];
-                string[] values = csvRow.Split(_separator);
-                T obj = new();
+                Encoding = encoding,
+                MissingFieldFound = null,
+            };
 
-                for (int valueRowIndex = 0; valueRowIndex < values.Length; valueRowIndex++)
+            using (MemoryStream memoryStream = new(encoding.GetBytes(csvText)))
+            {
+                using StreamReader reader = new(memoryStream);
+                using CsvReader csvReader = new(reader, config);
+
+                _ = csvReader.Read();
+                _ = csvReader.ReadHeader();
+                string[] dataHeaders = csvReader.HeaderRecord ?? [];
+                string[] missingHeaders = [.. typeHeadersMap.Select(kvp => kvp.Value).Where(x => !dataHeaders.Contains(x))];
+
+                if (missingHeaders.Length > 0)
+                    return Result.Failed<IEnumerable<T>>(ResultFailureType.BadRequest, $"CSV data is missing the following headers:\n{string.Join(", ", missingHeaders.Select(x => $"\"{x}\""))}");
+
+                while (csvReader.Read())
                 {
-                    string value = values[valueRowIndex];
-                    string header = headers[valueRowIndex];
+                    T record = new();
 
-                    PropertyInfo? property = properties.FirstOrDefault(x =>
+                    foreach (PropertyInfo property in properties)
                     {
-                        CsvColumnAttribute? csvColumnAttribute = x.GetCustomAttribute<CsvColumnAttribute>();
-                        return string.IsNullOrWhiteSpace(csvColumnAttribute?.Header) ? x.Name == header : csvColumnAttribute.Header == header;
-                    });
+                        string header = typeHeadersMap[property.Name];
+                        object? value = csvReader.GetField(property.PropertyType, header);
+                        property.SetValue(record, value);
+                    }
 
-                    property?.SetValue(obj, value);
+                    records.Add(record);
                 }
-
-                objs.Add(obj);
             }
 
-            return (objs as IEnumerable<T>).ToOkResult().Logged(logger);
+            return Result.Ok<IEnumerable<T>>(records).Logged(logger);
         }
         catch (Exception ex)
         {
             return ex.ToFailedResult<IEnumerable<T>>().Logged(logger);
         }
+    }
+
+    private static string GetCsvHeaderName(PropertyInfo property)
+    {
+        CsvColumnAttribute? csvColumnAttribute = property.GetCustomAttribute<CsvColumnAttribute>();
+        return string.IsNullOrWhiteSpace(csvColumnAttribute?.Header) ? property.Name : csvColumnAttribute.Header;
     }
 
     private static IEnumerable<PropertyInfo> GetCsvProperties(Type type) => type.GetProperties(BindingFlags.Instance | BindingFlags.Public).Where(x => x.GetCustomAttribute<CsvIgnoreAttribute>() == null);

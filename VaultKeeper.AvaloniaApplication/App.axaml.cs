@@ -7,7 +7,9 @@ using System.Collections.Generic;
 using System.Linq;
 using VaultKeeper.AvaloniaApplication.Extensions.DependencyInjection;
 using VaultKeeper.AvaloniaApplication.ViewModels;
+using VaultKeeper.AvaloniaApplication.ViewModels.Importing;
 using VaultKeeper.AvaloniaApplication.ViewModels.Settings;
+using VaultKeeper.AvaloniaApplication.ViewModels.Setup;
 using VaultKeeper.AvaloniaApplication.ViewModels.VaultPage;
 using VaultKeeper.AvaloniaApplication.Views;
 using VaultKeeper.Models.Navigation;
@@ -69,13 +71,18 @@ public partial class App : Application
             .AddAvaloniaServices()
 
             .AddTransient<MainWindowViewModel>()
+
             .AddTransient<SetupPageViewModel>()
+            .AddTransient<SetupPageStep1ViewModel>()
+            .AddTransient<SetupPageStep2ViewModel>()
+
             .AddTransient<LockScreenPageViewModel>()
             .AddTransient<HomeViewModel>()
             .AddTransient<VaultPageViewModel>()
             .AddTransient<SettingsPageViewModel>()
-
-            .AddTransient<KeyGenerationSettingsViewModel>();
+            .AddTransient<VaultItemImportViewModel>()
+            .AddTransient<KeyGenerationSettingsViewModel>()
+            .AddTransient<EncryptionKeyFileViewModel>();
 
         services.AddNavigation(sp => new HashSet<RouteScope>()
         {

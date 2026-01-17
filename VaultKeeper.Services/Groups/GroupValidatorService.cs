@@ -28,6 +28,24 @@ public class GroupValidatorService(
         return result.Logged(logger);
     }
 
+    public async Task<Result> ValidateUpsertManyAsync(IEnumerable<Group> groups)
+    {
+        logger.LogInformation(nameof(ValidateUpsertManyAsync));
+
+        HashSet<string> duplicateNameConflicts = [.. groups.DuplicatesBy(x => x.Name).Select(x => x.Name)];
+        if (duplicateNameConflicts.Count > 0)
+        {
+            string message = $"{duplicateNameConflicts.Count} Groups have duplicate names:\n- {string.Join("\n- ", duplicateNameConflicts.Select(x => $"\"{x}\""))}";
+            return Result.Failed(ResultFailureType.Conflict, message);
+        }
+
+        Result[] results = await Task.WhenAll(groups.Select(ValidateUpsertInternalAsync));
+        if (results.Any(x => !x.IsSuccessful))
+            return results.ToAggregatedResult().Logged(logger);
+
+        return Result.Ok().Logged(logger);
+    }
+
     public async Task<Result> ValidateDeleteAsync(Group group, CascadeDeleteMode cascadeDeleteMode)
     {
         logger.LogInformation(nameof(ValidateDeleteAsync));

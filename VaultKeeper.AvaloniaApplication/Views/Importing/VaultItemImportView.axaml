@@ -1,0 +1,116 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:common="using:VaultKeeper.AvaloniaApplication.Views.Common"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:importingModels="using:VaultKeeper.Models.Importing"
+             xmlns:vm="using:VaultKeeper.AvaloniaApplication.ViewModels.Importing"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="1000" d:DesignHeight="450"
+             x:Class="VaultKeeper.AvaloniaApplication.Views.Importing.VaultItemImportView"
+             x:DataType="vm:VaultItemImportViewModel"
+             Name="Root"
+             Classes.export="{Binding IsExportMode}">
+
+  <Design.DataContext>
+    <x:Static Member="vm:VaultItemImportViewModel.Design"/>
+  </Design.DataContext>
+
+  <UserControl.Styles>
+    <Style Selector="TextBlock#PART_Header">
+      <Setter Property="Text" Value="Where are you importing keys from?"/>
+    </Style>
+    <Style Selector="common|AppButton#PART_Button">
+      <Setter Property="Text" Value="Import File"/>
+      <Setter Property="IconStart" Value="{StaticResource IconUpload}"/>
+    </Style>
+
+    <Style Selector="#Root.export TextBlock#PART_Header">
+      <Setter Property="Text" Value="What format do you want to export to?"/>
+    </Style>
+    <Style Selector="#Root.export common|AppButton#PART_Button">
+      <Setter Property="Text" Value="Export File"/>
+      <Setter Property="IconStart" Value="{StaticResource IconDownload}"/>
+    </Style>
+  </UserControl.Styles>
+
+  <StackPanel Spacing="10">
+    <TextBlock Name="PART_Header" Classes="h3" TextAlignment="Center"/>
+
+    <ListBox ItemsSource="{Binding Sources}"
+             SelectedItem="{Binding SelectedSource}"
+             Margin="20"
+             CornerRadius="8"
+             Cursor="Hand">
+
+      <ListBox.ItemsPanel>
+        <ItemsPanelTemplate>
+          <WrapPanel HorizontalAlignment="Center" VerticalAlignment="Center"/>
+        </ItemsPanelTemplate>
+      </ListBox.ItemsPanel>
+
+      <ListBox.ItemTemplate>
+        <DataTemplate x:DataType="importingModels:ImportSource">
+          <Panel Width="300" Height="175">
+            <StackPanel Spacing="10" HorizontalAlignment="Center" VerticalAlignment="Center">
+              <PathIcon Data="{Binding Icon, Converter={StaticResource StrToResConverter}}"
+                        Width="40"
+                        Height="40"
+                        Foreground="{DynamicResource SystemControlBackgroundBaseHighBrush}"/>
+
+              <ItemsControl ItemsSource="{Binding AdditionalIcons}">
+                <ItemsControl.ItemsPanel>
+                  <ItemsPanelTemplate>
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Spacing="10"/>
+                  </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+
+                <ItemsControl.ItemTemplate>
+                  <DataTemplate>
+                    <PathIcon Data="{Binding ., Converter={StaticResource StrToResConverter}}"
+                              Width="25"
+                              Height="25"
+                              Foreground="{DynamicResource SystemControlBackgroundBaseHighBrush}"/>
+                  </DataTemplate>
+                </ItemsControl.ItemTemplate>
+              </ItemsControl>
+
+              <TextBlock Text="{Binding Name}"
+                         Margin="0"
+                         Classes="h4"
+                         TextAlignment="Center"
+                         TextWrapping="Wrap"/>
+
+              <TextBlock Text="{Binding Description}"
+                         TextAlignment="Center"
+                         TextWrapping="Wrap"/>
+            </StackPanel>
+          </Panel>
+        </DataTemplate>
+      </ListBox.ItemTemplate>
+    </ListBox>
+
+    <Border Padding="10"
+            Margin="0 0 0 20"
+            HorizontalAlignment="Center"
+            CornerRadius="6"
+            IsVisible="{Binding IsExportMode}"
+            Background="{DynamicResource SystemAccentColor}">
+
+      <StackPanel HorizontalAlignment="Center" Spacing="10">
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Spacing="10">
+          <PathIcon Data="{StaticResource IconExclamationTriangle}"/>
+          <TextBlock TextAlignment="Center" FontWeight="Bold">Important Note</TextBlock>
+        </StackPanel>
+
+        <TextBlock TextAlignment="Center">Your keys will be exported in readable plain text.</TextBlock>
+      </StackPanel>
+
+    </Border>
+
+    <common:AppButton Name="PART_Button"
+                      IsEnabled="{Binding !IsProcessing}"
+                      MinWidth="200"
+                      HorizontalAlignment="Center"
+                      Click="Button_Click"/>
+  </StackPanel>
+</UserControl>

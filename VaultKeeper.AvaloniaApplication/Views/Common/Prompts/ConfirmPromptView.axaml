@@ -15,7 +15,8 @@
 
   <local:Prompt Header="{Binding Header}"
                 Message="{Binding Message}"
-                ShowOkButton="False"
+                Content="{Binding Content}"
+                ShowOkButton="{Binding ShowOkButton}"
                 CloseButtonClicked="CancelButton_Clicked">
     <local:Prompt.FooterContent>
       <common:FormButtons SubmitButtonText="Confirm"

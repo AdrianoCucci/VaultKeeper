@@ -8,6 +8,7 @@ public interface IUserDataService
 {
     Result<UserData?> GetUserData();
     Task<Result<UserData>> GetOrCreateUserDataAsync();
+    void ClearUserDataCache();
     Task<Result> SetMainPasswordAsync(string password);
     Task<Result> ChangeMainPasswordAsync(string currentPassword, string newPassword);
 }

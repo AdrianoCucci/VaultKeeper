@@ -1,0 +1,68 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:common="using:VaultKeeper.AvaloniaApplication.Views.Common"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:local="using:VaultKeeper.AvaloniaApplication.Views.Setup"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:system="using:System"
+             xmlns:views="using:VaultKeeper.AvaloniaApplication.Views"
+             xmlns:vm="using:VaultKeeper.AvaloniaApplication.ViewModels.Setup"
+             mc:Ignorable="d" d:DesignWidth="1920" d:DesignHeight="1080"
+             x:Class="VaultKeeper.AvaloniaApplication.Views.Setup.SetupPageView"
+             x:DataType="vm:SetupPageViewModel">
+
+  <Design.DataContext>
+    <vm:SetupPageViewModel CanNavigateBack="True"/>
+  </Design.DataContext>
+
+  <ScrollViewer>
+    <StackPanel Margin="50" Spacing="20" VerticalAlignment="Center">
+
+      <StackPanel Spacing="10">
+        <PathIcon Data="{StaticResource AppIconData}" Width="80" Height="80"/>
+
+        <TextBlock HorizontalAlignment="Center" TextWrapping="Wrap" Classes="h1">
+          <Run Text="{StaticResource AppName}"/> Setup
+        </TextBlock>
+
+        <Separator Width="640"/>
+
+        <TextBlock HorizontalAlignment="Center" FontWeight="Normal" TextWrapping="Wrap" Classes="h3">
+          Welcome to <Run Text="{StaticResource AppName}" FontWeight="SemiBold"/>
+        </TextBlock>
+      </StackPanel>
+
+      <TransitioningContentControl Content="{Binding Content}"
+                                   CornerRadius="8">
+        <TransitioningContentControl.DataTemplates>
+          <DataTemplate x:DataType="vm:SetupPageStep1ViewModel">
+            <local:SetupPageStep1View FormSubmitted="SetupPageStep1View_FormSubmitted"
+                                      BackupLoaded="SetupPageStep1View_BackupLoaded"/>
+          </DataTemplate>
+
+          <DataTemplate x:DataType="vm:SetupPageStep2ViewModel">
+            <local:SetupPageStep2View Completed="SetupPageStep2View_Completed"/>
+          </DataTemplate>
+        </TransitioningContentControl.DataTemplates>
+      </TransitioningContentControl>
+
+      <Border IsVisible="{Binding CanNavigateBack}" Grid.Row="2" Grid.ColumnSpan="3">
+        <Button HorizontalAlignment="Center"
+                Classes="btn-link"
+                Click="NavigateBackButton_Click">
+
+          <StackPanel Orientation="Horizontal" Spacing="12">
+            <PathIcon Data="{StaticResource IconArrowRight}">
+              <PathIcon.RenderTransform>
+                <RotateTransform Angle="180"/>
+              </PathIcon.RenderTransform>
+            </PathIcon>
+
+            <TextBlock>Remembered password?</TextBlock>
+          </StackPanel>
+        </Button>
+      </Border>
+
+    </StackPanel>
+  </ScrollViewer>
+</UserControl>

@@ -1,10 +1,8 @@
 using Avalonia.Interactivity;
 using System;
-using VaultKeeper.AvaloniaApplication.Forms;
-using VaultKeeper.AvaloniaApplication.Forms.Common;
-using VaultKeeper.AvaloniaApplication.ViewModels;
+using VaultKeeper.AvaloniaApplication.ViewModels.Setup;
 
-namespace VaultKeeper.AvaloniaApplication.Views;
+namespace VaultKeeper.AvaloniaApplication.Views.Setup;
 
 public partial class SetupPageView : ViewBase<SetupPageViewModel>
 {
@@ -19,23 +17,11 @@ public partial class SetupPageView : ViewBase<SetupPageViewModel>
 
     public SetupPageView() => InitializeComponent();
 
-    private async void SetPasswordFormView_Submitted(object? sender, FormActionEventArgs<SetPasswordForm> e)
-    {
-        if (Model == null) return;
-
-        bool didComplete = await Model.ProcessFormSubmissionAsync(e.Form);
-        if (didComplete)
-            RaiseEvent(new(SetupCompletedEvent, this));
-    }
-
-    private async void ImportDataButton_Click(object? sender, RoutedEventArgs e)
-    {
-        if (Model == null) return;
-
-        bool didComplete = await Model.ImportBackupDataAsync();
-        if (didComplete)
-            RaiseEvent(new(SetupCompletedEvent, this));
-    }
-
     private void NavigateBackButton_Click(object? sender, RoutedEventArgs e) => RaiseEvent(new(NavigateBackClickedEvent, this));
+
+    private void SetupPageStep1View_FormSubmitted(object? sender, RoutedEventArgs e) => Model?.GoToStep2();
+
+    private void SetupPageStep1View_BackupLoaded(object? sender, RoutedEventArgs e) => RaiseEvent(new(SetupCompletedEvent, this));
+
+    private void SetupPageStep2View_Completed(object? sender, RoutedEventArgs e) => RaiseEvent(new(SetupCompletedEvent, this));
 }

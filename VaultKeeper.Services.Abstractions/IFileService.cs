@@ -10,5 +10,8 @@ public interface IFileService
     Result<string> ReadFileText(string path, Encoding? encoding = null);
     Result WriteFileBytes(string path, byte[] data, FileAttributes? attributes = null);
     Result WriteFileText(string path, string data, FileAttributes? attributes = null, Encoding? encoding = null);
+    Result DeleteFileAsync(string path);
+    bool FileExists(string? path);
+    Result CanReadFile(string path);
     Result CanWriteToDirectory(string path);
 }

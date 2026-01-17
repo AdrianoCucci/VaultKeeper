@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using System;
+using System.Collections.Generic;
 using VaultKeeper.Models.Settings;
 using VaultKeeper.Services.Abstractions;
 
@@ -24,8 +25,25 @@ public class UserSettingsService(ILogger<UserSettingsService> logger, ICache<Use
             CharSet = charSetService.GetDefaultCharSet(),
             MinLength = 32,
             MaxLength = 32
-        }
+        },
+        EmptyGroupMode = EmptyGroupMode.Keep
     };
+
+    private static IEnumerable<EmptyGroupModeDefinition> EmptyGroupModeDefinitions =>
+    [
+        new()
+        {
+            Mode = EmptyGroupMode.Keep,
+            Name = "Keep",
+            Description = "Keep Groups when all Keys are removed from them."
+        },
+        new()
+        {
+            Mode = EmptyGroupMode.Delete,
+            Name = "Delete",
+            Description = "Automatically delete Groups when all Keys are removed from them."
+        }
+    ];
 
     public UserSettings? GetUserSettings()
     {
@@ -73,6 +91,18 @@ public class UserSettingsService(ILogger<UserSettingsService> logger, ICache<Use
     {
         logger.LogInformation(nameof(SetKeyGenerationSettings));
         return UpdateUserSettings(settings => settings with { KeyGeneration = value });
+    }
+
+    public IEnumerable<EmptyGroupModeDefinition> GetEmptyGroupModeDefinitions()
+    {
+        logger.LogInformation(nameof(GetEmptyGroupModeDefinitions));
+        return EmptyGroupModeDefinitions;
+    }
+
+    public UserSettings SetEmptyGroupMode(EmptyGroupMode value)
+    {
+        logger.LogInformation(nameof(SetEmptyGroupMode));
+        return UpdateUserSettings(settings => settings with { EmptyGroupMode = value });
     }
 
     private UserSettings UpdateUserSettings(Func<UserSettings, UserSettings> updateFunc)

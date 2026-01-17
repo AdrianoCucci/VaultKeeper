@@ -5,6 +5,8 @@
              xmlns:common="using:VaultKeeper.AvaloniaApplication.Views.Common"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:importing="using:VaultKeeper.AvaloniaApplication.Views.Importing"
+             xmlns:importingVMs="using:VaultKeeper.AvaloniaApplication.ViewModels.Importing"
              xmlns:local="using:VaultKeeper.AvaloniaApplication.Views.VaultPage"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:overlays="using:VaultKeeper.AvaloniaApplication.Views.Common.Overlays"
@@ -35,7 +37,7 @@
 
         <Border Grid.Row="1">
           <ScrollViewer>
-            <common:ListView ItemsSource="{Binding GroupedVaultItems}" Margin="20">
+            <common:ListView ItemsSource="{Binding GroupedVaultItems}" Margin="20" MaxWidth="1200">
               <common:ListView.ItemTemplate>
                 <DataTemplate>
                   <uc:GroupedVaultItemsView DataContext="{Binding .}"
@@ -121,20 +123,12 @@
                       CardMaxWidth="{Binding #Root.Bounds.Width}"
                       BackdropPressed="Modal_BackdropPressed">
         <overlays:Modal.DataTemplates>
-          <DataTemplate x:DataType="promptVMs:DeleteGroupConfirmPromptViewModel">
-            <prompts:DeleteGroupConfirmPromptView/>
-          </DataTemplate>
-
-          <DataTemplate x:DataType="promptVMs:GroupItemsConfirmPromptViewModel">
-            <prompts:GroupItemsConfirmPromptView/>
-          </DataTemplate>
-
           <DataTemplate x:DataType="promptVMs:ConfirmPromptViewModel">
             <prompts:ConfirmPromptView/>
           </DataTemplate>
 
           <DataTemplate x:DataType="promptVMs:PromptViewModel">
-            <prompts:PromptView Padding="20 20 20 0" Acknowledged="PromptView_Acknowledged"/>
+            <prompts:PromptView Acknowledged="PromptView_Acknowledged"/>
           </DataTemplate>
         </overlays:Modal.DataTemplates>
       </overlays:Modal>

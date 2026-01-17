@@ -7,5 +7,9 @@ public partial class PromptView : PromptViewBase<PromptViewModel>
 {
     public PromptView() => InitializeComponent();
 
-    private void Prompt_Acknowledged(object? sender, RoutedEventArgs e) => RaiseEvent(new(AcknowledgedEvent, this));
+    private void Prompt_Acknowledged(object? sender, RoutedEventArgs e)
+    {
+        Model?.Acknowledge();
+        RaiseEvent(new(AcknowledgedEvent, this));
+    }
 }

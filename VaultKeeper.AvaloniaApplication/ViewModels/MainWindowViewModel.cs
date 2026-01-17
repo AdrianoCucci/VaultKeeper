@@ -1,8 +1,8 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
-using System;
 using System.Threading.Tasks;
 using VaultKeeper.AvaloniaApplication.Abstractions;
 using VaultKeeper.AvaloniaApplication.ViewModels.Common.Prompts;
+using VaultKeeper.AvaloniaApplication.ViewModels.Setup;
 using VaultKeeper.Common.Results;
 using VaultKeeper.Models.ApplicationData;
 using VaultKeeper.Models.Errors;
@@ -30,18 +30,21 @@ public partial class MainWindowViewModel : ViewModelBase
     private readonly IErrorReportingService _errorReportingService;
     private readonly INavigator _navigator;
     private readonly IAppDataService _appDataService;
+    private readonly IAppConfigService _appConfigService;
     private readonly IThemeService _themeService;
 
     public MainWindowViewModel(
         IErrorReportingService errorReportingService,
         INavigatorFactory navFactory,
         IAppDataService appDataService,
+        IAppConfigService appConfigService,
         IThemeService themeService)
     {
         _errorReportingService = errorReportingService;
         _navigator = navFactory.GetRequiredNavigator(nameof(MainWindowViewModel));
         _errorReportingService = errorReportingService;
         _appDataService = appDataService;
+        _appConfigService = appConfigService;
         _themeService = themeService;
 
         _errorReportingService.ErrorReported += ErrorReportingService_ErrorReported;
@@ -60,9 +63,21 @@ public partial class MainWindowViewModel : ViewModelBase
         {
             IsInitializing = true;
 
+            Result<AppConfigData> loadAppConfigResult = await _appConfigService.LoadSavedAppConfigAsync();
+            if (!loadAppConfigResult.IsSuccessful)
+            {
+                ReportError(loadAppConfigResult, "Failed to Initialize Application Config");
+                NavigateToSetup();
+                return;
+            }
+
             Result<SavedData<UserData>?> loadUserDataResult = await _appDataService.LoadUserDataAsync(updateCaches: true);
             if (!loadUserDataResult.IsSuccessful)
-                throw new Exception($"{nameof(MainWindowViewModel)} failed to load user data: {loadUserDataResult.Message}", loadUserDataResult.Exception);
+            {
+                ReportError(loadUserDataResult, "Failed to Load Saved User Data");
+                NavigateToSetup();
+                return;
+            }
 
             SavedData<UserData>? userData = loadUserDataResult.Value;
             AppThemeSettings? themeSettings = userData?.Data.Settings?.Theme;
@@ -101,6 +116,22 @@ public partial class MainWindowViewModel : ViewModelBase
         OverlayContent = null;
     }
 
+    public void NavigateToLockscreen() => _navigator.Navigate(nameof(LockScreenPageViewModel));
+
+    public void NavigateToHome() => _navigator.Navigate(nameof(HomeViewModel));
+
+    private void ReportError(Result failedResult, string header)
+    {
+        _errorReportingService.ReportError(new()
+        {
+            Header = header,
+            Message = $"({failedResult.FailureType}) - {failedResult.Message}",
+            Exception = failedResult.Exception,
+            Severity = ErrorSeverity.Critical,
+            Source = ErrorSource.Application
+        });
+    }
+
     private void ErrorReportingService_ErrorReported(object? sender, Error error)
     {
         if (error.Visibility == ErrorVisibility.Internal) return;
@@ -111,10 +142,6 @@ public partial class MainWindowViewModel : ViewModelBase
             Message = error.Message,
         });
     }
-
-    public void NavigateToLockscreen() => _navigator.Navigate(nameof(LockScreenPageViewModel));
-
-    public void NavigateToHome() => _navigator.Navigate(nameof(HomeViewModel));
 
     private void Navigator_Navigated(object? sender, CurrentRoute e) => Content = e.Content;
 }

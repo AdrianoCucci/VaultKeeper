@@ -13,7 +13,7 @@ public partial class VaultPageViewModel
 {
     public static readonly DesignContext Design = new();
 
-    public class DesignContext() : VaultPageViewModel(null!, null!, null!, null!, null!, null!, null!)
+    public class DesignContext() : VaultPageViewModel(null!, null!, null!, null!, null!, null!, null!, null!)
     {
         public override async Task LoadDataAsync(bool refreshUI = true)
         {
