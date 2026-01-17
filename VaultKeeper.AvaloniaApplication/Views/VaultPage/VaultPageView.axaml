@@ -37,7 +37,7 @@
 
         <Border Grid.Row="1">
           <ScrollViewer>
-            <common:ListView ItemsSource="{Binding GroupedVaultItems}" Margin="20">
+            <common:ListView ItemsSource="{Binding GroupedVaultItems}" Margin="20" MaxWidth="1200">
               <common:ListView.ItemTemplate>
                 <DataTemplate>
                   <uc:GroupedVaultItemsView DataContext="{Binding .}"

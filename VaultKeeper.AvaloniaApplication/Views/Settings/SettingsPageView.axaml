@@ -18,7 +18,7 @@
   <overlays:OverlayPanel IsOverlayVisible="{Binding IsOverlayVisible}">
     <ScrollViewer Name="PART_ScrollViewer">
 
-      <StackPanel Margin="20">
+      <StackPanel Margin="20" MaxWidth="1200">
         <common:AppButton Margin="0 0 0 10"
                           Text="Restore Default Settings"
                           IconStart="{StaticResource IconArrowRotateRight}"
