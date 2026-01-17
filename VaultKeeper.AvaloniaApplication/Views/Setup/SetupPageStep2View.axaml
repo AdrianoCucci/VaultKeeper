@@ -1,0 +1,46 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:common="using:VaultKeeper.AvaloniaApplication.Views.Common"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:settings="using:VaultKeeper.AvaloniaApplication.Views.Settings"
+             xmlns:vm="using:VaultKeeper.AvaloniaApplication.ViewModels.Setup"
+             mc:Ignorable="d" d:DesignWidth="1920" d:DesignHeight="1080"
+             x:Class="VaultKeeper.AvaloniaApplication.Views.Setup.SetupPageStep2View"
+             x:DataType="vm:SetupPageStep2ViewModel">
+
+  <Design.DataContext>
+    <vm:SetupPageStep2ViewModel/>
+  </Design.DataContext>
+
+  <StackPanel>
+
+    <StackPanel Spacing="20">
+      <TextBlock Classes="h3" HorizontalAlignment="Center">Create a Custom Encryption Key</TextBlock>
+
+      <settings:EncryptionKeyFileView DataContext="{Binding EncryptionKeyFileVM}"
+                                      MaxWidth="1200"
+                                      GenerateKeyFileClicked="EncryptionKeyFileView_GenerateKeyFileClicked"
+                                      SelectKeyFileClicked="EncryptionKeyFileView_SelectKeyFileClicked"
+                                      KeyFileReferenceAdded="EncryptionKeyFileView_KeyFileReferenceAdded"/>
+
+    </StackPanel>
+
+    <Grid RowDefinitions="Auto" ColumnDefinitions="*, Auto, *" Margin="0 20" HorizontalAlignment="Center">
+      <Separator Width="200" Grid.Column="0"/>
+      <TextBlock Classes="txt-md" FontWeight="SemiBold" Grid.Column="1">OR</TextBlock>
+      <Separator Width="200" Grid.Column="2"/>
+    </Grid>
+
+    <StackPanel Spacing="20" HorizontalAlignment="Center">
+      <common:AppButton Text="Skip"
+                        IconEnd="{StaticResource IconArrowRight}"
+                        HorizontalAlignment="Center"
+                        Click="SkipButton_Click"/>
+      <TextBlock FontStyle="Italic" TextWrapping="Wrap">
+        You can create a custom encryption key later in the application Settings page if desired.
+      </TextBlock>
+    </StackPanel>
+
+  </StackPanel>
+</UserControl>

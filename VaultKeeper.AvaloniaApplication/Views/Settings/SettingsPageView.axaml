@@ -28,6 +28,9 @@
         <local:SettingsSectionShell HeaderText="Encryption Key" HeaderIcon="{StaticResource IconKey}">
           <local:EncryptionKeyFileView DataContext="{Binding EncryptionKeyFileVM}"
                                        HorizontalAlignment="Left"
+                                       CardBackground="{DynamicResource SystemAccentColor}"
+                                       GenerateKeyFileClicked="EncryptionKeyFileView_GenerateKeyFileClicked"
+                                       SelectKeyFileClicked="EncryptionKeyFileView_SelectKeyFileClicked"
                                        RemoveKeyReferenceClicked="EncryptionKeyFileView_RemoveKeyReferenceClicked"/>
         </local:SettingsSectionShell>
 

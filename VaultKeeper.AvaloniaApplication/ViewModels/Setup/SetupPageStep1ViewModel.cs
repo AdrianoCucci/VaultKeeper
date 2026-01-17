@@ -1,44 +1,47 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using VaultKeeper.AvaloniaApplication.Abstractions;
 using VaultKeeper.AvaloniaApplication.Forms;
 using VaultKeeper.Common.Results;
 using VaultKeeper.Models.ApplicationData;
 using VaultKeeper.Models.Errors;
-using VaultKeeper.Models.Navigation.Extensions;
 using VaultKeeper.Services.Abstractions;
-using VaultKeeper.Services.Abstractions.Navigation;
 
-namespace VaultKeeper.AvaloniaApplication.ViewModels;
+namespace VaultKeeper.AvaloniaApplication.ViewModels.Setup;
 
-public partial class SetupPageViewModel : ViewModelBase
+public partial class SetupPageStep1ViewModel : ViewModelBase
 {
     public SetPasswordFormViewModel SetPasswordFormVM { get; } = new();
 
-    [ObservableProperty]
-    private bool _canNavigateBack = false;
-
     private readonly IAppDataService _appDataService;
+    private readonly IAppConfigService _appConfigService;
     private readonly IUserDataService _userDataService;
     private readonly IBackupService _backupService;
     private readonly IErrorReportingService _errorReportingService;
 
-    public SetupPageViewModel(
+    public SetupPageStep1ViewModel(
         IAppDataService appDataService,
+        IAppConfigService appConfigService,
         IUserDataService userDataService,
         IBackupService backupService,
-        IErrorReportingService errorReportingService,
-        INavigatorFactory? navFactory = null)
+        IErrorReportingService errorReportingService)
     {
         _appDataService = appDataService;
+        _appConfigService = appConfigService;
         _userDataService = userDataService;
         _backupService = backupService;
         _errorReportingService = errorReportingService;
-
-        INavigator? navigator = navFactory?.GetNavigator(nameof(MainWindowViewModel));
-        if (navigator != null)
-            _canNavigateBack = navigator.CurrentRoute.GetParamOrDefault<bool>(nameof(CanNavigateBack));
     }
+
+#if DEBUG
+    public SetupPageStep1ViewModel()
+    {
+        _appDataService = null!;
+        _appConfigService = null!;
+        _userDataService = null!;
+        _backupService = null!;
+        _errorReportingService = null!;
+    }
+#endif
 
     public async Task<bool> ProcessFormSubmissionAsync(SetPasswordForm form)
     {
@@ -58,13 +61,13 @@ public partial class SetupPageViewModel : ViewModelBase
         }
 
         // Delete any existing entity data to ensure clean setup for new user data.
-        Result deleteEntityDataResult = await _appDataService.DeleteEntityDataAsync();
-        if (!deleteEntityDataResult.IsSuccessful)
+        Result resetDataResult = await ResetUserDataAsync();
+        if (!resetDataResult.IsSuccessful)
         {
             _errorReportingService.ReportError(new()
             {
-                Header = "Failed to Reset Entity Data",
-                Message = $"({deleteEntityDataResult.FailureType}) - {deleteEntityDataResult.Message}",
+                Header = "Failed to Initialize User Data",
+                Message = $"({resetDataResult.FailureType}) - {resetDataResult.Message}",
                 Source = ErrorSource.Application,
                 Severity = ErrorSeverity.Critical
             });
@@ -88,5 +91,16 @@ public partial class SetupPageViewModel : ViewModelBase
         }
 
         return loadBackupResult.Value != null;
+    }
+
+    private async Task<Result> ResetUserDataAsync()
+    {
+        Result deleteEntityDataResult = await _appDataService.DeleteEntityDataAsync();
+        if (!deleteEntityDataResult.IsSuccessful)
+            return deleteEntityDataResult;
+
+        Result<AppConfigData> removeCustomEncryptionKeyResult = await _appConfigService.SetEncryptionKeyFilePathAsync(null);
+
+        return removeCustomEncryptionKeyResult;
     }
 }

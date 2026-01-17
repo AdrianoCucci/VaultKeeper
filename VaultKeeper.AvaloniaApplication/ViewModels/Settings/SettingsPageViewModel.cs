@@ -215,6 +215,10 @@ public partial class SettingsPageViewModel : ViewModelBase
         await _appSessionService.LogoutAsync((nameof(MainWindowViewModel), nameof(LockScreenPageViewModel)));
     }
 
+    public void GenerateEncryptionKeyFile() => ChangeEncryptionKeyFile(() => _ = EncryptionKeyFileVM.GenerateKeyFileAsync());
+
+    public void SelectEncryptionKeyFile() => ChangeEncryptionKeyFile(() => _ = EncryptionKeyFileVM.SelectKeyFileAsync());
+
     public void PromptRemoveEncryptionKeyAsync() => ShowOverlay(new ConfirmPromptViewModel
     {
         Header = "Remove Encryption Key",
@@ -243,6 +247,30 @@ public partial class SettingsPageViewModel : ViewModelBase
 
         if (!_isLoadingSavedSettings)
             SaveSettings();
+    }
+
+    private void ChangeEncryptionKeyFile(Action action)
+    {
+        if (!EncryptionKeyFileVM.HasExistingKey)
+        {
+            action.Invoke();
+            return;
+        }
+
+        ShowOverlay(new PromptViewModel
+        {
+            Header = "Changing Your Encryption Key",
+            Message = string.Join('\n',
+            [
+                "Note: Changing your encryption key will re-encrypt your saved data using the new key.",
+                "Any backups you have created using the old encryption key will no longer be restorable.",
+            ]),
+            AckwnoledgedAction = () =>
+            {
+                HideOverlay();
+                action.Invoke();
+            }
+        });
     }
 
     private void ShowOverlay(object content)

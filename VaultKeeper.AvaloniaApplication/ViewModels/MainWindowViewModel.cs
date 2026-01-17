@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using VaultKeeper.AvaloniaApplication.Abstractions;
 using VaultKeeper.AvaloniaApplication.ViewModels.Common.Prompts;
+using VaultKeeper.AvaloniaApplication.ViewModels.Setup;
 using VaultKeeper.Common.Results;
 using VaultKeeper.Models.ApplicationData;
 using VaultKeeper.Models.Errors;

@@ -75,7 +75,7 @@ public partial class EncryptionKeyFileViewModel : ViewModelBase
         }
     }
 
-    public async Task GenerateKeyFileAsync()
+    public async Task<bool> GenerateKeyFileAsync()
     {
         FilePathMessage = null;
 
@@ -85,17 +85,17 @@ public partial class EncryptionKeyFileViewModel : ViewModelBase
             AllowMultiple = false
         });
 
-        if (folders.Count < 1) return;
+        if (folders.Count < 1) return false;
 
         string? folderPath = folders[0].TryGetLocalPath();
-        if (string.IsNullOrWhiteSpace(folderPath)) return;
+        if (string.IsNullOrWhiteSpace(folderPath)) return false;
 
         Result canWriteResult = _fileService.CanWriteToDirectory(folderPath);
         if (!canWriteResult.IsSuccessful)
         {
             IsFilePathValid = false;
             FilePathMessage = canWriteResult.Message;
-            return;
+            return false;
         }
 
         AppFileDefinition fileDefinition = _fileDefinitionService.GetFileDefinitionByType(AppFileType.EncryptionKey);
@@ -105,27 +105,27 @@ public partial class EncryptionKeyFileViewModel : ViewModelBase
         {
             IsFilePathValid = false;
             FilePathMessage = "An existing encryption key file already exists at this directory - you must manually remove this file from this directory if you wish to generate a new key here.";
-            return;
+            return false;
         }
 
         Result<string> generateFileDataResult = _encryptionService.GenerateEncryptionKeyFileData();
         if (!generateFileDataResult.IsSuccessful)
         {
             ReportError(generateFileDataResult, "Failed to Generate Encryption File Data");
-            return;
+            return false;
         }
 
         Result writeFileResult = _fileService.WriteFileText(filePath, generateFileDataResult.Value!, FileAttributes.ReadOnly);
         if (!writeFileResult.IsSuccessful)
         {
             ReportError(writeFileResult, "Failed to Create Encryption Key File");
-            return;
+            return false;
         }
 
-        await TryUseEncryptionKeyFileAsync(filePath);
+        return await TryUseEncryptionKeyFileAsync(filePath);
     }
 
-    public async Task SelectKeyFileAsync()
+    public async Task<bool> SelectKeyFileAsync()
     {
         FilePathMessage = null;
 
@@ -141,12 +141,12 @@ public partial class EncryptionKeyFileViewModel : ViewModelBase
             ]
         });
 
-        if (files.Count < 1) return;
+        if (files.Count < 1) return false;
 
         string? filePath = files[0].TryGetLocalPath();
-        if (string.IsNullOrWhiteSpace(filePath)) return;
+        if (string.IsNullOrWhiteSpace(filePath)) return false;
 
-        await TryUseEncryptionKeyFileAsync(filePath);
+        return await TryUseEncryptionKeyFileAsync(filePath);
     }
 
     public Task<bool> RemoveEncryptionKeyReferenceAsync() => TryRemoveEncryptionKeyFileReferenceAsync();
