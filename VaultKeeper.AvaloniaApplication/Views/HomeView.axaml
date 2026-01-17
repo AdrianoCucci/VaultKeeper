@@ -7,12 +7,14 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:overlays="using:VaultKeeper.AvaloniaApplication.Views.Common.Overlays"
              xmlns:prompts="using:VaultKeeper.AvaloniaApplication.Views.Common.Prompts"
+             xmlns:settings="using:VaultKeeper.AvaloniaApplication.Views.Settings"
+             xmlns:settingsVM="using:VaultKeeper.AvaloniaApplication.ViewModels.Settings"
              xmlns:promptVMs="using:VaultKeeper.AvaloniaApplication.ViewModels.Common.Prompts"
              xmlns:vaultpage="using:VaultKeeper.AvaloniaApplication.Views.VaultPage"
              xmlns:vaultpageVM="using:VaultKeeper.AvaloniaApplication.ViewModels.VaultPage"
              xmlns:vm="using:VaultKeeper.AvaloniaApplication.ViewModels"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
-             x:Class="VaultKeeper.AvaloniaApplication.Views.MainContentView"
+             x:Class="VaultKeeper.AvaloniaApplication.Views.HomeView"
              x:DataType="vm:HomeViewModel">
   <Design.DataContext>
     <x:Static Member="vm:HomeViewModel.Design"/>
@@ -71,29 +73,13 @@
       </Border>
 
       <Border Grid.Row="2">
-        <TransitioningContentControl Content="{Binding Content}">
-          <TransitioningContentControl.DataTemplates>
-            <DataTemplate DataType="vaultpageVM:VaultPageViewModel">
-              <vaultpage:VaultPageView/>
-            </DataTemplate>
-          </TransitioningContentControl.DataTemplates>
-        </TransitioningContentControl>
+        <TransitioningContentControl Content="{Binding Content}"/>
       </Border>
 
     </Grid>
 
     <overlays:OverlayPanel.OverlayContent>
-      <overlays:Modal Content="{Binding OverlayContent}">
-        <overlays:Modal.DataTemplates>
-          <DataTemplate x:DataType="promptVMs:ConfirmPromptViewModel">
-            <prompts:ConfirmPromptView/>
-          </DataTemplate>
-
-          <DataTemplate x:DataType="promptVMs:PromptViewModel">
-            <prompts:PromptView Acknowledged="PromptView_Acknowledged"/>
-          </DataTemplate>
-        </overlays:Modal.DataTemplates>
-      </overlays:Modal>
+      <overlays:Modal Content="{Binding OverlayContent}"/>
     </overlays:OverlayPanel.OverlayContent>
   </overlays:OverlayPanel>
 </UserControl>

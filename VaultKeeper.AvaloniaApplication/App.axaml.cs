@@ -5,9 +5,9 @@ using Avalonia.Markup.Xaml;
 using Microsoft.Extensions.DependencyInjection;
 using System.Collections.Generic;
 using System.Linq;
+using VaultKeeper.AvaloniaApplication.Abstractions.ViewLocation;
 using VaultKeeper.AvaloniaApplication.Extensions.DependencyInjection;
 using VaultKeeper.AvaloniaApplication.ViewModels;
-using VaultKeeper.AvaloniaApplication.ViewModels.Importing;
 using VaultKeeper.AvaloniaApplication.ViewModels.Settings;
 using VaultKeeper.AvaloniaApplication.ViewModels.Setup;
 using VaultKeeper.AvaloniaApplication.ViewModels.VaultPage;
@@ -27,16 +27,16 @@ public partial class App : Application
     public override async void OnFrameworkInitializationCompleted()
     {
         _serviceProvider = ConfigureServices();
+        IViewLocatorService viewLocatorService = _serviceProvider.GetRequiredService<IViewLocatorService>();
+
+        DataTemplates.Add(new ViewLocator(viewLocatorService));
 
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
             // Avoid duplicate validations from both Avalonia and the CommunityToolkit. 
             // More info: https://docs.avaloniaui.net/docs/guides/development-guides/data-validation#manage-validationplugins
             DisableAvaloniaDataAnnotationValidation();
-            desktop.MainWindow = new MainWindow
-            {
-                DataContext = _serviceProvider.GetRequiredService<MainWindowViewModel>()
-            };
+            desktop.MainWindow = new MainWindow { DataContext = _serviceProvider.GetRequiredService<MainWindowViewModel>() };
             desktop.ShutdownRequested += ShutdownRequested;
         }
 
@@ -69,20 +69,10 @@ public partial class App : Application
         IServiceCollection services = new ServiceCollection()
             .AddVaultKeeperServices()
             .AddAvaloniaServices()
-
-            .AddTransient<MainWindowViewModel>()
-
-            .AddTransient<SetupPageViewModel>()
-            .AddTransient<SetupPageStep1ViewModel>()
-            .AddTransient<SetupPageStep2ViewModel>()
-
-            .AddTransient<LockScreenPageViewModel>()
-            .AddTransient<HomeViewModel>()
-            .AddTransient<VaultPageViewModel>()
-            .AddTransient<SettingsPageViewModel>()
-            .AddTransient<VaultItemImportViewModel>()
-            .AddTransient<KeyGenerationSettingsViewModel>()
-            .AddTransient<EncryptionKeyFileViewModel>();
+            .AddViewLocator(options =>
+            {
+                options.MapViewModelControls(mapper => mapper.MapVaultItemViewModelControls());
+            });
 
         services.AddNavigation(sp => new HashSet<RouteScope>()
         {

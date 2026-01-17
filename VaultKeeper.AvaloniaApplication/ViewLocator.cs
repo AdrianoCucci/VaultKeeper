@@ -1,43 +1,29 @@
 using Avalonia.Controls;
 using Avalonia.Controls.Templates;
+using Avalonia.Media;
 using System;
-using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
+using VaultKeeper.AvaloniaApplication.Abstractions.ViewLocation;
 using VaultKeeper.AvaloniaApplication.ViewModels;
 
 namespace VaultKeeper.AvaloniaApplication;
 
-/// <summary>
-/// Given a view model, returns the corresponding view if possible.
-/// </summary>
-[RequiresUnreferencedCode(
-    "Default implementation of ViewLocator involves reflection which may be trimmed away.",
-    Url = "https://docs.avaloniaui.net/docs/concepts/view-locator")]
-public class ViewLocator : IDataTemplate
+public class ViewLocator(IViewLocatorService viewLocatorService) : IDataTemplate
 {
     public Control? Build(object? param)
     {
-        if (param is null)
-            return null;
+        if (param == null) return null;
 
-        var name = param.GetType().FullName!
-            .Replace("ViewModel", "View", StringComparison.Ordinal)
-            .Replace("+DesignContext", string.Empty, StringComparison.Ordinal);
+        Type paramType = param.GetType();
 
-        var type = Type.GetType(name);
-
-        Debug.WriteLine($"LOCATE | param: {param} | name: {name} | type: {type}");
-
-        if (type != null)
+        Control control = viewLocatorService.GetView(param) ?? new TextBlock
         {
-            return (Control)Activator.CreateInstance(type)!;
-        }
+            Text = $"[{nameof(ViewLocator)}] VIEW NOT FOUND: {paramType.Name}",
+            FontWeight = FontWeight.Bold,
+            Foreground = new SolidColorBrush(Colors.Red)
+        };
 
-        return new TextBlock { Text = "Not Found: " + name };
+        return control;
     }
 
-    public bool Match(object? data)
-    {
-        return data is ViewModelBase;
-    }
+    public bool Match(object? data) => data is ViewModelBase;
 }
