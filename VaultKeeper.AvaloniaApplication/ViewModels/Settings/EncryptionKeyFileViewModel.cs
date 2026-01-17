@@ -160,9 +160,9 @@ public partial class EncryptionKeyFileViewModel : ViewModelBase
         }
         else
         {
-            Result canReadFileResult = _fileService.CanReadFile(value!);
-            IsFilePathValid = canReadFileResult.IsSuccessful;
-            FilePathMessage = canReadFileResult.IsSuccessful ? "Encryption key file path is OK." : canReadFileResult.Message;
+            Result keyFileValidResult = _encryptionService.VerifyValidEncryptionKeyFile(value);
+            IsFilePathValid = keyFileValidResult.IsSuccessful;
+            FilePathMessage = keyFileValidResult.IsSuccessful ? "Encryption key file path is OK." : keyFileValidResult.Message;
         }
     }
 

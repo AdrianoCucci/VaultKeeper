@@ -14,7 +14,7 @@
     <x:Static Member="vm:SettingsPageViewModel.Design"/>
   </Design.DataContext>
 
-  <ScrollViewer>
+  <ScrollViewer Name="PART_ScrollViewer">
     <StackPanel Margin="20">
       <common:AppButton Margin="0 0 0 10"
                         Text="Restore Default Settings"
