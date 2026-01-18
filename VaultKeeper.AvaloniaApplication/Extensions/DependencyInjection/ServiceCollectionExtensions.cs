@@ -44,6 +44,7 @@ public static class ServiceCollectionExtensions
         .Map<ChangePasswordFormViewModel, ChangePasswordFormView>()
         .Map<VaultItemImportViewModel, VaultItemImportView>()
         .Map<GroupDeleteOptionsViewModel, GroupDeleteOptionsView>()
+        .Map<GroupSelectInputViewModel, GroupSelectInputView>()
         .Map<KeyGenerationSettingsViewModel, KeyGenerationSettingsView>()
         .Map<EncryptionKeyFileViewModel, EncryptionKeyFileView>()
 
