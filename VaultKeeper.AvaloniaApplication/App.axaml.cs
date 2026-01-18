@@ -3,8 +3,12 @@ using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Data.Core.Plugins;
 using Avalonia.Markup.Xaml;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using VaultKeeper.AvaloniaApplication.Abstractions.ViewLocation;
 using VaultKeeper.AvaloniaApplication.Extensions.DependencyInjection;
 using VaultKeeper.AvaloniaApplication.ViewModels;
 using VaultKeeper.AvaloniaApplication.ViewModels.Importing;
@@ -12,6 +16,8 @@ using VaultKeeper.AvaloniaApplication.ViewModels.Settings;
 using VaultKeeper.AvaloniaApplication.ViewModels.Setup;
 using VaultKeeper.AvaloniaApplication.ViewModels.VaultPage;
 using VaultKeeper.AvaloniaApplication.Views;
+using VaultKeeper.Common.Logging;
+using VaultKeeper.Common.Logging.Extensions.DependencyInjection;
 using VaultKeeper.Models.Navigation;
 using VaultKeeper.Services.Abstractions;
 using VaultKeeper.Services.Extensions.DependencyInjection;
@@ -21,22 +27,27 @@ namespace VaultKeeper.AvaloniaApplication;
 public partial class App : Application
 {
     private ServiceProvider? _serviceProvider;
+    private ILogger<App>? _logger;
 
     public override void Initialize() => AvaloniaXamlLoader.Load(this);
 
     public override async void OnFrameworkInitializationCompleted()
     {
         _serviceProvider = ConfigureServices();
+        _logger = _serviceProvider.GetService<ILogger<App>>();
+
+        _logger?.LogInformation("==================== APPLICATION STARTED ====================");
+
+        IViewLocatorService viewLocatorService = _serviceProvider.GetRequiredService<IViewLocatorService>();
+
+        DataTemplates.Add(new ViewLocator(viewLocatorService));
 
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
             // Avoid duplicate validations from both Avalonia and the CommunityToolkit. 
             // More info: https://docs.avaloniaui.net/docs/guides/development-guides/data-validation#manage-validationplugins
             DisableAvaloniaDataAnnotationValidation();
-            desktop.MainWindow = new MainWindow
-            {
-                DataContext = _serviceProvider.GetRequiredService<MainWindowViewModel>()
-            };
+            desktop.MainWindow = new MainWindow { DataContext = _serviceProvider.GetRequiredService<MainWindowViewModel>() };
             desktop.ShutdownRequested += ShutdownRequested;
         }
 
@@ -45,6 +56,8 @@ public partial class App : Application
 
     private void ShutdownRequested(object? sender, ShutdownRequestedEventArgs e)
     {
+        _logger?.LogInformation("==================== APPLICATION SHUT DOWN ====================");
+
         IAppSessionService? appSessionService = _serviceProvider?.GetRequiredService<IAppSessionService>();
         if (appSessionService == null) return;
 
@@ -54,8 +67,7 @@ public partial class App : Application
     private static void DisableAvaloniaDataAnnotationValidation()
     {
         // Get an array of plugins to remove
-        var dataValidationPluginsToRemove =
-            BindingPlugins.DataValidators.OfType<DataAnnotationsValidationPlugin>().ToArray();
+        var dataValidationPluginsToRemove = BindingPlugins.DataValidators.OfType<DataAnnotationsValidationPlugin>().ToArray();
 
         // remove each entry found
         foreach (var plugin in dataValidationPluginsToRemove)
@@ -67,22 +79,21 @@ public partial class App : Application
     private ServiceProvider ConfigureServices()
     {
         IServiceCollection services = new ServiceCollection()
+            .ConfigureLogging(new()
+            {
+                LogLevel = Common.Logging.LogLevel.Information,
+                FileLoggingConfig = new()
+                {
+                    FilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "VaultKeeper", "logs", "log.txt"),
+                    RollingInterval = FileLoggingRollingInterval.Day,
+                }
+            })
             .AddVaultKeeperServices()
             .AddAvaloniaServices()
-
-            .AddTransient<MainWindowViewModel>()
-
-            .AddTransient<SetupPageViewModel>()
-            .AddTransient<SetupPageStep1ViewModel>()
-            .AddTransient<SetupPageStep2ViewModel>()
-
-            .AddTransient<LockScreenPageViewModel>()
-            .AddTransient<HomeViewModel>()
-            .AddTransient<VaultPageViewModel>()
-            .AddTransient<SettingsPageViewModel>()
-            .AddTransient<VaultItemImportViewModel>()
-            .AddTransient<KeyGenerationSettingsViewModel>()
-            .AddTransient<EncryptionKeyFileViewModel>();
+            .AddViewLocator(options =>
+            {
+                options.MapViewModelControls(mapper => mapper.MapVaultItemViewModelControls());
+            });
 
         services.AddNavigation(sp => new HashSet<RouteScope>()
         {

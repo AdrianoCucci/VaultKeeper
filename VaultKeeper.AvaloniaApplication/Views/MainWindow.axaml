@@ -14,7 +14,7 @@
         x:Class="VaultKeeper.AvaloniaApplication.Views.MainWindow"
         x:DataType="vm:MainWindowViewModel"
         x:Name="Window"
-        Icon="/Assets/avalonia-logo.ico"
+        Icon="/Assets/app-icon.ico"
         Title="VaultKeeper.AvaloniaApplication"
         Width="1920"
         Height="1080"
@@ -33,19 +33,13 @@
                                     ForgotPasswordClicked="LockScreenView_ForgotPasswordClicked"/>
         </DataTemplate>
         <DataTemplate DataType="vm:HomeViewModel">
-          <local:MainContentView/>
+          <local:HomeView/>
         </DataTemplate>
       </TransitioningContentControl.DataTemplates>
     </TransitioningContentControl>
 
     <overlays:OverlayPanel.OverlayContent>
-      <overlays:Modal Content="{Binding OverlayContent}">
-        <overlays:Modal.DataTemplates>
-          <DataTemplate x:DataType="promptVMs:PromptViewModel">
-            <prompts:PromptView Acknowledged="PromptView_Acknowledged"/>
-          </DataTemplate>
-        </overlays:Modal.DataTemplates>
-      </overlays:Modal>
+      <overlays:Modal Content="{Binding OverlayContent}"/>
     </overlays:OverlayPanel.OverlayContent>
   </overlays:OverlayPanel>
 

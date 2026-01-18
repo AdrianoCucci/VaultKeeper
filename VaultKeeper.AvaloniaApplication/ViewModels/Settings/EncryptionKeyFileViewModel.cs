@@ -164,7 +164,7 @@ public partial class EncryptionKeyFileViewModel : ViewModelBase
         {
             Result keyFileValidResult = _encryptionService.VerifyValidEncryptionKeyFile(value);
             IsFilePathValid = keyFileValidResult.IsSuccessful;
-            FilePathMessage = keyFileValidResult.IsSuccessful ? "Encryption key file path is OK." : keyFileValidResult.Message;
+            FilePathMessage = keyFileValidResult.IsSuccessful ? "Encryption key file is OK." : keyFileValidResult.Message;
         }
     }
 

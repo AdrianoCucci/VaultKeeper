@@ -5,9 +5,9 @@ using VaultKeeper.AvaloniaApplication.ViewModels;
 
 namespace VaultKeeper.AvaloniaApplication.Views;
 
-public partial class MainContentView : ViewBase<HomeViewModel>
+public partial class HomeView : ViewBase<HomeViewModel>
 {
-    public MainContentView() => InitializeComponent();
+    public HomeView() => InitializeComponent();
 
     protected override void OnAttachedToVisualTree(VisualTreeAttachmentEventArgs e)
     {
@@ -24,6 +24,4 @@ public partial class MainContentView : ViewBase<HomeViewModel>
         if (Model != null)
             await Model.LogoutAsync();
     }
-
-    private void PromptView_Acknowledged(object? sender, RoutedEventArgs e) => Model?.HideOverlay();
 }

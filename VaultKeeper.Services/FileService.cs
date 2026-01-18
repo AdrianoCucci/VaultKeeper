@@ -15,21 +15,30 @@ public class FileService(ILogger<FileService> logger) : IFileService
         logger.LogInformation($"{nameof(ReadFileBytes)} | Path: {{path}}", path);
 
         Result<byte[]> result = ReadFileBytesInternal(path);
+        _ = result.WithoutValue().Logged(logger);
 
-        return result.Logged(logger);
+        return result;
     }
 
     public Result<string> ReadFileText(string path, Encoding? encoding = null)
     {
         logger.LogInformation($"{nameof(ReadFileText)} | Path: {{path}}", path);
 
-        Result<byte[]> readBytesResult = ReadFileBytesInternal(path);
-        if (!readBytesResult.IsSuccessful)
-            return readBytesResult.WithValue<string>().Logged(logger);
+        try
+        {
+            Result<byte[]> readBytesResult = ReadFileBytesInternal(path);
+            if (!readBytesResult.IsSuccessful)
+                return readBytesResult.WithValue<string>().Logged(logger);
 
-        string text = (encoding ?? Encoding.UTF8).GetString(readBytesResult.Value!);
+            string text = (encoding ?? Encoding.UTF8).GetString(readBytesResult.Value!);
 
-        return text.ToOkResult().Logged(logger);
+            _ = readBytesResult.WithoutValue().Logged(logger);
+            return text.ToOkResult();
+        }
+        catch (Exception ex)
+        {
+            return ex.ToFailedResult<string>().Logged(logger);
+        }
     }
 
     public Result WriteFileBytes(string path, byte[] data, FileAttributes? attributes = null)

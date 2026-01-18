@@ -34,7 +34,6 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection AddVaultKeeperServices(this IServiceCollection services)
     {
         services
-            .AddLogging()
             .AddSingleton<IErrorReportingService, ErrorReportingService>()
             .AddSingleton<IEncryptionService, EncryptionService>()
             .AddSingleton<IHashService, HashService>()
