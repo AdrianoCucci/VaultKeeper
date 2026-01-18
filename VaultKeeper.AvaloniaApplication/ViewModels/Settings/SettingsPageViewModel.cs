@@ -96,6 +96,7 @@ public partial class SettingsPageViewModel : ViewModelBase
     public SettingsPageViewModel()
     {
         Model = UserSettings.Default;
+        EncryptionKeyFileVM = new();
         KeyGenerationSettingsVM = new();
         KeyGenerationSettingsVM.PropertyChanged += KeyGenerationSettingsVM_PropertyChanged;
         _backupDirectoryProps = new(BackupDirectory, null);

@@ -11,6 +11,7 @@ using System.Linq;
 using VaultKeeper.AvaloniaApplication.Abstractions.ViewLocation;
 using VaultKeeper.AvaloniaApplication.Extensions.DependencyInjection;
 using VaultKeeper.AvaloniaApplication.ViewModels;
+using VaultKeeper.AvaloniaApplication.ViewModels.Importing;
 using VaultKeeper.AvaloniaApplication.ViewModels.Settings;
 using VaultKeeper.AvaloniaApplication.ViewModels.Setup;
 using VaultKeeper.AvaloniaApplication.ViewModels.VaultPage;
