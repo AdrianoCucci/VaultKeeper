@@ -121,17 +121,7 @@
       <overlays:Modal Content="{Binding OverlayContent}"
                       CardMinWidth="400"
                       CardMaxWidth="{Binding #Root.Bounds.Width}"
-                      BackdropPressed="Modal_BackdropPressed">
-        <overlays:Modal.DataTemplates>
-          <DataTemplate x:DataType="promptVMs:ConfirmPromptViewModel">
-            <prompts:ConfirmPromptView/>
-          </DataTemplate>
-
-          <DataTemplate x:DataType="promptVMs:PromptViewModel">
-            <prompts:PromptView Acknowledged="PromptView_Acknowledged"/>
-          </DataTemplate>
-        </overlays:Modal.DataTemplates>
-      </overlays:Modal>
+                      BackdropPressed="Modal_BackdropPressed"/>
     </overlays:OverlayPanel.OverlayContent>
 
   </overlays:OverlayPanel>

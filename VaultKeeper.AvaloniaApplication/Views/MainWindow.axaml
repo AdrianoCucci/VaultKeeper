@@ -33,19 +33,13 @@
                                     ForgotPasswordClicked="LockScreenView_ForgotPasswordClicked"/>
         </DataTemplate>
         <DataTemplate DataType="vm:HomeViewModel">
-          <local:MainContentView/>
+          <local:HomeView/>
         </DataTemplate>
       </TransitioningContentControl.DataTemplates>
     </TransitioningContentControl>
 
     <overlays:OverlayPanel.OverlayContent>
-      <overlays:Modal Content="{Binding OverlayContent}">
-        <overlays:Modal.DataTemplates>
-          <DataTemplate x:DataType="promptVMs:PromptViewModel">
-            <prompts:PromptView Acknowledged="PromptView_Acknowledged"/>
-          </DataTemplate>
-        </overlays:Modal.DataTemplates>
-      </overlays:Modal>
+      <overlays:Modal Content="{Binding OverlayContent}"/>
     </overlays:OverlayPanel.OverlayContent>
   </overlays:OverlayPanel>
 

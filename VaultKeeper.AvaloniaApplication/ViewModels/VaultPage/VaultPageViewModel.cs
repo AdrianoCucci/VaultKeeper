@@ -352,14 +352,16 @@ public partial class VaultPageViewModel(
                     ConfirmPromptViewModel promptVM = new()
                     {
                         Header = "Delete Group",
-                        Message = $"Are you sure you want to delete group: \"{eventArgs.Group.Name}\"?",
+                        Message = $"Are you sure you want to delete group, \"{eventArgs.Group.Name}\"?",
                         CancelAction = HideOverlay
                     };
 
                     if (groupIsNotEmpty)
+                    {
+                        promptVM.Message = $"You are about to delete group, \"{eventArgs.Group.Name}\".\nSelect what should happen to the keys in this group:";
                         promptVM.Content = new GroupDeleteOptionsViewModel();
+                    }
 
-                    promptVM.CancelAction = HideOverlay;
                     promptVM.ConfirmAction = async vm =>
                     {
                         CascadeDeleteMode cascadeDeleteMode = vm.Content is GroupDeleteOptionsViewModel groupPromptVM

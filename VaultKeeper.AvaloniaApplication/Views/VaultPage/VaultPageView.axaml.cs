@@ -69,8 +69,6 @@ public partial class VaultPageView : ViewBase<VaultPageViewModel>
 
     private void OverlayPanel_OverlayClosed(object? sender, RoutedEventArgs e) => Model?.HideOverlay();
 
-    private void PromptView_Acknowledged(object? sender, RoutedEventArgs e) => Model?.HideOverlay();
-
     private void Modal_BackdropPressed(object? sender, RoutedEventArgs e) => Model?.HideOverlay();
 
     private async void VaultItemImportView_ProcessSucceeded(object? sender, RoutedEventArgs e)

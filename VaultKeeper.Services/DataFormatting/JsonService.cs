@@ -9,7 +9,10 @@ namespace VaultKeeper.Services.DataFormatting;
 
 public class JsonService(ILogger<JsonService> logger) : IJsonService
 {
-    private static readonly JsonSerializerOptions _jsonOptions = new();
+    private static readonly JsonSerializerOptions _jsonOptions = new()
+    {
+        TypeInfoResolver = VaultKeeperJsonSerializerContext.Default
+    };
 
     public Result<string> Serialize<T>(T data)
     {

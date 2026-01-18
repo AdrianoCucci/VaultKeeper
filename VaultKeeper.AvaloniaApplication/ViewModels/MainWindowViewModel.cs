@@ -140,6 +140,7 @@ public partial class MainWindowViewModel : ViewModelBase
         {
             Header = error.Header,
             Message = error.Message,
+            AckwnoledgedAction = HideOverlay
         });
     }
 
