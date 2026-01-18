@@ -166,7 +166,8 @@ public partial class HomeViewModel : ViewModelBase
                 ShowOverlay(new PromptViewModel
                 {
                     Header = "Passsword Changed",
-                    Message = "Main login password changed successfully."
+                    Message = "Main login password changed successfully.",
+                    AckwnoledgedAction = HideOverlay
                 });
             }
         });
