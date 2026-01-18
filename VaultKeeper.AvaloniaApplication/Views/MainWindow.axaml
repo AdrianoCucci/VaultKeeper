@@ -14,7 +14,7 @@
         x:Class="VaultKeeper.AvaloniaApplication.Views.MainWindow"
         x:DataType="vm:MainWindowViewModel"
         x:Name="Window"
-        Icon="/Assets/avalonia-logo.ico"
+        Icon="/Assets/app-icon.ico"
         Title="VaultKeeper.AvaloniaApplication"
         Width="1920"
         Height="1080"
