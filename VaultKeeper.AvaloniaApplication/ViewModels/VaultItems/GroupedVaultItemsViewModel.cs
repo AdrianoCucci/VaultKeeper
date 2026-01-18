@@ -21,5 +21,5 @@ public partial class GroupedVaultItemsViewModel(ObservableCollection<VaultItemSh
     private GroupShellViewModel? _group = group;
 
     public bool HasGroup => Group != null;
-    public Thickness? BorderThickness => HasGroup ? new(4, 0, 0, 0) : null;
+    public Thickness BorderThickness => HasGroup ? new(4, 0, 0, 0) : new(0);
 }

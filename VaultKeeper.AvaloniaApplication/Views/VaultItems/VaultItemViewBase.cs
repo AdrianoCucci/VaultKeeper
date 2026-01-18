@@ -1,4 +1,5 @@
-﻿using Avalonia.Interactivity;
+﻿using Avalonia.Input;
+using Avalonia.Interactivity;
 using System;
 using VaultKeeper.AvaloniaApplication.Forms.VaultItems;
 using VaultKeeper.AvaloniaApplication.ViewModels;
@@ -20,14 +21,15 @@ public abstract class VaultItemViewBase<TModel> : ViewBase<TModel> where TModel 
 
     public event EventHandler<VaultItemFormActionEventArgs> FormActionInvoked { add => AddHandler(FormActionInvokedEvent, value); remove => RemoveHandler(FormActionInvokedEvent, value); }
 
-    protected void RaiseEvent(VaultItemAction action, VaultItemViewModelBase viewModel)
+    protected void RaiseEvent(VaultItemAction action, VaultItemViewModelBase viewModel, KeyModifiers keyModifiers = KeyModifiers.None)
     {
         if (Model == null) return;
 
-        RaiseEvent(new VaultItemActionEventArgs(ActionInvokedEvent)
+        RaiseEvent(new VaultItemActionEventArgs(ActionInvokedEvent, this)
         {
             Action = action,
-            ViewModel = viewModel
+            ViewModel = viewModel,
+            KeyModifiers = keyModifiers
         });
     }
 

@@ -38,8 +38,14 @@
         <Border Grid.Row="1">
           <ScrollViewer>
             <common:ListView ItemsSource="{Binding GroupedVaultItems}" Margin="20" MaxWidth="1200">
+              <common:ListView.ItemsPanel>
+                <ItemsPanelTemplate>
+                  <VirtualizingStackPanel/>
+                </ItemsPanelTemplate>
+              </common:ListView.ItemsPanel>
+
               <common:ListView.ItemTemplate>
-                <DataTemplate>
+                <DataTemplate x:DataType="vaultitems:GroupedVaultItemsViewModel">
                   <uc:GroupedVaultItemsView DataContext="{Binding .}"
                                             Margin="0 0 0 40"
                                             ItemActionInvoked="VaultItem_ActionInvoked"

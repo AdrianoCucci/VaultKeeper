@@ -63,7 +63,10 @@
                   Grid.Column="0">
 
         <TextBlock VerticalAlignment="Center" FontWeight="SemiBold">
-          <Run Text="{Binding SelectedItemsCount}" FontWeight="Bold"/> Items selected
+          <Run Text="{Binding SelectedItems.Count}" FontWeight="Bold"/>
+          /
+          <Run Text="{Binding SelectedItems.TotalCount}" FontWeight="Bold"/>
+          selected
         </TextBlock>
 
         <StackPanel Orientation="Horizontal"

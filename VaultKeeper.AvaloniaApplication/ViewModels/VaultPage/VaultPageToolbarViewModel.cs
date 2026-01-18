@@ -1,5 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using VaultKeeper.Common.Models.Queries;
+using VaultKeeper.Models;
 
 namespace VaultKeeper.AvaloniaApplication.ViewModels.VaultPage;
 
@@ -21,7 +22,7 @@ public partial class VaultPageToolbarViewModel : ViewModelBase
     private bool _isBulkActionsModeActive = false;
 
     [ObservableProperty]
-    private int _selectedItemsCount = 0;
+    private SelectedItems _selectedItems = SelectedItems.Empty();
 
     [ObservableProperty]
     private bool _isUngroupSelectedItemsActionVisible = false;
