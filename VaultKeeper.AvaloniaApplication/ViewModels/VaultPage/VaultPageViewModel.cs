@@ -1,4 +1,5 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+﻿using Avalonia.Input;
+using CommunityToolkit.Mvvm.ComponentModel;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
@@ -69,7 +70,7 @@ public partial class VaultPageViewModel(
 
     private CountedData<VaultItem> _vaultItemData = new();
     private CountedData<Group> _groupData = new();
-    private HashSet<VaultItem> _selectedItems = [];
+    private SelectedItems<VaultItem> _selectedItems = SelectedItems.Empty<VaultItem>();
 
     public virtual async Task LoadDataAsync(bool refreshUI = true)
     {
@@ -176,7 +177,7 @@ public partial class VaultPageViewModel(
                                 group = createGroupResult.Value!;
                             }
 
-                            Result<IEnumerable<VaultItem>> updateResult = await UpdateVaultItemsAsync(_selectedItems.Select(x => x with { GroupId = group.Id }));
+                            Result<IEnumerable<VaultItem>> updateResult = await UpdateVaultItemsAsync(_selectedItems.Items.Select(x => x with { GroupId = group.Id }));
                             if (updateResult.IsSuccessful)
                             {
                                 await BulkActionSuccessAsync();
@@ -209,7 +210,7 @@ public partial class VaultPageViewModel(
                     CancelAction = HideOverlay,
                     ConfirmAction = async _ =>
                     {
-                        Result<IEnumerable<VaultItem>> ungroupResult = await UngroupVaultItemsAsync(_selectedItems);
+                        Result<IEnumerable<VaultItem>> ungroupResult = await UngroupVaultItemsAsync(_selectedItems.Items);
                         if (ungroupResult.IsSuccessful)
                             await BulkActionSuccessAsync();
                     }
@@ -222,11 +223,11 @@ public partial class VaultPageViewModel(
                 ShowOverlay(new ConfirmPromptViewModel
                 {
                     Header = "Delete Keys",
-                    Message = $"Are you sure you want to delete the following {_selectedItems.Count} selected keys?\n\n- {string.Join("\n- ", _selectedItems.Select(x => $"\"{x.Name}\""))}",
+                    Message = $"Are you sure you want to delete the following {_selectedItems.Count} selected keys?\n\n- {string.Join("\n- ", _selectedItems.Items.Select(x => $"\"{x.Name}\""))}",
                     CancelAction = HideOverlay,
                     ConfirmAction = async _ =>
                     {
-                        Result<long> deleteResult = await DeleteVaultItemsAsync(_selectedItems);
+                        Result<long> deleteResult = await DeleteVaultItemsAsync(_selectedItems.Items);
                         if (deleteResult.IsSuccessful)
                             await BulkActionSuccessAsync();
                     }
@@ -271,17 +272,33 @@ public partial class VaultPageViewModel(
                 break;
             case VaultItemAction.Select:
                 {
-                    if (_selectedItems.Any(x => x.Id == viewModel.Model.Id)) break;
-                    SetSelectedItems([.. _selectedItems, viewModel.Model]);
+                    if (_selectedItems.Items.Any(x => x.Id == viewModel.Model.Id)) break;
+
+                    List<VaultItemViewModelBase> totalItemsList = [.. GroupedVaultItems.SelectMany(x => x.VaultItems).Select(x => x.Content)];
+                    int lastSelectedIndex = _selectedItems.LastSelectedItemIndex ?? -1;
+                    int currentItemIndex = totalItemsList.IndexOf(viewModel);
+
+                    if (eventArgs.KeyModifiers.HasFlag(KeyModifiers.Shift) && lastSelectedIndex >= 0 && lastSelectedIndex != currentItemIndex)
+                    {
+                        IEnumerable<VaultItemViewModelBase> totalSelectedItems = currentItemIndex > lastSelectedIndex
+                            ? totalItemsList.Skip(lastSelectedIndex + 1).Take(currentItemIndex - lastSelectedIndex)
+                            : totalItemsList.Skip(currentItemIndex).Take(lastSelectedIndex - currentItemIndex);
+
+                        SetSelectedItems([.. _selectedItems.Items, .. totalSelectedItems.Select(x => x.Model)], currentItemIndex);
+                    }
+                    else
+                    {
+                        SetSelectedItems([.. _selectedItems.Items, viewModel.Model], currentItemIndex);
+                    }
 
                     break;
                 }
             case VaultItemAction.Deselect:
                 {
-                    VaultItem? selectedItem = _selectedItems.FirstOrDefault(x => x.Id == viewModel.Model.Id);
+                    VaultItem? selectedItem = _selectedItems.Items.FirstOrDefault(x => x.Id == viewModel.Model.Id);
                     if (selectedItem == null) break;
 
-                    SetSelectedItems(_selectedItems.Except([selectedItem]));
+                    SetSelectedItems(_selectedItems.Items.Except([selectedItem]));
 
                     break;
                 }
@@ -410,7 +427,7 @@ public partial class VaultPageViewModel(
 
     public void ShowExportItemsOverlay(IEnumerable<VaultItem>? selectedItems = null)
     {
-        selectedItems ??= _selectedItems.Count > 0 ? _selectedItems : _vaultItemData.Items;
+        selectedItems ??= _selectedItems.Count > 0 ? _selectedItems.Items : _vaultItemData.Items;
         IEnumerable<Guid> relatedGroupIds = selectedItems.Select(x => x.GroupId.GetValueOrDefault()).Distinct();
         IEnumerable<Group> relatedGroups = _groupData.Items.Where(x => relatedGroupIds.Contains(x.Id));
 
@@ -568,15 +585,25 @@ public partial class VaultPageViewModel(
         GroupedVaultItems = [.. updatedGroupItemVMs];
     }
 
-    private void SetSelectedItems(IEnumerable<VaultItem> selectedItems)
+    private void SetSelectedItems(IEnumerable<VaultItem> selectedItems, int? lastSelectedItemindex = null)
     {
-        _selectedItems = [.. selectedItems];
-        int newSelectedItemsCount = _selectedItems.Count;
-        bool hasSelectedItems = newSelectedItemsCount > 0;
+        List<VaultItem> selectedItemsList = [.. selectedItems];
+        int? previousLastSelectedIndex = _selectedItems.LastSelectedItemIndex;
 
-        ToolbarVM.SelectedItemsCount = newSelectedItemsCount;
+        _selectedItems = new()
+        {
+            Items = selectedItemsList,
+            Count = selectedItemsList.Count,
+            LastSelectedItemIndex = lastSelectedItemindex,
+            TotalCount = _vaultItemData.TotalCount
+        };
+
+        int newSelectedCount = _selectedItems.Count;
+        bool hasSelectedItems = newSelectedCount > 0;
+
+        ToolbarVM.SelectedItems = _selectedItems;
         ToolbarVM.IsBulkActionsModeActive = hasSelectedItems;
-        ToolbarVM.IsUngroupSelectedItemsActionVisible = _selectedItems.All(x => x.GroupId.HasValue);
+        ToolbarVM.IsUngroupSelectedItemsActionVisible = _selectedItems.Items.All(x => x.GroupId.HasValue);
 
         if (hasSelectedItems)
             HideVaultItemCreateForm();
@@ -599,7 +626,7 @@ public partial class VaultPageViewModel(
 
             foreach (var itemVM in groupedItemsVM.VaultItems)
             {
-                itemVM.IsSelected = _selectedItems.Contains(itemVM.Model);
+                itemVM.IsSelected = _selectedItems.Items.Contains(itemVM.Model);
                 itemVM.SelectionMode = ItemSelectionMode;
 
                 if (itemVM.Content is VaultItemViewModel normalItemVM)
@@ -632,7 +659,7 @@ public partial class VaultPageViewModel(
     private VaultItemShellViewModel CreateVaultItemShellViewModel(VaultItemViewModelBase content) => new(content)
     {
         SelectionMode = ItemSelectionMode,
-        IsSelected = _selectedItems.Any(x => x.Id == content.Model.Id)
+        IsSelected = _selectedItems.Items.Any(x => x.Id == content.Model.Id)
     };
 
     private VaultItemFormViewModel CreateVaultItemFormViewModel(VaultItem vaultItem, FormMode formMode)

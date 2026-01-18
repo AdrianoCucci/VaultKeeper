@@ -54,7 +54,8 @@
           <Panel>
             <ItemsControl IsVisible="{TemplateBinding HasItems}"
                           ItemsSource="{TemplateBinding ItemsSource}"
-                          ItemTemplate="{TemplateBinding ItemTemplate}"/>
+                          ItemTemplate="{TemplateBinding ItemTemplate}"
+                          ItemsPanel="{TemplateBinding ItemsPanel}"/>
 
             <ContentPresenter ContentTemplate="{TemplateBinding EmptyTemplate}"
                               IsVisible="{TemplateBinding IsEmpty}"/>
