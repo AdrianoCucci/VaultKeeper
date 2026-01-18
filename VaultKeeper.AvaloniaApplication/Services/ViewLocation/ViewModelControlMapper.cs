@@ -14,7 +14,10 @@ public class ViewModelControlMapper(IServiceCollection serviceCollection) : IVie
     {
         Type viewModelType = typeof(TViewModel);
 
-        ViewModelControlDescriptor descriptor = new(viewModelType, typeof(TControl));
+        ViewModelControlDescriptor descriptor = new(
+            viewModelType,
+            typeof(TControl),
+            viewModel => new TControl { DataContext = viewModel });
 
         serviceCollection.AddTransient<TViewModel>();
         serviceCollection.AddSingleton(descriptor);
