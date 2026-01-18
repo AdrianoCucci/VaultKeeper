@@ -107,7 +107,10 @@ public class EncryptionService(ILogger<EncryptionService> logger, IFileService f
             byte[] key = Convert.FromBase64String(getKeyResult.Value!);
             string encryptedData = EncryptInternal(data, key);
 
-            return encryptedData.ToOkResult().Logged(logger);
+            Result<string> result = encryptedData.ToOkResult();
+            _ = result.WithoutValue().Logged(logger);
+
+            return result;
         }
         catch (FormatException ex)
         {
@@ -132,7 +135,10 @@ public class EncryptionService(ILogger<EncryptionService> logger, IFileService f
             byte[] key = Convert.FromBase64String(getKeyResult.Value!);
             string decryptedData = DecryptInternal(data, key);
 
-            return decryptedData.ToOkResult().Logged(logger);
+            Result<string> result = decryptedData.ToOkResult();
+            _ = result.WithoutValue().Logged(logger);
+
+            return result;
         }
         catch (FormatException ex)
         {

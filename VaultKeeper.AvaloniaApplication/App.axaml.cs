@@ -3,7 +3,10 @@ using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Data.Core.Plugins;
 using Avalonia.Markup.Xaml;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using VaultKeeper.AvaloniaApplication.Abstractions.ViewLocation;
 using VaultKeeper.AvaloniaApplication.Extensions.DependencyInjection;
@@ -12,6 +15,8 @@ using VaultKeeper.AvaloniaApplication.ViewModels.Settings;
 using VaultKeeper.AvaloniaApplication.ViewModels.Setup;
 using VaultKeeper.AvaloniaApplication.ViewModels.VaultPage;
 using VaultKeeper.AvaloniaApplication.Views;
+using VaultKeeper.Common.Logging;
+using VaultKeeper.Common.Logging.Extensions.DependencyInjection;
 using VaultKeeper.Models.Navigation;
 using VaultKeeper.Services.Abstractions;
 using VaultKeeper.Services.Extensions.DependencyInjection;
@@ -21,12 +26,17 @@ namespace VaultKeeper.AvaloniaApplication;
 public partial class App : Application
 {
     private ServiceProvider? _serviceProvider;
+    private ILogger<App>? _logger;
 
     public override void Initialize() => AvaloniaXamlLoader.Load(this);
 
     public override async void OnFrameworkInitializationCompleted()
     {
         _serviceProvider = ConfigureServices();
+        _logger = _serviceProvider.GetService<ILogger<App>>();
+
+        _logger?.LogInformation("==================== APPLICATION STARTED ====================");
+
         IViewLocatorService viewLocatorService = _serviceProvider.GetRequiredService<IViewLocatorService>();
 
         DataTemplates.Add(new ViewLocator(viewLocatorService));
@@ -45,6 +55,8 @@ public partial class App : Application
 
     private void ShutdownRequested(object? sender, ShutdownRequestedEventArgs e)
     {
+        _logger?.LogInformation("==================== APPLICATION SHUT DOWN ====================");
+
         IAppSessionService? appSessionService = _serviceProvider?.GetRequiredService<IAppSessionService>();
         if (appSessionService == null) return;
 
@@ -66,6 +78,15 @@ public partial class App : Application
     private ServiceProvider ConfigureServices()
     {
         IServiceCollection services = new ServiceCollection()
+            .ConfigureLogging(new()
+            {
+                LogLevel = Common.Logging.LogLevel.Information,
+                FileLoggingConfig = new()
+                {
+                    FilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "VaultKeeper", "logs", "log.txt"),
+                    RollingInterval = FileLoggingRollingInterval.Day,
+                }
+            })
             .AddVaultKeeperServices()
             .AddAvaloniaServices()
             .AddViewLocator(options =>
