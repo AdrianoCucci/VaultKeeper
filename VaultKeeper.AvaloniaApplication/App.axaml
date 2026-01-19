@@ -16,7 +16,7 @@
 
       <converters:StringToResourceConverter x:Key="StrToResConverter"/>
 
-      <x:String x:Key="AppVersion">1.0.0</x:String>
+      <x:String x:Key="AppVersion">1.0.2</x:String>
       <x:String x:Key="AppName">Vault Keeper</x:String>
       <StaticResource x:Key="AppIconData" ResourceKey="IconVault"/>
 
