@@ -17,7 +17,9 @@
 
   <Border BorderBrush="{DynamicResource SystemAccentColor}"
           BorderThickness="{Binding BorderThickness}"
-          CornerRadius="6">
+          CornerRadius="6"
+          Focusable="False"
+          FocusAdorner="{x:Null}">
     <StackPanel>
       <ContentControl Content="{Binding Group}" IsVisible="{Binding HasGroup}">
         <ContentControl.ContentTemplate>

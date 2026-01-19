@@ -3,6 +3,7 @@
 
 
   <ResourceDictionary.MergedDictionaries>
+    <ResourceInclude Source="/Views/Common/PageLayoutPanel.axaml"/>
     <ResourceInclude Source="/Views/Common/AppButton.axaml"/>
     <ResourceInclude Source="/Views/Common/ListView.axaml"/>
     <ResourceInclude Source="/Views/Common/FormButtons.axaml"/>

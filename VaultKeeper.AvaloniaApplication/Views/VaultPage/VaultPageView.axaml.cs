@@ -1,6 +1,8 @@
 using Avalonia;
 using Avalonia.Controls.Primitives;
+using Avalonia.Input;
 using Avalonia.Interactivity;
+using System;
 using System.Threading.Tasks;
 using VaultKeeper.AvaloniaApplication.Forms.VaultItems;
 using VaultKeeper.AvaloniaApplication.ViewModels.Groups;
@@ -30,6 +32,8 @@ public partial class VaultPageView : ViewBase<VaultPageViewModel>
         if (Model != null)
             await Model.LoadDataAsync();
     }
+
+    private void Root_LayoutUpdated(object? sender, EventArgs e) => UpdateModel(x => x.ModalBounds = Root.Bounds.Deflate(20));
 
     private void ButtonNewKey_Click(object? sender, RoutedEventArgs e) => Model?.ShowVaultItemCreateForm();
 
@@ -78,4 +82,6 @@ public partial class VaultPageView : ViewBase<VaultPageViewModel>
         await model.LoadDataAsync();
         model.HideOverlay();
     }
+
+    private void VirtualizingStackPanel_KeyDown(object? sender, KeyEventArgs e) => PART_PageLayoutPanel.MoveScrollViewerPosition(e);
 }

@@ -48,7 +48,7 @@
     </Style>
   </UserControl.Styles>
 
-  <Border Name="PART_Border" BorderThickness="0 0 0 1">
+  <Border Name="PART_Border" BorderThickness="0 0 0 1" Focusable="False" FocusAdorner="{x:Null}">
     <Grid RowDefinitions="Auto" ColumnDefinitions="Auto, *">
       <CheckBox Name="PART_SelectCheckBox"
                 IsEnabled="{Binding IsSelectable}"

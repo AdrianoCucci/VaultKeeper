@@ -1,0 +1,38 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:controls="using:VaultKeeper.AvaloniaApplication.Views.Common">
+
+  <Design.PreviewWith>
+    <StackPanel Width="1920" Spacing="10">
+      <StackPanel Background="{DynamicResource SystemRegionBrush}">
+        <controls:PageLayoutPanel Background="Red">
+          <StackPanel Background="Green">
+            <TextBlock>Content</TextBlock>
+            <TextBlock>Content</TextBlock>
+            <TextBlock>Content</TextBlock>
+            <TextBlock>Content</TextBlock>
+            <TextBlock>Content</TextBlock>
+            <TextBlock>Content</TextBlock>
+            <TextBlock>Content</TextBlock>
+            <TextBlock>Content</TextBlock>
+            <TextBlock>Content</TextBlock>
+            <TextBlock>Content</TextBlock>
+            <TextBlock>Content</TextBlock>
+          </StackPanel>
+        </controls:PageLayoutPanel>
+      </StackPanel>
+    </StackPanel>
+  </Design.PreviewWith>
+
+  <ControlTheme x:Key="{x:Type controls:PageLayoutPanel}" TargetType="controls:PageLayoutPanel">
+    <Setter Property="Template">
+      <ControlTemplate>
+        <ScrollViewer Name="PART_ScrollViewer" Focusable="True">
+          <ContentPresenter Content="{TemplateBinding Content}"
+                            ContentTemplate="{TemplateBinding ContentTemplate}"
+                            MaxWidth="1200"/>
+        </ScrollViewer>
+      </ControlTemplate>
+    </Setter>
+  </ControlTheme>
+</ResourceDictionary>

@@ -25,6 +25,7 @@ public class SearchBox : TemplatedControl
 
     public static readonly StyledProperty<int> DebounceTimeProperty = AvaloniaProperty.Register<SearchBox, int>(nameof(DebounceTime), 250);
 
+
     public event EventHandler<TextInputEventArgs> Debounce { add => AddHandler(DebounceEvent, value); remove => RemoveHandler(DebounceEvent, value); }
 
     public string? Text { get => GetValue(TextProperty); set => SetValue(TextProperty, value); }
@@ -32,6 +33,7 @@ public class SearchBox : TemplatedControl
     public int DebounceTime { get => GetValue(DebounceTimeProperty); set => SetValue(DebounceTimeProperty, value); }
 
     private TextBox? _innerTextBox;
+    private AppButton? _clearButton;
     private DispatcherTimer? _debounceTimer;
 
     protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
@@ -41,10 +43,14 @@ public class SearchBox : TemplatedControl
         if (_innerTextBox != null)
             _innerTextBox.TextChanged -= TextBox_TextChanged;
 
-        _innerTextBox = e.NameScope.Find<TextBox>("PART_TextBox");
+        if (_clearButton != null)
+            _clearButton.Click -= ClearButton_Click;
 
-        if (_innerTextBox != null)
-            _innerTextBox.TextChanged += TextBox_TextChanged;
+        _innerTextBox = e.NameScope.Find<TextBox>("PART_TextBox")!;
+        _innerTextBox.TextChanged += TextBox_TextChanged;
+
+        _clearButton = e.NameScope.Find<AppButton>("PART_ClearButton")!;
+        _clearButton.Click += ClearButton_Click;
     }
 
     private void TextBox_TextChanged(object? sender, TextChangedEventArgs e)
@@ -52,6 +58,8 @@ public class SearchBox : TemplatedControl
         DisposeDebounceTimer(_debounceTimer);
         _debounceTimer = StartNewDebounceTimer();
     }
+
+    private void ClearButton_Click(object? sender, RoutedEventArgs e) => Text = null;
 
     private void DebounceTimer_Tick(object? sender, EventArgs e)
     {

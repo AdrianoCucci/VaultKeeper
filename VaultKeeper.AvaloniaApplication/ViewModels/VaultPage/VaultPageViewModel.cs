@@ -1,4 +1,5 @@
-﻿using Avalonia.Input;
+using Avalonia;
+using Avalonia.Input;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Microsoft.Extensions.DependencyInjection;
 using System;
@@ -44,6 +45,9 @@ public partial class VaultPageViewModel(
     IServiceProvider serviceProvider) : ViewModelBase
 {
     public VaultPageToolbarViewModel ToolbarVM { get; } = new();
+
+    [ObservableProperty]
+    private Rect _modalBounds;
 
     [ObservableProperty, NotifyPropertyChangedFor(nameof(IsEmpty), nameof(EmptyTemplateTitle), nameof(EmptyTemplateDescription))]
     private ObservableGroupedVaultItemViewModels _groupedVaultItems = [];
@@ -420,7 +424,6 @@ public partial class VaultPageViewModel(
             Header = "Import Keys",
             ShowOkButton = false,
             Content = viewModel,
-            ContentMaxHeight = 600,
             AckwnoledgedAction = HideOverlay
         });
     }
@@ -457,7 +460,6 @@ public partial class VaultPageViewModel(
             Header = "Export Keys",
             ShowOkButton = false,
             Content = viewModel,
-            ContentMaxHeight = 600,
             AckwnoledgedAction = HideOverlay
         });
     }
@@ -497,6 +499,7 @@ public partial class VaultPageViewModel(
     public void ShowOverlay(object content)
     {
         OverlayContent = content;
+        UpdateOverlayPromptBounds();
         IsOverlayVisible = true;
     }
 
@@ -505,6 +508,8 @@ public partial class VaultPageViewModel(
         OverlayContent = null;
         IsOverlayVisible = false;
     }
+
+    partial void OnModalBoundsChanged(Rect value) => UpdateOverlayPromptBounds();
 
     private void UpdateMainContent(
         IEnumerable<VaultItem>? vaultItemData = null,
@@ -975,6 +980,12 @@ public partial class VaultPageViewModel(
         }
 
         return result.Value ?? value;
+    }
+
+    private void UpdateOverlayPromptBounds()
+    {
+        if (OverlayContent is PromptViewModel promptVM)
+            promptVM.ContentMaxHeight = ModalBounds.Height - 200;
     }
 
     private void ReportEncryptionError(Result failedResult, string header) => errorReportingService.ReportError(new()
