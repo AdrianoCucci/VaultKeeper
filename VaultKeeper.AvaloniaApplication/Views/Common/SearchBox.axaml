@@ -5,7 +5,7 @@
   <Design.PreviewWith>
     <StackPanel Width="400" Spacing="10">
       <StackPanel Background="{DynamicResource SystemRegionBrush}">
-        <controls:SearchBox />
+        <controls:SearchBox/>
       </StackPanel>
     </StackPanel>
   </Design.PreviewWith>
@@ -19,9 +19,19 @@
                  FontWeight="SemiBold"
                  VerticalContentAlignment="Center"
                  CornerRadius="6">
+
           <TextBox.InnerLeftContent>
             <PathIcon Data="{StaticResource IconMagnifyingGlass}" Margin="10 0 0 0" Opacity="0.5"/>
           </TextBox.InnerLeftContent>
+
+          <TextBox.InnerRightContent>
+            <controls:AppButton Name="PART_ClearButton"
+                                MinHeight="0"
+                                Classes="btn-text"
+                                IsVisible="{Binding $parent[TextBox].Text, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
+                                IconStart="{StaticResource IconX}"
+                                ToolTip.Tip="Clear"/>
+          </TextBox.InnerRightContent>
         </TextBox>
       </ControlTemplate>
     </Setter>

@@ -16,6 +16,10 @@
   <local:Prompt Header="{Binding Header}"
                 Message="{Binding Message}"
                 Content="{Binding Content}"
+                ContentMinWidth="{Binding ContentMinWidth}"
+                ContentMaxWidth="{Binding ContentMaxWidth}"
+                ContentMinHeight="{Binding ContentMinHeight}"
+                ContentMaxHeight="{Binding ContentMaxHeight}"
                 ShowOkButton="{Binding ShowOkButton}"
                 CloseButtonClicked="CancelButton_Clicked">
     <local:Prompt.FooterContent>

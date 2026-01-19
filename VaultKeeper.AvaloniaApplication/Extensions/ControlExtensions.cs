@@ -1,4 +1,5 @@
-﻿using Avalonia.Controls;
+﻿using Avalonia;
+using Avalonia.Controls;
 
 namespace VaultKeeper.AvaloniaApplication.Extensions;
 
@@ -11,4 +12,18 @@ public static class ControlExtensions
         textBox.Focus();
         textBox.CaretIndex = textBox.Text?.Length ?? 0;
     }
+
+    public static void ScrollUp(this ScrollViewer scrollViewer, double step = 50)
+    {
+        Vector offset = scrollViewer.Offset;
+        scrollViewer.Offset = offset.WithY(offset.Y - step);
+    }
+
+    public static void ScrollDown(this ScrollViewer scrollViewer, double step = 50)
+    {
+        Vector offset = scrollViewer.Offset;
+        scrollViewer.Offset = offset.WithY(offset.Y + step);
+    }
+
+    public static void ScrollToTop(this ScrollViewer scrollViewer) => scrollViewer.Offset = scrollViewer.Offset.WithY(0);
 }

@@ -18,7 +18,8 @@
              mc:Ignorable="d" d:DesignWidth="1920" d:DesignHeight="1080"
              x:Class="VaultKeeper.AvaloniaApplication.Views.VaultPage.VaultPageView"
              x:DataType="vm:VaultPageViewModel"
-             Name="Root">
+             Name="Root"
+             LayoutUpdated="Root_LayoutUpdated">
 
   <Design.DataContext>
     <x:Static Member="vm:VaultPageViewModel.Design"/>
@@ -35,59 +36,57 @@
       <Grid RowDefinitions="Auto, *" ColumnDefinitions="*">
         <local:VaultPageToolbarView DataContext="{Binding ToolbarVM}" ActionInvoked="Toolbar_ActionInvoked" />
 
-        <Border Grid.Row="1">
-          <ScrollViewer>
-            <common:ListView ItemsSource="{Binding GroupedVaultItems}" Margin="20" MaxWidth="1200">
-              <common:ListView.ItemsPanel>
-                <ItemsPanelTemplate>
-                  <VirtualizingStackPanel/>
-                </ItemsPanelTemplate>
-              </common:ListView.ItemsPanel>
+        <common:PageLayoutPanel Name="PART_PageLayoutPanel" Grid.Row="1">
+          <common:ListView ItemsSource="{Binding GroupedVaultItems}" Margin="20">
+            <common:ListView.ItemsPanel>
+              <ItemsPanelTemplate>
+                <VirtualizingStackPanel Focusable="False" KeyDown="VirtualizingStackPanel_KeyDown" KeyboardNavigation.TabNavigation="Cycle"/>
+              </ItemsPanelTemplate>
+            </common:ListView.ItemsPanel>
 
-              <common:ListView.ItemTemplate>
-                <DataTemplate x:DataType="vaultitems:GroupedVaultItemsViewModel">
-                  <uc:GroupedVaultItemsView DataContext="{Binding .}"
-                                            Margin="0 0 0 40"
-                                            ItemActionInvoked="VaultItem_ActionInvoked"
-                                            ItemFormActionInvoked="VaultItem_FormActionInvoked"
-                                            GroupActionInvoked="Group_ActionInvoked"/>
-                </DataTemplate>
-              </common:ListView.ItemTemplate>
+            <common:ListView.ItemTemplate>
+              <DataTemplate x:DataType="vaultitems:GroupedVaultItemsViewModel">
+                <uc:GroupedVaultItemsView DataContext="{Binding .}"
+                                          Margin="0 0 0 40"
+                                          ItemActionInvoked="VaultItem_ActionInvoked"
+                                          ItemFormActionInvoked="VaultItem_FormActionInvoked"
+                                          GroupActionInvoked="Group_ActionInvoked"/>
+              </DataTemplate>
+            </common:ListView.ItemTemplate>
 
-              <common:ListView.EmptyTemplate>
-                <DataTemplate>
-                  <StackPanel HorizontalAlignment="Center">
-                    <Border HorizontalAlignment="Center"
-                            Padding="30"
-                            CornerRadius="10"
-                            BorderThickness="6"
-                            Background="{DynamicResource SystemAccentColor}"
-                            BorderBrush="{DynamicResource SystemControlBackgroundAltHighBrush}">
-                      <PathIcon Data="{StaticResource IconVault}" Foreground="{DynamicResource SystemControlBackgroundAltHighBrush}" Width="100" Height="100"/>
-                    </Border>
+            <common:ListView.EmptyTemplate>
+              <DataTemplate>
+                <StackPanel HorizontalAlignment="Center">
+                  <Border HorizontalAlignment="Center"
+                          Padding="30"
+                          CornerRadius="10"
+                          BorderThickness="6"
+                          Background="{DynamicResource SystemAccentColor}"
+                          BorderBrush="{DynamicResource SystemControlBackgroundAltHighBrush}">
+                    <PathIcon Data="{StaticResource IconVault}" Foreground="{DynamicResource SystemControlBackgroundAltHighBrush}" Width="100" Height="100"/>
+                  </Border>
 
-                    <TextBlock HorizontalAlignment="Center" Classes="h1" Text="{Binding $parent[UserControl].DataContext.EmptyTemplateTitle}"/>
-                    <TextBlock HorizontalAlignment="Center" Classes="txt-md" Text="{Binding $parent[UserControl].DataContext.EmptyTemplateDescription}"/>
+                  <TextBlock HorizontalAlignment="Center" Classes="h1" Text="{Binding $parent[UserControl].DataContext.EmptyTemplateTitle}"/>
+                  <TextBlock HorizontalAlignment="Center" Classes="txt-md" Text="{Binding $parent[UserControl].DataContext.EmptyTemplateDescription}"/>
 
-                    <Grid RowDefinitions="*" ColumnDefinitions="*, *" ColumnSpacing="20" Margin="0 60 0 0" IsEnabled="{Binding !$parent[UserControl].DataContext.IsSidePaneOpen}">
-                      <common:AppButton Text="New Key"
-                                        HorizontalAlignment="Center"
-                                        IconStart="{StaticResource IconPlus}"
-                                        Click="ButtonNewKey_Click"
-                                        Grid.Column="0"/>
+                  <Grid RowDefinitions="*" ColumnDefinitions="*, *" ColumnSpacing="20" Margin="0 60 0 0" IsEnabled="{Binding !$parent[UserControl].DataContext.IsSidePaneOpen}">
+                    <common:AppButton Text="New Key"
+                                      HorizontalAlignment="Center"
+                                      IconStart="{StaticResource IconPlus}"
+                                      Click="ButtonNewKey_Click"
+                                      Grid.Column="0"/>
 
-                      <common:AppButton Text="Import Keys"
-                                        HorizontalAlignment="Center"
-                                        IconStart="{StaticResource IconUpload}"
-                                        Click="ButtonImportKeys_Click"
-                                        Grid.Column="1"/>
-                    </Grid>
-                  </StackPanel>
-                </DataTemplate>
-              </common:ListView.EmptyTemplate>
-            </common:ListView>
-          </ScrollViewer>
-        </Border>
+                    <common:AppButton Text="Import Keys"
+                                      HorizontalAlignment="Center"
+                                      IconStart="{StaticResource IconUpload}"
+                                      Click="ButtonImportKeys_Click"
+                                      Grid.Column="1"/>
+                  </Grid>
+                </StackPanel>
+              </DataTemplate>
+            </common:ListView.EmptyTemplate>
+          </common:ListView>
+        </common:PageLayoutPanel>
       </Grid>
 
       <SplitView.Pane>
@@ -126,9 +125,9 @@
     <overlays:OverlayPanel.OverlayContent>
       <overlays:Modal Content="{Binding OverlayContent}"
                       CardMinWidth="400"
-                      CardMaxWidth="{Binding #Root.Bounds.Width}"
+                      CardMaxWidth="{Binding ModalBounds.Width}"
+                      CardMaxHeight="{Binding ModalBounds.Height}"
                       BackdropPressed="Modal_BackdropPressed"/>
     </overlays:OverlayPanel.OverlayContent>
-
   </overlays:OverlayPanel>
 </UserControl>

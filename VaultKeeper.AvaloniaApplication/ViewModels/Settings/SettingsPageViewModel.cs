@@ -1,4 +1,5 @@
-﻿using Avalonia.Media;
+﻿using Avalonia;
+using Avalonia.Media;
 using Avalonia.Platform.Storage;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Microsoft.Extensions.DependencyInjection;
@@ -23,6 +24,9 @@ public partial class SettingsPageViewModel : ViewModelBase
     public UserSettings Model { get; private set; }
     public EncryptionKeyFileViewModel EncryptionKeyFileVM { get; init; }
     public KeyGenerationSettingsViewModel KeyGenerationSettingsVM { get; init; }
+
+    [ObservableProperty]
+    private Rect _modalBounds;
 
     [ObservableProperty]
     private string _backupDirectory = string.Empty;
@@ -246,8 +250,16 @@ public partial class SettingsPageViewModel : ViewModelBase
     {
         base.OnPropertyChanged(e);
 
-        if (e.PropertyName == nameof(BackupDirectory))
-            BackupDirectoryProps = new(BackupDirectory, _backupService);
+        switch (e.PropertyName)
+        {
+            case nameof(ModalBounds):
+                UpdateOverlayPromptBounds();
+                return;
+
+            case nameof(BackupDirectory):
+                BackupDirectoryProps = new(BackupDirectory, _backupService);
+                break;
+        }
 
         if (!_isLoadingSavedSettings)
             SaveSettings();
@@ -280,6 +292,7 @@ public partial class SettingsPageViewModel : ViewModelBase
     private void ShowOverlay(object content)
     {
         OverlayContent = content;
+        UpdateOverlayPromptBounds();
         IsOverlayVisible = true;
     }
 
@@ -287,6 +300,12 @@ public partial class SettingsPageViewModel : ViewModelBase
     {
         IsOverlayVisible = false;
         OverlayContent = null;
+    }
+
+    private void UpdateOverlayPromptBounds()
+    {
+        if (OverlayContent is PromptViewModel promptVM)
+            promptVM.ContentMaxHeight = ModalBounds.Height - 200;
     }
 
     private void UpdateServices(UserSettings settings)

@@ -1,6 +1,7 @@
 using Avalonia;
 using Avalonia.Interactivity;
 using Avalonia.Threading;
+using System;
 using System.Threading.Tasks;
 using VaultKeeper.AvaloniaApplication.ViewModels.Settings;
 
@@ -19,7 +20,7 @@ public partial class SettingsPageView : ViewBase<SettingsPageViewModel>
         Dispatcher.UIThread.InvokeAsync(async () =>
         {
             await Task.Delay(1);
-            PART_ScrollViewer.Offset = Vector.Zero;
+            PART_PageLayoutPanel.ScrollToTop();
         });
     }
 
@@ -40,6 +41,8 @@ public partial class SettingsPageView : ViewBase<SettingsPageViewModel>
         if (Model != null)
             await Model.LoadBackupAsync();
     }
+
+    private void Root_LayoutUpdated(object? sender, EventArgs e) => UpdateModel(x => x.ModalBounds = Root.Bounds.Deflate(20));
 
     private void RestoreDefaultSettingsButton_Click(object? sender, RoutedEventArgs e) => Model?.RestoreDefaultSettings();
 

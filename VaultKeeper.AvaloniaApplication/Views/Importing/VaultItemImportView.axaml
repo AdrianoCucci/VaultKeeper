@@ -50,11 +50,11 @@
 
       <ListBox.ItemTemplate>
         <DataTemplate x:DataType="importingModels:ImportSource">
-          <Panel Width="300" Height="175">
-            <StackPanel Spacing="10" HorizontalAlignment="Center" VerticalAlignment="Center">
+          <Panel Width="250" Height="175">
+            <StackPanel Spacing="8" HorizontalAlignment="Center" VerticalAlignment="Center">
               <PathIcon Data="{Binding Icon, Converter={StaticResource StrToResConverter}}"
-                        Width="40"
-                        Height="40"
+                        Width="38"
+                        Height="38"
                         Foreground="{DynamicResource SystemControlBackgroundBaseHighBrush}"/>
 
               <ItemsControl ItemsSource="{Binding AdditionalIcons}">
@@ -67,8 +67,8 @@
                 <ItemsControl.ItemTemplate>
                   <DataTemplate>
                     <PathIcon Data="{Binding ., Converter={StaticResource StrToResConverter}}"
-                              Width="25"
-                              Height="25"
+                              Width="24"
+                              Height="24"
                               Foreground="{DynamicResource SystemControlBackgroundBaseHighBrush}"/>
                   </DataTemplate>
                 </ItemsControl.ItemTemplate>
