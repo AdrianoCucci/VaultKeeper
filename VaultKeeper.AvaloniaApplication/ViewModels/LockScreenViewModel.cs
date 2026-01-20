@@ -18,7 +18,6 @@ public partial class LockScreenPageViewModel(IAppSessionService appSessionServic
 
     public async Task<bool> SubmitFormAsync()
     {
-        Form.SubmissionError = null;
         if (!Form.Validate())
             return false;
 
@@ -37,7 +36,7 @@ public partial class LockScreenPageViewModel(IAppSessionService appSessionServic
         }
 
         if (!loginResult.Value)
-            Form.SubmissionError = "Password is invalid.";
+            Form.SetExternalError(nameof(Form.PasswordInput), "Password is invalid.");
 
         return loginResult.Value;
     }

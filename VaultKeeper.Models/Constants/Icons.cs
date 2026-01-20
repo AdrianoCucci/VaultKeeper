@@ -5,8 +5,6 @@ public static class Icons
     public const string VaultKeeper = Vault;
     public const string Vault = $"{_prefix}Vault";
     public const string Gear = $"{_prefix}Gear";
-    public const string LockClosed = $"{_prefix}LockClosed";
-    public const string LockOpened = $"{_prefix}LockOpened";
     public const string Copy = $"{_prefix}Copy";
     public const string Pen = $"{_prefix}Pen";
     public const string Trash = $"{_prefix}Pen";
@@ -35,6 +33,8 @@ public static class Icons
     public const string BraveBrowser = $"{_prefix}BraveBrowser";
     public const string OperaBrowser = $"{_prefix}OperaBrowser";
     public const string ExclamationTriangle = $"{_prefix}ExclamationTriangle";
+    public const string Eye = $"{_prefix}Eye";
+    public const string EyeSlash = $"{_prefix}EyeSlash";
 
     private const string _prefix = "Icon";
 }

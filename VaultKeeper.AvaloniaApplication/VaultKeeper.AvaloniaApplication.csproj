@@ -7,6 +7,7 @@
     <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
     <AssemblyName>VaultKeeper</AssemblyName>
     <ApplicationIcon>Assets\app-icon.ico</ApplicationIcon>
+    <Version>1.0.3</Version>
   </PropertyGroup>
 
   <ItemGroup>

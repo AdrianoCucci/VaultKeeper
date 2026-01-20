@@ -20,7 +20,7 @@ public partial class SettingsPageView : ViewBase<SettingsPageViewModel>
         Dispatcher.UIThread.InvokeAsync(async () =>
         {
             await Task.Delay(1);
-            PART_PageLayoutPanel.ScrollToTop();
+            PART_PageLayoutPanel.ScrollToHome();
         });
     }
 

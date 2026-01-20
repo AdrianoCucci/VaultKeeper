@@ -32,13 +32,5 @@
         </Style>
       </TextBox.Styles>
     </TextBox>
-
-    <ItemsControl ItemsSource="{Binding #InputName.(DataValidationErrors.Errors)}">
-      <ItemsControl.ItemTemplate>
-        <DataTemplate>
-          <TextBlock Text="{Binding}" Margin="0 6 0 0" Foreground="Red"></TextBlock>
-        </DataTemplate>
-      </ItemsControl.ItemTemplate>
-    </ItemsControl>
   </StackPanel>
 </UserControl>
