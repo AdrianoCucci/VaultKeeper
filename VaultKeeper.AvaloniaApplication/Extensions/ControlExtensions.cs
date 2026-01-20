@@ -13,17 +13,21 @@ public static class ControlExtensions
         textBox.CaretIndex = textBox.Text?.Length ?? 0;
     }
 
-    public static void ScrollUp(this ScrollViewer scrollViewer, double step = 50)
+    public static void ScrollUp(this ScrollViewer scrollViewer, double step)
     {
         Vector offset = scrollViewer.Offset;
         scrollViewer.Offset = offset.WithY(offset.Y - step);
     }
 
-    public static void ScrollDown(this ScrollViewer scrollViewer, double step = 50)
+    public static void ScrollUp(this ScrollViewer scrollViewer) => ScrollUp(scrollViewer, 50);
+
+    public static void ScrollDown(this ScrollViewer scrollViewer, double step)
     {
         Vector offset = scrollViewer.Offset;
         scrollViewer.Offset = offset.WithY(offset.Y + step);
     }
+
+    public static void ScrollDown(this ScrollViewer scrollViewer) => ScrollDown(scrollViewer, 50);
 
     public static void ScrollToTop(this ScrollViewer scrollViewer) => scrollViewer.Offset = scrollViewer.Offset.WithY(0);
 }

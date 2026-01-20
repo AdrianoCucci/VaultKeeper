@@ -149,18 +149,8 @@
     <Setter Property="Cursor" Value="Hand" />
   </Style>
 
-  <Style Selector="DataValidationErrors">
-    <Setter Property="Template">
-      <ControlTemplate>
-        <ContentPresenter Name="PART_ContentPresenter"
-                          Padding="{TemplateBinding Padding}"
-                          Background="{TemplateBinding Background}"
-                          BorderBrush="{TemplateBinding BorderBrush}"
-                          BorderThickness="{TemplateBinding BorderThickness}"
-                          ContentTemplate="{TemplateBinding ContentTemplate}"
-                          Content="{TemplateBinding Content}"
-                          CornerRadius="{TemplateBinding CornerRadius}" />
-      </ControlTemplate>
-    </Setter>
+  <Style Selector="DataValidationErrors /template/ ContentControl#InlineDataValidationContentControl">
+    <Setter Property="FontWeight" Value="SemiBold"/>
+    <Setter Property="HorizontalAlignment" Value="Left"/>
   </Style>
 </Styles>

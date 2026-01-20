@@ -677,7 +677,9 @@ public partial class VaultPageViewModel(
 
         return new VaultItemFormViewModel(form)
         {
-            KeyGenerationSettingsVM = serviceProvider.GetRequiredService<KeyGenerationSettingsViewModel>()
+            KeyGenerationSettingsVM = serviceProvider.GetRequiredService<KeyGenerationSettingsViewModel>(),
+            ValueRevealed = false,
+            IsValueReadOnly = formMode == FormMode.Edit
         };
     }
 
@@ -731,16 +733,23 @@ public partial class VaultPageViewModel(
 
     private void ToggleRevealFormItemValue(VaultItemFormViewModel formVM)
     {
-        string? value = formVM.Form.Value;
+        VaultItemForm form = formVM.Form;
+        bool isEdit = form.Mode == FormMode.Edit;
 
-        if (value != null)
+        if (isEdit)
         {
-            formVM.Form.Value = formVM.ValueRevealed
-                ? Encrypt(value)
-                : Decrypt(value);
+            string? value = form.Value;
+
+            if (value != null)
+            {
+                form.Value = formVM.ValueRevealed
+                    ? Encrypt(value)
+                    : Decrypt(value);
+            }
         }
 
         formVM.ValueRevealed = !formVM.ValueRevealed;
+        formVM.IsValueReadOnly = isEdit && !formVM.ValueRevealed;
     }
 
     private void GenerateValueForFormItem(VaultItemFormViewModel formVM)

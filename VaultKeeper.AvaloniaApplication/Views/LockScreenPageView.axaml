@@ -41,30 +41,18 @@
           <TextBlock HorizontalAlignment="Center" Classes="txt-md" FontWeight="SemiBold" Grid.Row="0" Grid.Column="1">Enter your password to continue.</TextBlock>
 
           <StackPanel Grid.Row="1" Grid.Column="1">
-            <TextBox Name="InputPassword"
-                     PasswordChar="*"
-                     TextAlignment="Center"
-                     VerticalAlignment="Center"
-                     Text="{Binding Form.PasswordInput}"
-                     KeyDown="InputPassword_KeyDown">
-              <TextBox.InnerRightContent>
+            <common:PasswordInput Name="InputPassword"
+                                  VerticalAlignment="Center"
+                                  TextAlignment="Center"
+                                  Text="{Binding Form.PasswordInput}"
+                                  KeyDown="InputPassword_KeyDown">
+              
+              <common:PasswordInput.InnerRightContent>
                 <common:AppButton IconStart="{StaticResource IconArrowRight}" ToolTip.Tip="Submit" Click="SubmitButton_Click"/>
-              </TextBox.InnerRightContent>
-            </TextBox>
+              </common:PasswordInput.InnerRightContent>
+            </common:PasswordInput>
 
             <Grid RowDefinitions="Auto" ColumnDefinitions="*, *" Margin="0 6 0 0">
-              <StackPanel Grid.Column="0">
-                <ItemsControl ItemsSource="{Binding #InputPassword.(DataValidationErrors.Errors)}">
-                  <ItemsControl.ItemTemplate>
-                    <DataTemplate>
-                      <TextBlock Text="{Binding}" Foreground="Red"></TextBlock>
-                    </DataTemplate>
-                  </ItemsControl.ItemTemplate>
-                </ItemsControl>
-
-                <TextBlock Text="{Binding Form.SubmissionError}" Foreground="Red"></TextBlock>
-              </StackPanel>
-
               <Button HorizontalAlignment="Right"
                       VerticalAlignment="Top"
                       Classes="btn-link"
