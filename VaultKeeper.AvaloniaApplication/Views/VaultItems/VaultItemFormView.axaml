@@ -63,56 +63,28 @@
 
   <Grid RowDefinitions="Auto, Auto, Auto, Auto" ColumnDefinitions="*, *, *" RowSpacing="12" ColumnSpacing="12">
     <StackPanel Name="PART_NamePanel" Grid.Row="0" Grid.Column="0">
-      <Label Target="InputName">Name</Label>
+      <Label Target="InputName">* Name</Label>
       <TextBox Name="InputName"
                Text="{Binding Form.Name}"
                MinHeight="35"
                VerticalContentAlignment="Center"></TextBox>
-
-      <ItemsControl ItemsSource="{Binding #InputName.(DataValidationErrors.Errors)}">
-        <ItemsControl.ItemTemplate>
-          <DataTemplate>
-            <TextBlock Text="{Binding}" Margin="0 6 0 0" Foreground="Red"></TextBlock>
-          </DataTemplate>
-        </ItemsControl.ItemTemplate>
-      </ItemsControl>
     </StackPanel>
 
     <StackPanel Name="PART_ValuePanel">
-      <Label Target="InputValue">Value</Label>
-      <TextBox Name="InputValue"
-               MinHeight="35"
-               MaxHeight="100"
-               AcceptsReturn="true"
-               TextWrapping="Wrap"
-               VerticalContentAlignment="Top"
-               ScrollViewer.VerticalScrollBarVisibility="Auto"
-               Text="{Binding Form.Value}"
-               PasswordChar="{Binding PasswordChar}"
-               RevealPassword="{Binding ValueRevealed}"
-               IsReadOnly="{Binding !ValueRevealed}">
+      <common:PasswordInput Name="InputValue"
+                            Label="* Value"
+                            Text="{Binding Form.Value}"
+                            IsRevealed="{Binding ValueRevealed}"
+                            IsReadOnly="{Binding IsValueReadOnly}"
+                            ToggleRevealTextClicked="ActionToggleRevealValue_Click"
+                            AutoToggleReveal="False"
+                            TextBoxMinHeight="35"
+                            TextBoxMaxHeight="100"
+                            AcceptsReturn="true"
+                            TextWrapping="Wrap"
+                            VerticalContentAlignment="Top">
 
-        <TextBox.InnerLeftContent>
-          <common:AppButton IsVisible="{Binding IsValueRevealToggleVisible}"
-                            Width="34"
-                            IconStartSize="16"
-                            Classes.unlocked="{Binding ValueRevealed}"
-                            Click="ActionToggleRevealValue_Click">
-            <common:AppButton.Styles>
-              <Style Selector="common|AppButton">
-                <Setter Property="IconStart" Value="{StaticResource IconLockClosed}"/>
-                <Setter Property="ToolTip.Tip" Value="Show Value"/>
-              </Style>
-
-              <Style Selector="common|AppButton.unlocked">
-                <Setter Property="IconStart" Value="{StaticResource IconLockOpened}"/>
-                <Setter Property="ToolTip.Tip" Value="Hide Value"></Setter>
-              </Style>
-            </common:AppButton.Styles>
-          </common:AppButton>
-        </TextBox.InnerLeftContent>
-
-        <TextBox.InnerRightContent>
+        <common:PasswordInput.InnerRightContent>
           <SplitButton IsVisible="{Binding IsGenerateKeyButtonVisible}" Click="GenerateValueButton_Click">
             <PathIcon Data="{StaticResource IconWandMagicSparkles}"/>
 
@@ -139,16 +111,8 @@
               </Style>
             </SplitButton.Styles>
           </SplitButton>
-        </TextBox.InnerRightContent>
-      </TextBox>
-
-      <ItemsControl ItemsSource="{Binding #InputValue.(DataValidationErrors.Errors)}">
-        <ItemsControl.ItemTemplate>
-          <DataTemplate>
-            <TextBlock Text="{Binding}" Margin="0 6 0 0" Foreground="Red"></TextBlock>
-          </DataTemplate>
-        </ItemsControl.ItemTemplate>
-      </ItemsControl>
+        </common:PasswordInput.InnerRightContent>
+      </common:PasswordInput>
     </StackPanel>
 
     <Panel Name="PART_GroupPanel">

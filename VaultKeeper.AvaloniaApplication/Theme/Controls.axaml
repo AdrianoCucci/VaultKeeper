@@ -8,6 +8,7 @@
     <ResourceInclude Source="/Views/Common/ListView.axaml"/>
     <ResourceInclude Source="/Views/Common/FormButtons.axaml"/>
     <ResourceInclude Source="/Views/Common/SearchBox.axaml"/>
+    <ResourceInclude Source="/Views/Common/PasswordInput.axaml"/>
 
     <ResourceInclude Source="/Views/Common/Overlays/OverlayPanel.axaml"/>
     <ResourceInclude Source="/Views/Common/Overlays/Modal.axaml"/>

@@ -1,6 +1,7 @@
 using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
 using Avalonia.Input;
+using System;
 using VaultKeeper.AvaloniaApplication.Extensions;
 
 namespace VaultKeeper.AvaloniaApplication.Views.Common;
@@ -9,23 +10,32 @@ public class PageLayoutPanel : ContentControl
 {
     private ScrollViewer? _scrollViewer;
 
-    public void ScrollToTop() => _scrollViewer?.ScrollToTop();
+    public void ScrollToHome() => _scrollViewer?.ScrollToHome();
 
     public void MoveScrollViewerPosition(KeyEventArgs e)
     {
         if (_scrollViewer == null) return;
 
+        void ExecuteScrollAction(Action action)
+        {
+            action.Invoke();
+            e.Handled = true;
+            _scrollViewer?.Focus();
+        }
+
         switch (e.Key)
         {
             case Key.Up:
-                _scrollViewer.ScrollUp();
-                e.Handled = true;
-                _scrollViewer.Focus();
+                ExecuteScrollAction(_scrollViewer.ScrollUp);
                 break;
             case Key.Down:
-                _scrollViewer.ScrollDown();
-                e.Handled = true;
-                _scrollViewer.Focus();
+                ExecuteScrollAction(_scrollViewer.ScrollDown);
+                break;
+            case Key.Home:
+                ExecuteScrollAction(_scrollViewer.ScrollToHome);
+                break;
+            case Key.End:
+                ExecuteScrollAction(_scrollViewer.ScrollToEnd);
                 break;
         }
     }
